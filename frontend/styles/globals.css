@@ -1,0 +1,110 @@
+:root {
+  /* Paleta Corporativa Servi Proce */
+  --color-primary: #9d0000;      /* Rojo oscuro corporativo */
+  --color-primary-light: #d82b2b;
+  --color-primary-dark: #660000;
+  --color-secondary: #1f2937;    /* Gris oscuro / Negro para textos */
+  --color-background: #ffffff;   /* Fondo blanco */
+  --color-surface: #f9fafb;      /* Fondo secundario (Gris muy claro) */
+  --color-text: #374151;         /* Texto general */
+  --color-text-muted: #6b7280;   /* Texto secundario */
+  
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --overlay-bg: rgba(255, 255, 255, 0.85);
+
+  --font-base: 'Inter', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light) {
+    --color-background: #111827;
+    --color-surface: #1f2937;
+    --color-text: #f3f4f6;
+    --color-text-muted: #9ca3af;
+    --color-secondary: #f9fafb;
+    --glass-bg: rgba(31, 41, 55, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --overlay-bg: rgba(17, 24, 39, 0.85);
+  }
+}
+
+html.dark {
+  --color-background: #111827;
+  --color-surface: #1f2937;
+  --color-text: #f3f4f6;
+  --color-text-muted: #9ca3af;
+  --color-secondary: #f9fafb;
+  --glass-bg: rgba(31, 41, 55, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --overlay-bg: rgba(17, 24, 39, 0.85);
+}
+
+html.light {
+  --color-background: #ffffff;
+  --color-surface: #f9fafb;
+  --color-text: #374151;
+  --color-text-muted: #6b7280;
+  --color-secondary: #1f2937;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --overlay-bg: rgba(255, 255, 255, 0.85);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.6;
+  font-size: 1.125rem; /* 18px Base size for better clarity */
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-secondary);
+  font-weight: 700;
+  margin-top: 0;
+  line-height: 1.2;
+}
+
+h1 { font-size: 3rem; letter-spacing: -0.02em; }
+h2 { font-size: 2.25rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
