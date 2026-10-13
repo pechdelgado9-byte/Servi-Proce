@@ -1,0 +1,38 @@
+[
+  {
+    "id": "demo0001",
+    "type": "aviso",
+    "title_es": "(Ejemplo) Aviso importante para nuestros clientes",
+    "title_en": "(Example) Important notice for our clients",
+    "body_es": "Este es un aviso de ejemplo. El administrador puede editarlo o eliminarlo desde el panel de administración.",
+    "body_en": "This is a sample notice. The administrator can edit or delete it from the admin panel.",
+    "sourceUrl": "",
+    "publishedAt": "2026-10-13",
+    "expiresAt": "",
+    "pinned": true
+  },
+  {
+    "id": "demo0002",
+    "type": "ley",
+    "title_es": "(Ejemplo) Actualización de ley o regulación",
+    "title_en": "(Example) Law or regulation update",
+    "body_es": "Aquí se publican las leyes, reglas y disposiciones actualizadas de comercio exterior, con enlace a la fuente oficial.",
+    "body_en": "Updated foreign trade laws, rules and provisions are published here, with a link to the official source.",
+    "sourceUrl": "",
+    "publishedAt": "2026-10-12",
+    "expiresAt": "",
+    "pinned": false
+  },
+  {
+    "id": "demo0003",
+    "type": "noticia",
+    "title_es": "(Ejemplo) Noticia del sector",
+    "title_en": "(Example) Industry news",
+    "body_es": "Aquí se publican noticias relevantes de comercio exterior y logística.",
+    "body_en": "Relevant foreign trade and logistics news is published here.",
+    "sourceUrl": "",
+    "publishedAt": "2026-10-11",
+    "expiresAt": "",
+    "pinned": false
+  }
+]

@@ -21,16 +21,27 @@ export default function Navbar({ lang }) {
   const navLinks = [
     { href: `/${lang}`, label: lang === 'es' ? 'Inicio' : 'Home' },
     { href: `/${lang}/nosotros`, label: lang === 'es' ? 'Nosotros' : 'About Us' },
-    { 
-      href: `/${lang}/servicios`, 
-      label: lang === 'es' ? 'Servicios' : 'Services',
+    // Servicio principal (prioridad)
+    { href: `/${lang}/despachos-aduanales`, label: lang === 'es' ? 'Despachos Aduanales' : 'Customs Clearance', priority: true },
+    // Servicio aparte
+    {
+      href: `/${lang}/freight-forwarder`,
+      label: 'Freight Forwarder',
       subLinks: [
         { href: `/${lang}/transporte/aereo`, label: lang === 'es' ? 'Aéreo' : 'Air Transport' },
         { href: `/${lang}/transporte/maritimo`, label: lang === 'es' ? 'Marítimo' : 'Ocean Freight' },
         { href: `/${lang}/transporte/terrestre`, label: lang === 'es' ? 'Terrestre' : 'Ground Transport' },
       ]
     },
-    { href: `/${lang}/blog`, label: 'Blog' },
+    // Servicios secundarios (interactivos)
+    { href: `/${lang}/servicios`, label: lang === 'es' ? 'Servicios' : 'Services' },
+    {
+      href: `/${lang}/avisos`,
+      label: lang === 'es' ? 'Noticias y Avisos' : 'News & Notices',
+      subLinks: [
+        { href: `/${lang}/blog`, label: 'Blog' },
+      ]
+    },
     { href: `/${lang}/contacto`, label: lang === 'es' ? 'Contacto' : 'Contact' },
   ];
 
@@ -47,7 +58,7 @@ export default function Navbar({ lang }) {
           <ul className="navbar__list">
             {navLinks.map((link) => (
               <li key={link.href} className={`navbar__item ${link.subLinks ? 'has-dropdown' : ''}`}>
-                <Link href={link.href} className="navbar__link">
+                <Link href={link.href} className={`navbar__link ${link.priority ? 'navbar__link--priority' : ''}`}>
                   {link.label}
                   {link.subLinks && <span className="dropdown-arrow">▼</span>}
                 </Link>

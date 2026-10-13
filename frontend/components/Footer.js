@@ -35,7 +35,10 @@ export default function Footer({ lang }) {
             <ul className="footer__links">
               <li><Link href={`/${lang}`}>{lang === 'es' ? 'Inicio' : 'Home'}</Link></li>
               <li><Link href={`/${lang}/nosotros`}>{lang === 'es' ? 'Nosotros' : 'About Us'}</Link></li>
+              <li><Link href={`/${lang}/despachos-aduanales`}>{lang === 'es' ? 'Despachos Aduanales' : 'Customs Clearance'}</Link></li>
+              <li><Link href={`/${lang}/freight-forwarder`}>Freight Forwarder</Link></li>
               <li><Link href={`/${lang}/servicios`}>{lang === 'es' ? 'Servicios' : 'Services'}</Link></li>
+              <li><Link href={`/${lang}/avisos`}>{lang === 'es' ? 'Noticias y Avisos' : 'News & Notices'}</Link></li>
               <li><Link href={`/${lang}/blog`}>Blog</Link></li>
               <li><Link href={`/${lang}/contacto`}>{lang === 'es' ? 'Contacto' : 'Contact'}</Link></li>
             </ul>

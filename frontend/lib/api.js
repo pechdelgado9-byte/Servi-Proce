@@ -9,8 +9,8 @@ export async function fetchPromotions(lang) {
   
   return {
     id: 1,
-    title: lang === 'es' ? '15% de Descuento en Transporte Marítimo' : '15% Off on Maritime Transport',
-    description: lang === 'es' ? 'Aplica para nuevos clientes en contenedores FCL en rutas desde Asia.' : 'Applies for new clients in FCL containers on routes from Asia.',
+    title: lang === 'es' ? 'Asesoría personalizada para su operación de comercio exterior' : 'Personalized advice for your foreign trade operation',
+    description: lang === 'es' ? 'Contáctenos y un asesor le dará seguimiento directo.' : 'Contact us and an advisor will follow up with you directly.',
     validUntil: '2027-12-31',
     // Usando una imagen simulada formato WebP (RNF-01)
     imageUrl: 'https://via.placeholder.com/1200x300.webp/9d0000/ffffff?text=Promo+Banner'

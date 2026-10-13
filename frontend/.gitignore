@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# datos generados en tiempo de ejecución (cotizaciones con archivos de clientes)
+/data/cotizaciones/
