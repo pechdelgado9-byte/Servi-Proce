@@ -34,3 +34,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Despachos Aduanales, servicios, avisos y cotizador
+
+| Ruta | Qué es |
+| --- | --- |
+| `/[lang]/despachos-aduanales` | **Servicio principal.** 4 subservicios en viñetas interactivas, valor agregado, "¿Cómo trabajamos?", industrias y solicitud de cotización |
+| `/[lang]/freight-forwarder` | Servicio aparte (aéreo / marítimo / terrestre) |
+| `/[lang]/servicios` | Servicios secundarios interactivos (lista + detalle) |
+| `/[lang]/avisos` | Noticias, leyes actualizadas y avisos publicados por el administrador |
+| `/[lang]/admin` | Panel del administrador (requiere `ADMIN_PASSWORD`, ver `.env.example`) |
+| `POST /api/cotizador` | Recibe datos de contacto, factura, especificaciones y MSDS. **No calcula ni muestra precios**: el asesor da seguimiento con el cliente |
+
+- **Textos de servicios**: `lib/services-data.js` (ES/EN).
+- **Sin precios**: el sitio es solo informativo; no hay tarifas, costos ni estimados. Los montos se tratan directo con el cliente.
+- **Avisos**: se guardan en `data/avisos.json` (`lib/avisos.js`). En hosting sin disco persistente (p. ej. Vercel) sustituir ese archivo por Strapi/base de datos; solo cambia `lib/avisos.js`.
+- **Solicitudes del cotizador** (datos + archivos) se guardan en `data/cotizaciones/` (ignorado por git). Falta conectar el envío por correo (SMTP / API transaccional): ver `TODO` en `app/api/cotizador/route.js`.

@@ -5,10 +5,24 @@ export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Detect system preference initially
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
+    try {
+      const saved = localStorage.getItem('serviproce_theme');
+      if (saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsDark(true);
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        setIsDark(false);
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+      }
+    } catch {
+      // Fallback si localStorage está restringido
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setIsDark(true);
+        document.documentElement.classList.add('dark');
+      }
     }
   }, []);
 
@@ -16,10 +30,12 @@ export default function ThemeToggle() {
     if (!isDark) {
       document.documentElement.classList.remove('light');
       document.documentElement.classList.add('dark');
+      try { localStorage.setItem('serviproce_theme', 'dark'); } catch {}
       setIsDark(true);
     } else {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
+      try { localStorage.setItem('serviproce_theme', 'light'); } catch {}
       setIsDark(false);
     }
   };
@@ -28,7 +44,8 @@ export default function ThemeToggle() {
     <button 
       onClick={toggleTheme} 
       className="theme-toggle" 
-      aria-label="Cambiar Tema"
+      aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       style={{
         background: 'transparent',
         border: '1px solid var(--color-primary)',
@@ -40,6 +57,7 @@ export default function ThemeToggle() {
         justifyContent: 'center',
         cursor: 'pointer',
         fontSize: '1.2rem',
+        flexShrink: 0,
         transition: 'background-color 0.3s'
       }}
       onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-surface)'}

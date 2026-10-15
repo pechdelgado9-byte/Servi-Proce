@@ -1,7 +1,18 @@
 import Link from 'next/link';
 
+export async function generateMetadata({ params }) {
+  const { lang } = await params;
+  return {
+    title: lang === 'es' ? 'Transporte Aéreo | Servi Proce' : 'Air Transport | Servi Proce',
+    description: lang === 'es'
+      ? 'Servicio de carga aérea nacional e internacional, movimientos de importación, exportación, charters y Hazmat.'
+      : 'Domestic and international air cargo service, import/export movements, charters and Hazmat.',
+  };
+}
+
 export default async function Aereo({ params }) {
   const { lang } = await params;
+
 
   return (
     <main className="page-wrapper">
@@ -25,7 +36,9 @@ export default async function Aereo({ params }) {
             <div className="icon-wrapper">
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6 4-4 4-2.8-.9c-.4-.1-.8.1-1 .5L1 17l4.5 1.5L7 23l1.4-.2c.4-.2.6-.6.5-1L8 19l4-4 4 6l1.2-.7c.4-.2.7-.6.6-1.1z"></path></svg>
             </div>
-            <h2 className="mb-3 text-secondary">Priority & Comercial</h2>
+            <h2 className="mb-3 text-secondary">
+              {lang === 'es' ? 'Carga Prioritaria y Vuelos Comerciales' : 'Priority & Commercial Air Freight'}
+            </h2>
             <p className="text-text-muted mb-4">
               {lang === 'es'
                 ? 'Cuando su carga necesita moverse por los medios más rápidos posibles, nuestro equipo de expertos está listo para garantizarle la disponibilidad y ofrecerle un servicio de carga aérea completamente integral y rentable.'
@@ -34,7 +47,7 @@ export default async function Aereo({ params }) {
             <ul className="list-styled text-text-muted mb-4">
               <li>{lang === 'es' ? 'Transporte de carga aéreo dentro de México.' : 'Air freight transport within Mexico.'}</li>
               <li>{lang === 'es' ? 'Movimientos aéreos de carga en Importación y Exportación.' : 'Air cargo movements in Import and Export.'}</li>
-              <li>Charters & Hazmat.</li>
+              <li>{lang === 'es' ? 'Vuelos Chárter y Mercancías Peligrosas (Hazmat).' : 'Charters & Hazardous Materials (Hazmat).'}</li>
             </ul>
             <div className="mt-4">
               <Link href={`/${lang}/contacto`} className="btn btn--primary">

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { fetchBlogPosts } from '@/lib/api';
+import NewsletterForm from '../../../components/NewsletterForm';
 
 // RF-10: Inyección Dinámica de Metadatos SEO y Open Graph
 export async function generateMetadata({ params }) {
@@ -10,7 +11,7 @@ export async function generateMetadata({ params }) {
       ? 'Noticias, artículos y actualizaciones sobre comercio exterior y logística en México.'
       : 'News, articles, and updates on foreign trade and logistics in Mexico.',
     openGraph: {
-      images: ['https://via.placeholder.com/1200x630.webp/9d0000/ffffff?text=Servi+Proce+Blog'],
+      images: ['https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop'],
     },
   };
 }
@@ -23,7 +24,7 @@ export default async function Blog({ params }) {
 
   return (
     <main className="page-wrapper">
-      <section className="section bg-surface" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1586528116311-ad8ed7c1590f?q=80&w=2070&auto=format&fit=crop")', backgroundSize: 'cover', backgroundAttachment: 'fixed', position: 'relative' }}>
+      <section className="section bg-surface" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop")', backgroundSize: 'cover', backgroundAttachment: 'fixed', position: 'relative' }}>
         <div className="section-overlay"></div>
         <div className="container relative z-10 text-center">
           <h1 className="page-title fade-in-up" style={{ color: 'var(--color-primary)' }}>
@@ -53,8 +54,12 @@ export default async function Blog({ params }) {
                 <div className="text-sm text-primary font-bold mb-2 uppercase tracking-wide">{post.date}</div>
                 <h2 className="text-secondary mb-3" style={{ fontSize: '1.5rem', lineHeight: '1.2' }}>{post.title}</h2>
                 <p className="text-text-muted mb-4">{post.excerpt}</p>
-                <Link href={`/${lang}/blog/${post.slug}`} className="btn btn--secondary text-sm w-full animate-float" style={{ display: 'block' }}>
-                  {lang === 'es' ? 'Leer Artículo Completo' : 'Read Full Article'}
+                <Link href={`/${lang}/blog/${post.slug}`} className="btn btn--secondary text-sm w-full btn-blog-read">
+                  <span>{lang === 'es' ? 'Leer Artículo Completo' : 'Read Full Article'}</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="btn-blog-read__arrow">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
                 </Link>
               </article>
             ))}
@@ -73,10 +78,7 @@ export default async function Blog({ params }) {
               ? 'Reciba las últimas noticias de comercio exterior directamente en su bandeja de entrada.' 
               : 'Receive the latest foreign trade news directly in your inbox.'}
           </p>
-          <form className="mx-auto" style={{ maxWidth: '400px', display: 'flex', gap: '0.5rem' }}>
-            <input type="email" placeholder={lang === 'es' ? 'Su correo electrónico' : 'Your email'} className="form__input" style={{ flex: 1 }} />
-            <button type="button" className="btn btn--primary animate-pulse">{lang === 'es' ? 'Suscribir' : 'Subscribe'}</button>
-          </form>
+          <NewsletterForm lang={lang} />
         </div>
       </section>
     </main>

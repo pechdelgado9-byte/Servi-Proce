@@ -14,12 +14,21 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-base' });
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://serviproce.com.mx'),
     title: lang === 'es' ? 'Servi Proce | Servicios Profesionales en Comercio Exterior' : 'Servi Proce | Professional Services in Foreign Trade',
     description: lang === 'es' 
       ? 'Especialistas en logística internacional, despacho aduanal y cadena de suministro en México.'
       : 'Specialists in international logistics, customs clearance, and supply chain in Mexico.',
+    icons: {
+      icon: [
+        { url: '/icon.png', type: 'image/png' },
+        { url: '/favicon.ico', sizes: 'any' },
+      ],
+      shortcut: '/icon.png',
+      apple: '/apple-icon.png',
+    },
     openGraph: {
-      images: ['https://via.placeholder.com/1200x630.webp/9d0000/ffffff?text=Servi+Proce'],
+      images: ['/logo.png'],
     },
   };
 }
@@ -33,16 +42,16 @@ export default async function RootLayout({ children, params }) {
   const { lang } = await params;
   
   return (
-    <html lang={lang} className={inter.variable}>
-      <body>
+    <html lang={lang} className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Particles />
-        <ScrollObserver />
         <Navbar lang={lang} />
         <div style={{ minHeight: 'calc(100vh - 80px)' /* offset for navbar and footer */, position: 'relative', zIndex: 1 }}>
           {children}
         </div>
         <FloatingContact />
         <Footer lang={lang} />
+        <ScrollObserver />
       </body>
     </html>
   );

@@ -1,80 +1,96 @@
 import Link from 'next/link';
+import ServiciosInteractivos from '../../../components/ServiciosInteractivos';
+import { secondaryServices, pick } from '@/lib/services-data';
+
+export async function generateMetadata({ params }) {
+  const { lang } = await params;
+  return {
+    title: lang === 'es' ? 'Servicios | Servi Proce' : 'Services | Servi Proce',
+    description: lang === 'es'
+      ? 'Servicios complementarios de comercio exterior y cumplimiento.'
+      : 'Complementary foreign trade and compliance services.',
+  };
+}
 
 export default async function Servicios({ params }) {
   const { lang } = await params;
 
-  const services = [
-    {
-      title: lang === 'es' ? 'Despachos Aduanales' : 'Customs Clearance',
-      icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>,
-      desc: lang === 'es' 
-        ? 'Importación y Exportación, y todo el soporte para el cálculo de impuestos, clasificación arancelaria y cumplir las regulaciones y restricciones no arancelarias.'
-        : 'Import and Export, and full support for tax calculation, tariff classification, and complying with non-tariff regulations and restrictions.'
-    },
-    {
-      title: lang === 'es' ? 'Custom Broker Americano' : 'US Customs Broker',
-      icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>,
-      desc: lang === 'es'
-        ? 'Preparación de documentos, cálculo y pago de impuestos, y facilitación de la comunicación entre autoridades estadounidenses y el exportador mexicano.'
-        : 'Document preparation, tax calculation and payment, and facilitating communication between US authorities and the Mexican exporter.'
-    },
-    {
-      title: lang === 'es' ? 'Programas de Fomento' : 'Promotion Programs',
-      icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>,
-      desc: lang === 'es'
-        ? 'Asesoramiento en IMMEX y PROSEC para la importación temporal de bienes y acceso a aranceles preferenciales.'
-        : 'Advice on IMMEX and PROSEC for the temporary import of goods and access to preferential tariffs.'
-    },
-    {
-      title: lang === 'es' ? 'Seguros de Carga' : 'Cargo Insurance',
-      icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>,
-      desc: lang === 'es'
-        ? 'La forma más eficaz para cubrir riesgos de su producto y que viaje totalmente segura su mercancía.'
-        : 'The most effective way to cover risks for your product and ensure your merchandise travels completely safe.'
-    },
-    {
-      title: lang === 'es' ? 'Asesoría y Certificados NOM' : 'Consulting and NOM Certificates',
-      icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>,
-      desc: lang === 'es'
-        ? 'Brindamos servicios relacionados con el cumplimiento NOM que requieran sus mercancías importadas o nacionales para su comercialización legal en México.'
-        : 'We provide services related to NOM compliance required by your imported or national merchandise for legal commercialization in Mexico.'
-    },
-    {
-      title: lang === 'es' ? 'Servicios Adicionales' : 'Additional Services',
-      icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>,
-      desc: lang === 'es'
-        ? 'Transporte, Almacenajes, Distribución y soluciones integrales en la Cadena de Suministro.'
-        : 'Transport, Storage, Distribution, and comprehensive solutions in the Supply Chain.'
-    }
-  ];
+  const items = secondaryServices.map((s) => ({
+    id: s.id,
+    title: pick(s.title, lang),
+    includes: pick(s.includes, lang),
+    benefit: pick(s.benefit, lang),
+    image: s.image,
+  }));
 
   return (
     <main className="page-wrapper">
-      <section className="section bg-surface" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=2070&auto=format&fit=crop")', backgroundSize: 'cover', backgroundAttachment: 'fixed', position: 'relative' }}>
+      <section className="section bg-surface" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070&auto=format&fit=crop")', backgroundSize: 'cover', backgroundAttachment: 'fixed', position: 'relative', padding: '5rem 0' }}>
         <div className="section-overlay"></div>
         <div className="container relative z-10 text-center mb-5">
           <h1 className="page-title fade-in-up" style={{ color: 'var(--color-primary)' }}>
-            {lang === 'es' ? 'Nuestros Servicios' : 'Our Services'}
+            {lang === 'es' ? 'Servicios' : 'Services'}
           </h1>
-          <p className="page-subtitle fade-in-up delay-1 text-secondary" style={{ maxWidth: '600px', margin: '0 auto 3rem auto' }}>
-            {lang === 'es' 
-              ? 'Soluciones integrales para la cadena de suministro internacional.' 
-              : 'Comprehensive solutions for the international supply chain.'}
+          <p className="page-subtitle fade-in-up delay-1 text-secondary" style={{ maxWidth: '650px', margin: '0 auto 2rem auto' }}>
+            {lang === 'es'
+              ? 'Servicios complementarios que respaldan su operación de comercio exterior. Elija uno para ver el detalle.'
+              : 'Complementary services that support your foreign trade operation. Pick one to see the details.'}
           </p>
         </div>
-        <div className="container grid-3-col relative z-10">
-          {services.map((service, index) => (
-            <div key={index} className={`card hover-elevate glass-card fade-in-up delay-${(index % 3) + 1}`}>
-              <div className="icon-wrapper">
-                {service.icon}
+
+        <div className="container relative z-10 mb-4">
+          <div className="priority-banner fade-in-up">
+            <div>
+              <strong>{lang === 'es' ? 'Despachos Aduanales' : 'Customs Clearance'}</strong>
+              <span className="text-sm"> — {lang === 'es' ? 'nuestro servicio principal, en su propia sección.' : 'our core service, in its own section.'}</span>
+            </div>
+            <Link href={`/${lang}/despachos-aduanales`} className="btn btn--primary text-sm">
+              {lang === 'es' ? 'Ir a Despachos' : 'Go to Clearance'}
+            </Link>
+          </div>
+        </div>
+
+        <div className="container relative z-10">
+          <ServiciosInteractivos lang={lang} items={items} />
+        </div>
+      </section>
+
+      <section className="section bg-background">
+        <div className="container">
+          <div className="cargo-forwarder-banner fade-in-up">
+            <div className="cargo-forwarder-banner__glow"></div>
+            <div className="cargo-forwarder-banner__content">
+              <div className="cargo-forwarder-banner__icon">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                  <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
               </div>
-              <h3 className="text-secondary mb-2">{service.title}</h3>
-              <p className="text-text-muted mb-4">{service.desc}</p>
-              <Link href={`/${lang}/contacto`} className="btn btn--secondary text-sm">
-                {lang === 'es' ? 'Saber Más' : 'Learn More'}
+              <div className="cargo-forwarder-banner__text">
+                <span className="priority-badge" style={{ marginBottom: '0.5rem', display: 'inline-block' }}>
+                  {lang === 'es' ? 'Transporte Internacional' : 'International Transportation'}
+                </span>
+                <h3 className="cargo-forwarder-banner__title">
+                  {lang === 'es' ? '¿Busca transporte de carga y fletes internacionales?' : 'Looking for cargo transportation & international freight?'}
+                </h3>
+                <p className="cargo-forwarder-banner__desc">
+                  {lang === 'es'
+                    ? 'Conecte sus operaciones globales con nuestra red multimodal marítima, aérea y terrestre de puerta a puerta con tarifas competitivas y rastreo en tiempo real.'
+                    : 'Connect your global operations with our door-to-door multimodal ocean, air, and ground network with competitive rates and real-time tracking.'}
+                </p>
+              </div>
+            </div>
+            <div className="cargo-forwarder-banner__action">
+              <Link href={`/${lang}/freight-forwarder`} className="btn btn--primary cargo-forwarder-banner__btn">
+                <span>{lang === 'es' ? 'Explorar Freight Forwarder' : 'Explore Freight Forwarder'}</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
               </Link>
             </div>
-          ))}
+          </div>
         </div>
       </section>
     </main>

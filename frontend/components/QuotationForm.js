@@ -19,34 +19,34 @@ export default function QuotationForm({ lang }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid) return;
     setStatus('loading');
 
-    // Integración de validación criptográfica Google reCAPTCHA v3
-    if (typeof window !== 'undefined' && window.grecaptcha) {
+    // Integración de validación criptográfica Google reCAPTCHA v3 (opcional en desarrollo)
+    if (siteKey && typeof window !== 'undefined' && window.grecaptcha) {
       try {
         window.grecaptcha.ready(async () => {
-          const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
           const token = await window.grecaptcha.execute(siteKey, { action: 'submit' });
-          
-          // Aquí enviaríamos el vector V = <n, e, s, c> al servidor
-          // const payload = { ...formData, recaptchaToken: token };
-          
-          // Simulación de respuesta exitosa asíncrona para la maqueta
           setTimeout(() => {
             setStatus('success');
             setFormData({ name: '', email: '', service: '' });
-          }, 1000);
+          }, 800);
         });
       } catch (error) {
         console.error("Error validando reCAPTCHA:", error);
         setStatus('error');
       }
     } else {
-      // Fallback temporal en caso de que reCAPTCHA no cargue
-      setTimeout(() => setStatus('success'), 1000);
+      // Simulación de confirmación para el frontend cuando reCAPTCHA no está configurado
+      setTimeout(() => {
+        setStatus('success');
+        setFormData({ name: '', email: '', service: '' });
+      }, 800);
     }
   };
 
@@ -70,11 +70,14 @@ export default function QuotationForm({ lang }) {
 
   return (
     <>
-      {/* Script nativo de Google reCAPTCHA */}
-      <Script 
-        src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`} 
-        strategy="afterInteractive" 
-      />
+      {/* Script nativo de Google reCAPTCHA (solo si existe clave pública) */}
+      {siteKey && (
+        <Script 
+          src={`https://www.google.com/recaptcha/api.js?render=${siteKey}`} 
+          strategy="afterInteractive" 
+        />
+      )}
+
       
       <form className="form fade-in-up" onSubmit={handleSubmit}>
         <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
