@@ -194,9 +194,9 @@ export default async function BlogPostPage({ params }) {
               </Link>
             </div>
 
-            {/* Pie del artículo: Compartir y Retorno */}
-            <div className="pt-4" style={{ borderTop: '1px solid var(--glass-border)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.25rem' }}>
-              <Link href={`/${lang}/blog`} className="btn btn--secondary text-sm">
+            {/* Pie del artículo: Compartir y Retorno con amplio espaciado */}
+            <div style={{ marginTop: '3.75rem', paddingTop: '2.5rem', borderTop: '1px solid var(--glass-border)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem' }}>
+              <Link href={`/${lang}/blog`} className="btn btn--secondary" style={{ padding: '0.75rem 1.6rem', fontSize: '0.92rem' }}>
                 ← {lang === 'es' ? 'Volver al Blog' : 'Back to Blog'}
               </Link>
 

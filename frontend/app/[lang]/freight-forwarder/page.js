@@ -137,7 +137,19 @@ export default async function FreightForwarder({ params }) {
           <span className="priority-badge fade-in-up" style={{ letterSpacing: '0.08em' }}>
             {lang === 'es' ? 'RED LOGÍSTICA MULTIMODAL' : 'MULTIMODAL LOGISTICS NETWORK'}
           </span>
-          <h1 className="page-title fade-in-up delay-1 text-white" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
+          <h1 
+            className="fade-in-up delay-1" 
+            style={{ 
+              fontSize: 'clamp(2.25rem, 4.5vw, 3rem)', 
+              fontWeight: 900,
+              letterSpacing: '-0.02em',
+              marginBottom: '1rem',
+              color: '#ffffff',
+              WebkitTextFillColor: '#ffffff',
+              background: 'none',
+              textShadow: '0 2px 20px rgba(0,0,0,0.85), 0 0 35px rgba(0,0,0,0.6)'
+            }}
+          >
             Freight Forwarder Integral
           </h1>
           <p className="page-subtitle fade-in-up delay-2 text-white opacity-90" style={{ maxWidth: '720px', margin: '0 auto 2.5rem auto', lineHeight: '1.6' }}>
@@ -256,28 +268,12 @@ export default async function FreightForwarder({ params }) {
             {advantages.map((adv, idx) => (
               <div 
                 key={idx} 
-                className={`card glass-card hover-elevate fade-in-up delay-${idx + 1}`} 
-                style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '1.25rem', 
-                  padding: '2rem 1.75rem',
-                  borderRadius: '1.25rem',
-                  border: '1px solid var(--glass-border)',
-                  transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
-                }}
+                className={`multimodal-adv-card fade-in-up delay-${idx + 1}`}
               >
-                <div style={{ 
-                  width: '52px', 
-                  height: '52px', 
-                  borderRadius: '0.85rem', 
-                  background: 'rgba(157, 0, 0, 0.12)', 
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(157, 0, 0, 0.15)'
-                }}>
+                <span className="multimodal-adv-card__index" aria-hidden="true">
+                  0{idx + 1}
+                </span>
+                <div className="multimodal-adv-card__icon-box">
                   {adv.icon}
                 </div>
                 <div>

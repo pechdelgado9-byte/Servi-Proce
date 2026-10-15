@@ -71,10 +71,10 @@ export const processSteps = [
   },
   {
     id: 'documentacion',
-    title: t('Documentación', 'Documentation'),
+    title: t('Documentación (Opcional / Flexible)', 'Documentation (Optional / Flexible)'),
     desc: t(
-      'Reunimos y validamos factura, especificaciones, permisos y certificados antes de que la carga se mueva.',
-      'We gather and validate the invoice, specifications, permits and certificates before the cargo moves.'
+      'Si ya cuenta con documentos los revisamos; si no, nuestro equipo de asesores le guía paso a paso para gestionarlos fácilmente.',
+      'If you have documents ready, we review them; if not, our advisory team guides you step-by-step to handle them easily.'
     ),
   },
   {
@@ -232,7 +232,7 @@ export const secondaryServices = [
   {
     id: 'padron',
     title: t('Padrón de importadores y sectores específicos', 'Importers registry and specific sectors'),
-    image: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200&auto=format&fit=crop',
     includes: t('Inscripción, actualización y reactivación.', 'Registration, updates and reactivation.'),
     benefit: t(
       'Evita suspensiones que paralicen la operación.',

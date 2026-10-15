@@ -3,8 +3,6 @@ import DespachoBullets from '../../../components/DespachoBullets';
 import ProcessSteps from '../../../components/ProcessSteps';
 import Industries from '../../../components/Industries';
 import QuickQuoteForm from '../../../components/QuickQuoteForm';
-import AvisoCard from '../../../components/AvisoCard';
-import { fetchAvisos } from '@/lib/avisos';
 import { despachoSubservices, despachoValueAdded, pick } from '@/lib/services-data';
 
 export async function generateMetadata({ params }) {
@@ -19,7 +17,6 @@ export async function generateMetadata({ params }) {
 
 export default async function DespachosAduanales({ params }) {
   const { lang } = await params;
-  const avisos = await fetchAvisos(lang, { limit: 3 });
 
   const items = despachoSubservices.map((s) => ({
     id: s.id,
@@ -56,61 +53,61 @@ export default async function DespachosAduanales({ params }) {
           </p>
 
           {/* Floating animated trust badges */}
-          <div className="flex-center gap-3 fade-in-up delay-3 mb-4" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div className="fade-in-up delay-3" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1.5rem', marginTop: '1.25rem', marginBottom: '2.5rem' }}>
             <span style={{ 
-              background: 'rgba(157, 0, 0, 0.15)', 
-              border: '1px solid rgba(239, 68, 68, 0.4)', 
+              background: 'rgba(157, 0, 0, 0.12)', 
+              border: '1px solid rgba(239, 68, 68, 0.35)', 
               color: 'var(--color-secondary)', 
-              padding: '0.45rem 1.1rem', 
+              padding: '0.65rem 1.35rem', 
               borderRadius: '9999px', 
-              fontSize: '0.85rem', 
+              fontSize: '0.9rem', 
               fontWeight: 700,
               backdropFilter: 'blur(8px)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.45rem'
+              gap: '0.55rem'
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
               {lang === 'es' ? '50 Aduanas del País' : 'All 50 Customs Offices'}
             </span>
             <span style={{ 
-              background: 'rgba(157, 0, 0, 0.15)', 
-              border: '1px solid rgba(239, 68, 68, 0.4)', 
+              background: 'rgba(157, 0, 0, 0.12)', 
+              border: '1px solid rgba(239, 68, 68, 0.35)', 
               color: 'var(--color-secondary)', 
-              padding: '0.45rem 1.1rem', 
+              padding: '0.65rem 1.35rem', 
               borderRadius: '9999px', 
-              fontSize: '0.85rem', 
+              fontSize: '0.9rem', 
               fontWeight: 700,
               backdropFilter: 'blur(8px)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.45rem'
+              gap: '0.55rem'
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
               {lang === 'es' ? 'Liberación en < 24 Horas' : 'Clearance in < 24 Hours'}
             </span>
             <span style={{ 
-              background: 'rgba(157, 0, 0, 0.15)', 
-              border: '1px solid rgba(239, 68, 68, 0.4)', 
+              background: 'rgba(157, 0, 0, 0.12)', 
+              border: '1px solid rgba(239, 68, 68, 0.35)', 
               color: 'var(--color-secondary)', 
-              padding: '0.45rem 1.1rem', 
+              padding: '0.65rem 1.35rem', 
               borderRadius: '9999px', 
-              fontSize: '0.85rem', 
+              fontSize: '0.9rem', 
               fontWeight: 700,
               backdropFilter: 'blur(8px)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.45rem'
+              gap: '0.55rem'
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
               {lang === 'es' ? 'Certificaciones OEA & C-TPAT' : 'AEO & C-TPAT Certified'}
@@ -171,21 +168,6 @@ export default async function DespachosAduanales({ params }) {
           </div>
         </div>
       </section>
-
-      {/* Últimos avisos */}
-      {avisos.length > 0 && (
-        <section className="section bg-background">
-          <div className="container">
-            <h2 className="text-center text-secondary mb-4">{lang === 'es' ? 'Leyes, noticias y avisos' : 'Laws, news and notices'}</h2>
-            <div className="grid-3-col">
-              {avisos.map((a) => <AvisoCard key={a.id} aviso={a} lang={lang} />)}
-            </div>
-            <div className="text-center mt-4">
-              <Link href={`/${lang}/avisos`} className="btn btn--secondary">{lang === 'es' ? 'Ver todos' : 'View all'}</Link>
-            </div>
-          </div>
-        </section>
-      )}
     </main>
   );
 }

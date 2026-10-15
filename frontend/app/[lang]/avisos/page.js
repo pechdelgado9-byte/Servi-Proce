@@ -41,7 +41,19 @@ export default async function Avisos({ params }) {
           <span className="priority-badge fade-in-up">
             {lang === 'es' ? 'Actualizaciones Oficiales & Normativas' : 'Official Updates & Regulations'}
           </span>
-          <h1 className="page-title fade-in-up delay-1" style={{ color: '#ffffff', textShadow: '0 2px 14px rgba(0,0,0,0.5)' }}>
+          <h1 
+            className="fade-in-up delay-1" 
+            style={{ 
+              fontSize: 'clamp(2.25rem, 4.5vw, 3rem)', 
+              fontWeight: 900,
+              letterSpacing: '-0.02em',
+              marginBottom: '1rem',
+              color: '#ffffff',
+              WebkitTextFillColor: '#ffffff',
+              background: 'none',
+              textShadow: '0 2px 20px rgba(0,0,0,0.85), 0 0 35px rgba(0,0,0,0.6)'
+            }}
+          >
             {lang === 'es' ? 'Noticias, Leyes y Avisos' : 'News, Laws and Notices'}
           </h1>
           <p className="page-subtitle fade-in-up delay-2" style={{ color: '#e2e8f0', maxWidth: '680px', margin: '0 auto 2rem auto', fontSize: '1.12rem', textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>
