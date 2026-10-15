@@ -27,11 +27,22 @@ export default async function Home({ params }) {
     <main className="page-wrapper">
       {/* Promotional Banner */}
       {promo && (
-        <div className="promo-banner fade-in-up" style={{ backgroundImage: `url(${promo.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', padding: '2rem 1rem', textAlign: 'center', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)' }}></div>
+        <div 
+          className="promo-banner fade-in-up" 
+          style={{ 
+            background: 'linear-gradient(135deg, #0b1120 0%, #161f38 50%, #0b1120 100%)', 
+            borderBottom: '1px solid rgba(157, 0, 0, 0.35)',
+            padding: '2.25rem 1rem', 
+            textAlign: 'center', 
+            position: 'relative' 
+          }}
+        >
           <div className="container relative z-10 text-white">
-            <h2 className="mb-2" style={{ color: 'white' }}>{promo.title}</h2>
-            <p>{promo.description}</p>
+            <span className="priority-badge mb-2" style={{ background: 'rgba(157, 0, 0, 0.25)', border: '1px solid rgba(220, 38, 38, 0.5)', fontSize: '0.78rem', letterSpacing: '0.08em' }}>
+              {lang === 'es' ? 'Atención Personalizada' : 'Tailored Advisory'}
+            </span>
+            <h2 className="mb-2" style={{ color: '#ffffff', fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.02em' }}>{promo.title}</h2>
+            <p style={{ color: '#cbd5e1', fontSize: '0.98rem', maxWidth: '640px', margin: '0 auto', lineHeight: '1.5' }}>{promo.description}</p>
           </div>
         </div>
       )}

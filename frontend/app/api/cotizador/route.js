@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB por archivo
 const ALLOWED_EXT = ['pdf', 'jpg', 'jpeg', 'png', 'docx', 'xlsx', 'xml'];
 const FILE_FIELDS = [
-  { field: 'invoice', label: 'factura-comercial', required: true },
+  { field: 'invoice', label: 'factura-comercial', required: false },
   { field: 'specs', label: 'especificaciones-tecnicas', required: false },
   { field: 'msds', label: 'msds', required: false },
 ];

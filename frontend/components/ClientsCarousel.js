@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 export default function ClientsCarousel({ lang }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
 
@@ -90,24 +91,28 @@ export default function ClientsCarousel({ lang }) {
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % total);
+    setResetKey((k) => k + 1);
   };
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + total) % total);
+    setResetKey((k) => k + 1);
   };
 
   const goToSlide = (idx) => {
     setCurrentIndex(idx);
+    setResetKey((k) => k + 1);
   };
 
-  // Autoplay continuo e ininterrumpido cada 7.5s (más pausado y cómodo de leer)
+  // Autoplay continuo e ininterrumpido cada 7.5s (sin importar que se pase el cursor)
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % total);
+      setResetKey((k) => k + 1);
     }, 7500);
 
-    return () => clearInterval(interval);
-  }, [total]);
+    return () => clearInterval(timer);
+  }, [currentIndex, resetKey, total]);
 
   // Soporte táctil móvil
   const handleTouchStart = (e) => {
@@ -136,10 +141,10 @@ export default function ClientsCarousel({ lang }) {
       aria-roledescription="carousel"
       aria-label={lang === 'es' ? 'Carrusel de nuestros clientes' : 'Our clients carousel'}
     >
-      {/* Barra de progreso visual */}
+      {/* Barra de progreso visual sincronizada */}
       <div className="services-slider__progress">
         <div 
-          key={currentIndex} 
+          key={`${currentIndex}-${resetKey}`} 
           className="services-slider__progress-bar is-animating" 
         />
       </div>

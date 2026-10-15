@@ -1797,6 +1797,10 @@ html.dark .logo-img--dark {
   animation: fillProgressBar 7.5s linear forwards;
 }
 
+.services-slider__progress-bar.is-paused {
+  animation-play-state: paused;
+}
+
 .services-slider__viewport {
   overflow: hidden;
   border-radius: 1.25rem;
@@ -2431,5 +2435,237 @@ html.dark .logo-img--dark {
   .clients-carousel__media {
     height: 220px;
   }
+}
+
+/* ==========================================================================
+   TARJETAS DE VENTAJAS MULTIMODALES (MICRO-ANIMACIONES INTERACTIVAS)
+   ========================================================================== */
+.multimodal-adv-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 2.25rem 1.85rem;
+  border-radius: 1.35rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.multimodal-adv-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.multimodal-adv-card:hover {
+  transform: translateY(-8px) scale(1.015);
+  border-color: rgba(239, 68, 68, 0.55);
+  box-shadow: 0 20px 40px -15px rgba(157, 0, 0, 0.22), 0 0 25px rgba(239, 68, 68, 0.12);
+}
+
+.multimodal-adv-card:hover::before {
+  opacity: 1;
+}
+
+.multimodal-adv-card__icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 1rem;
+  background: rgba(157, 0, 0, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(157, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.multimodal-adv-card:hover .multimodal-adv-card__icon-box {
+  transform: scale(1.15) rotate(-6deg);
+  background: rgba(157, 0, 0, 0.24);
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 24px rgba(157, 0, 0, 0.3);
+}
+
+.multimodal-adv-card__index {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.75rem;
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--color-secondary);
+  opacity: 0.18;
+  transition: all 0.35s ease;
+  font-family: monospace;
+}
+
+.multimodal-adv-card:hover .multimodal-adv-card__index {
+  opacity: 0.75;
+  color: var(--color-primary);
+  transform: scale(1.08);
+}
+
+/* ==========================================================================
+   MODERN FILE DROPZONE COMPONENT
+   ========================================================================== */
+.modern-file-dropzone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modern-file-dropzone__label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.modern-file-dropzone__req {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.modern-file-dropzone__native-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.modern-file-dropzone__box {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1.5px dashed var(--glass-border);
+  border-radius: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 64px;
+}
+
+.modern-file-dropzone__box:hover {
+  border-color: var(--color-primary);
+  background: rgba(157, 0, 0, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(157, 0, 0, 0.12);
+}
+
+.modern-file-dropzone__icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(157, 0, 0, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.modern-file-dropzone__box:hover .modern-file-dropzone__icon-circle {
+  transform: scale(1.1);
+  background: rgba(157, 0, 0, 0.24);
+}
+
+.modern-file-dropzone__texts {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modern-file-dropzone__action {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  line-height: 1.3;
+}
+
+.modern-file-dropzone__hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.modern-file-dropzone__selected {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  border-radius: 0.85rem;
+  min-height: 64px;
+}
+
+.modern-file-dropzone__file-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modern-file-dropzone__file-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.modern-file-dropzone__filename {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+}
+
+.modern-file-dropzone__filesize {
+  font-size: 0.73rem;
+  color: var(--color-text-muted);
+}
+
+.modern-file-dropzone__remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.modern-file-dropzone__remove-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--color-primary);
+  transform: scale(1.1);
 }
 

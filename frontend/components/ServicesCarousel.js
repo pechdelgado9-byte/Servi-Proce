@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function ServicesCarousel({ lang }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
 
@@ -166,24 +166,28 @@ export default function ServicesCarousel({ lang }) {
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % total);
+    setResetKey((k) => k + 1);
   };
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + total) % total);
+    setResetKey((k) => k + 1);
   };
 
   const goToSlide = (idx) => {
     setCurrentIndex(idx);
+    setResetKey((k) => k + 1);
   };
 
-  // Autoplay continuo e ininterrumpido (cada 7.5s) sin detenerse al pasar el cursor
+  // Autoplay continuo e ininterrumpido (avanza automáticamente cada 7.5s sin importar que se pase el cursor)
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % total);
+      setResetKey((k) => k + 1);
     }, 7500);
 
-    return () => clearInterval(interval);
-  }, [total]);
+    return () => clearInterval(timer);
+  }, [currentIndex, resetKey, total]);
 
   // Soporte táctil móvil (swipe)
   const handleTouchStart = (e) => {
@@ -215,7 +219,7 @@ export default function ServicesCarousel({ lang }) {
       {/* Barra de progreso de cambio automático */}
       <div className="services-slider__progress">
         <div 
-          key={currentIndex} 
+          key={`${currentIndex}-${resetKey}`} 
           className="services-slider__progress-bar is-animating" 
         />
       </div>
