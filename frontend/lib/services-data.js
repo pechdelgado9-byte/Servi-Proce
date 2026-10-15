@@ -107,12 +107,60 @@ export const processSteps = [
 // Industrias que atendemos
 // ---------------------------------------------------------------
 export const industries = [
-  { id: 'autopartes', label: t('Autopartes', 'Auto parts') },
-  { id: 'electronica', label: t('Electrónica', 'Electronics') },
-  { id: 'textil', label: t('Textil', 'Textiles') },
-  { id: 'calzado', label: t('Calzado', 'Footwear') },
-  { id: 'maquinaria', label: t('Maquinaria', 'Machinery') },
-  { id: 'siderurgicos', label: t('Siderúrgicos', 'Steel & metals') },
+  { 
+    id: 'autopartes', 
+    label: t('Autopartes', 'Auto Parts'),
+    badge: t('Automotriz Tier 1 & 2', 'Automotive Tier 1 & 2'),
+    desc: t(
+      'Cumplimiento de Regla 8ª, programas IMMEX y cruces expeditos en frontera para líneas de ensamble just-in-time.',
+      'Rule 8 compliance, IMMEX programs, and expedited border crossings for just-in-time assembly lines.'
+    )
+  },
+  { 
+    id: 'electronica', 
+    label: t('Electrónica', 'Electronics'),
+    badge: t('Tecnología & Consumo', 'Technology & Consumer'),
+    desc: t(
+      'Certificación y cumplimiento de NOMs de seguridad (NOM-001/019), pedimentos virtuales y fletes aéreos de alta seguridad.',
+      'Safety NOM certification (NOM-001/019), virtual entries, and high-security air freight.'
+    )
+  },
+  { 
+    id: 'textil', 
+    label: t('Textil', 'Textiles'),
+    badge: t('Padrón Sectorial', 'Sectoral Registry'),
+    desc: t(
+      'Gestión de padrón sectorial textil, permisos automáticos de importación de la SE y validación de reglas de origen.',
+      'Textile sectoral registry filing, automatic import permits, and rules of origin validation.'
+    )
+  },
+  { 
+    id: 'calzado', 
+    label: t('Calzado', 'Footwear'),
+    badge: t('Precios Estimados', 'Estimated Reference Prices'),
+    desc: t(
+      'Cumplimiento de precios estimados del SAT, padrón específico de calzado y etiquetado comercial NOM-020.',
+      'SAT estimated reference prices compliance, footwear specific registry, and NOM-020 commercial labeling.'
+    )
+  },
+  { 
+    id: 'maquinaria', 
+    label: t('Maquinaria', 'Machinery & Equipment'),
+    badge: t('Bienes de Capital', 'Capital Goods'),
+    desc: t(
+      'Despacho aduanal de activo fijo, importación temporal bajo tratados comerciales y fletes especializados en cama baja.',
+      'Fixed asset customs clearance, temporary imports under free trade agreements, and specialized lowboy transport.'
+    )
+  },
+  { 
+    id: 'siderurgicos', 
+    label: t('Siderúrgicos', 'Steel & Metals'),
+    badge: t('Avisos Automáticos', 'Automatic Notices'),
+    desc: t(
+      'Avisos automáticos de importación de productos de acero, control de molinos y clasificación arancelaria NICO rigurosa.',
+      'Automatic steel import notices, mill test report validation, and rigorous NICO tariff classification.'
+    )
+  },
 ];
 
 // ---------------------------------------------------------------
@@ -122,6 +170,7 @@ export const secondaryServices = [
   {
     id: 'clasificacion',
     title: t('Clasificación arancelaria', 'Tariff classification'),
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Determinación de la fracción arancelaria y NICO correcta para cada producto.',
       'Determination of the correct tariff code and NICO for each product.'
@@ -134,6 +183,7 @@ export const secondaryServices = [
   {
     id: 'nom',
     title: t('Cumplimiento de NOM', 'NOM compliance'),
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Revisión de normas aplicables, etiquetado, constancias y certificados.',
       'Review of applicable standards, labeling, statements and certificates.'
@@ -146,6 +196,7 @@ export const secondaryServices = [
   {
     id: 'regulaciones',
     title: t('Regulaciones y restricciones no arancelarias', 'Non-tariff regulations and restrictions'),
+    image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Permisos, avisos automáticos, cupos y requisitos de otras dependencias (SE, SADER, COFEPRIS, SEMARNAT).',
       'Permits, automatic notices, quotas and requirements from other agencies (SE, SADER, COFEPRIS, SEMARNAT).'
@@ -158,6 +209,7 @@ export const secondaryServices = [
   {
     id: 'immex',
     title: t('Programas IMMEX y PROSEC', 'IMMEX and PROSEC programs'),
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Asesoría para obtenerlos, mantenerlos y operar bajo ellos.',
       'Advice to obtain, maintain and operate under them.'
@@ -170,6 +222,7 @@ export const secondaryServices = [
   {
     id: 'tlc',
     title: t('Tratados de libre comercio y reglas de origen', 'Free trade agreements and rules of origin'),
+    image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Revisión de elegibilidad (T-MEC, TLCUE, CPTPP, etc.) y certificados de origen.',
       'Eligibility review (USMCA, EU-Mexico FTA, CPTPP, etc.) and certificates of origin.'
@@ -179,6 +232,7 @@ export const secondaryServices = [
   {
     id: 'padron',
     title: t('Padrón de importadores y sectores específicos', 'Importers registry and specific sectors'),
+    image: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop',
     includes: t('Inscripción, actualización y reactivación.', 'Registration, updates and reactivation.'),
     benefit: t(
       'Evita suspensiones que paralicen la operación.',
@@ -188,6 +242,7 @@ export const secondaryServices = [
   {
     id: 'planeacion',
     title: t('Planeación de importación y exportación', 'Import and export planning'),
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Análisis de costos totales (landed cost), rutas, incoterms y regímenes.',
       'Total cost (landed cost) analysis, routes, incoterms and customs regimes.'
@@ -200,6 +255,7 @@ export const secondaryServices = [
   {
     id: 'custom-broker',
     title: t('Custom Broker Americano', 'US Customs Broker'),
+    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Preparación de documentos, cálculo y pago de impuestos, y comunicación entre las autoridades estadounidenses y el exportador mexicano.',
       'Document preparation, tax calculation and payment, and communication between US authorities and the Mexican exporter.'
@@ -212,6 +268,7 @@ export const secondaryServices = [
   {
     id: 'seguros',
     title: t('Seguros de carga', 'Cargo insurance'),
+    image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Cobertura de riesgos de su producto durante el traslado.',
       'Coverage of your product’s risks during transit.'
@@ -221,6 +278,7 @@ export const secondaryServices = [
   {
     id: 'adicionales',
     title: t('Servicios adicionales', 'Additional services'),
+    image: 'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?q=80&w=1200&auto=format&fit=crop',
     includes: t(
       'Transporte, almacenaje, distribución y soluciones integrales en la cadena de suministro.',
       'Transport, storage, distribution and comprehensive supply chain solutions.'

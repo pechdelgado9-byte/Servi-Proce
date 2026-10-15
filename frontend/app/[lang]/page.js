@@ -4,6 +4,7 @@ import { fetchAvisos } from '@/lib/avisos';
 import { despachoSubservices, pick } from '@/lib/services-data';
 import AvisoCard from '../../components/AvisoCard';
 import AnimatedCounter from '../../components/AnimatedCounter';
+import ServicesCarousel from '../../components/ServicesCarousel';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -36,17 +37,19 @@ export default async function Home({ params }) {
       )}
 
       {/* Hero Section */}
-      <section className="hero text-center" style={{ position: 'relative', overflow: 'hidden' }}>
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
-        >
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-commercial-container-ship-in-the-sea-aerial-view-43093-large.mp4" type="video/mp4" />
-        </video>
-        <div className="hero__overlay" style={{ zIndex: 1, backgroundColor: 'rgba(17, 24, 39, 0.75)' }}></div>
+      <section 
+        className="hero text-center" 
+        style={{ 
+          position: 'relative', 
+          overflow: 'hidden',
+          backgroundImage: 'url("https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          padding: '7rem 0 6.5rem 0'
+        }}
+      >
+        <div className="hero__overlay" style={{ zIndex: 1, background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(157, 0, 0, 0.55) 55%, rgba(15, 23, 42, 0.88) 100%)' }}></div>
         <div className="container hero__content relative z-10">
           <h1 className="hero__title fade-in-up text-white">
             {lang === 'es' ? 'Soluciones Globales de Logística' : 'Global Logistics Solutions'}
@@ -86,64 +89,15 @@ export default async function Home({ params }) {
       </section>
 
       {/* Servicios: Despachos Aduanales (prioridad) + Freight Forwarder + Servicios secundarios */}
-      <section className="section bg-surface" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1556761175-5973dc0f32b7?q=80&w=2070&auto=format&fit=crop")', backgroundSize: 'cover', backgroundAttachment: 'fixed', position: 'relative' }}>
+      <section className="section bg-surface" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop")', backgroundSize: 'cover', backgroundAttachment: 'fixed', position: 'relative' }}>
         <div className="section-overlay"></div>
         <div className="container relative z-10">
           <h2 className="text-center text-secondary mb-4 fade-in-up">
             {lang === 'es' ? 'Nuestros Servicios' : 'Our Services'}
           </h2>
 
-          {/* Prioridad: Despachos Aduanales */}
-          <div className="card hover-elevate glass-card priority-card fade-in-up delay-1">
-            <span className="priority-badge">{lang === 'es' ? 'Servicio principal' : 'Core service'}</span>
-            <h3 className="text-primary mb-2">{lang === 'es' ? 'Despachos Aduanales' : 'Customs Clearance'}</h3>
-            <p className="text-text-muted mb-3">
-              {lang === 'es'
-                ? 'Tramitamos la entrada y salida legal de su mercancía en las 50 aduanas del país.'
-                : 'We handle the legal entry and exit of your goods at all 50 customs offices in Mexico.'}
-            </p>
-            <ul className="list-styled text-text-muted mb-4">
-              {despachoSubservices.map((sv) => <li key={sv.id}>{pick(sv.title, lang)}</li>)}
-            </ul>
-            <div className="flex-center gap-4" style={{ justifyContent: 'flex-start', flexWrap: 'wrap' }}>
-              <Link href={`/${lang}/despachos-aduanales`} className="btn btn--primary">
-                {lang === 'es' ? 'Conocer el servicio' : 'Learn about the service'}
-              </Link>
-              <Link href={`/${lang}/despachos-aduanales#cotizador`} className="btn btn--secondary">
-                {lang === 'es' ? 'Solicitar cotización' : 'Request a quote'}
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid-2-col mt-4">
-            <div className="card hover-elevate glass-card fade-in-up delay-2">
-              <div className="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-              </div>
-              <h3 className="text-primary mb-2">Freight Forwarder</h3>
-              <p className="text-text-muted mb-4">
-                {lang === 'es'
-                  ? 'Servicios de transportación nacional e internacional (Marítimo, Aéreo y Terrestre).'
-                  : 'National and international transportation services (Maritime, Air, and Land).'}
-              </p>
-              <Link href={`/${lang}/freight-forwarder`} className="btn btn--secondary text-sm">
-                {lang === 'es' ? 'Ver servicio' : 'View service'}
-              </Link>
-            </div>
-            <div className="card hover-elevate glass-card fade-in-up delay-3">
-              <div className="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-              </div>
-              <h3 className="text-primary mb-2">{lang === 'es' ? 'Servicios complementarios' : 'Complementary services'}</h3>
-              <p className="text-text-muted mb-4">
-                {lang === 'es'
-                  ? 'Clasificación arancelaria, NOM, IMMEX/PROSEC, tratados de libre comercio, seguros y más.'
-                  : 'Tariff classification, NOM, IMMEX/PROSEC, free trade agreements, insurance and more.'}
-              </p>
-              <Link href={`/${lang}/servicios`} className="btn btn--secondary text-sm">
-                {lang === 'es' ? 'Explorar servicios' : 'Explore services'}
-              </Link>
-            </div>
+          <div className="fade-in-up delay-1">
+            <ServicesCarousel lang={lang} />
           </div>
         </div>
       </section>
@@ -152,15 +106,25 @@ export default async function Home({ params }) {
       {avisos.length > 0 && (
         <section className="section bg-background">
           <div className="container">
-            <h2 className="text-center text-secondary mb-4 fade-in-up">
-              {lang === 'es' ? 'Noticias, Leyes y Avisos' : 'News, Laws and Notices'}
-            </h2>
+            <div className="text-center mb-5" style={{ marginBottom: '3.75rem' }}>
+              <span className="priority-badge fade-in-up">
+                {lang === 'es' ? 'Actualidad y Normativa' : 'Updates & Regulations'}
+              </span>
+              <h2 className="text-secondary mt-2 mb-3 fade-in-up delay-1">
+                {lang === 'es' ? 'Noticias, Leyes y Avisos' : 'News, Laws and Notices'}
+              </h2>
+              <p className="text-text-muted fade-in-up delay-2" style={{ maxWidth: '640px', margin: '0 auto' }}>
+                {lang === 'es'
+                  ? 'Manténgase al día con las disposiciones del SAT, reglas de comercio exterior y avisos operativos para sus operaciones aduanales.'
+                  : 'Stay informed on SAT regulations, foreign trade rules, and operational notices for your customs operations.'}
+              </p>
+            </div>
             <div className="grid-3-col">
               {avisos.map((a) => <AvisoCard key={a.id} aviso={a} lang={lang} />)}
             </div>
-            <div className="text-center mt-4">
-              <Link href={`/${lang}/avisos`} className="btn btn--secondary">
-                {lang === 'es' ? 'Ver todas las publicaciones' : 'View all posts'}
+            <div className="text-center mt-5" style={{ marginTop: '3.75rem' }}>
+              <Link href={`/${lang}/avisos`} className="btn btn--secondary" style={{ padding: '0.9rem 2.25rem', fontSize: '0.98rem', boxShadow: '0 4px 14px rgba(0,0,0,0.06)' }}>
+                {lang === 'es' ? 'Ver todas las publicaciones →' : 'View all posts →'}
               </Link>
             </div>
           </div>

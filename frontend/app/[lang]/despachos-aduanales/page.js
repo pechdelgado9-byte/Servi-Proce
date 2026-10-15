@@ -31,20 +31,94 @@ export default async function DespachosAduanales({ params }) {
   return (
     <main className="page-wrapper">
       {/* Hero */}
-      <section className="section bg-surface" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=2070&auto=format&fit=crop")', backgroundSize: 'cover', backgroundAttachment: 'fixed', position: 'relative' }}>
+      <section 
+        className="section bg-surface text-center" 
+        style={{ 
+          backgroundImage: 'url("https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=2070&auto=format&fit=crop")', 
+          backgroundSize: 'cover', 
+          backgroundAttachment: 'fixed', 
+          position: 'relative',
+          padding: '5.5rem 0 4.5rem 0'
+        }}
+      >
         <div className="section-overlay"></div>
         <div className="container relative z-10 text-center">
-          <span className="priority-badge fade-in-up">{lang === 'es' ? 'Servicio principal' : 'Core service'}</span>
+          <span className="priority-badge fade-in-up" style={{ letterSpacing: '0.08em' }}>
+            {lang === 'es' ? 'Servicio Principal Especializado' : 'Core Specialized Service'}
+          </span>
           <h1 className="page-title fade-in-up delay-1" style={{ color: 'var(--color-primary)' }}>
             {lang === 'es' ? 'Despachos Aduanales' : 'Customs Clearance'}
           </h1>
-          <p className="page-subtitle fade-in-up delay-2 text-secondary" style={{ maxWidth: '700px', margin: '0 auto 2rem auto' }}>
+          <p className="page-subtitle fade-in-up delay-2 text-secondary" style={{ maxWidth: '720px', margin: '0 auto 2.25rem auto', lineHeight: '1.6' }}>
             {lang === 'es'
               ? 'Tramitamos la entrada y salida legal de su mercancía en las 50 aduanas del país, cuidando que pague lo justo en impuestos y que su carga no se detenga.'
               : 'We handle the legal entry and exit of your goods at all 50 customs offices in Mexico, making sure you pay only what is due and your cargo keeps moving.'}
           </p>
-          <Link href="#cotizador" className="btn btn--primary fade-in-up delay-3">
-            {lang === 'es' ? 'Solicitar cotización' : 'Request a quote'}
+
+          {/* Floating animated trust badges */}
+          <div className="flex-center gap-3 fade-in-up delay-3 mb-4" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span style={{ 
+              background: 'rgba(157, 0, 0, 0.15)', 
+              border: '1px solid rgba(239, 68, 68, 0.4)', 
+              color: 'var(--color-secondary)', 
+              padding: '0.45rem 1.1rem', 
+              borderRadius: '9999px', 
+              fontSize: '0.85rem', 
+              fontWeight: 700,
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              {lang === 'es' ? '50 Aduanas del País' : 'All 50 Customs Offices'}
+            </span>
+            <span style={{ 
+              background: 'rgba(157, 0, 0, 0.15)', 
+              border: '1px solid rgba(239, 68, 68, 0.4)', 
+              color: 'var(--color-secondary)', 
+              padding: '0.45rem 1.1rem', 
+              borderRadius: '9999px', 
+              fontSize: '0.85rem', 
+              fontWeight: 700,
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              {lang === 'es' ? 'Liberación en < 24 Horas' : 'Clearance in < 24 Hours'}
+            </span>
+            <span style={{ 
+              background: 'rgba(157, 0, 0, 0.15)', 
+              border: '1px solid rgba(239, 68, 68, 0.4)', 
+              color: 'var(--color-secondary)', 
+              padding: '0.45rem 1.1rem', 
+              borderRadius: '9999px', 
+              fontSize: '0.85rem', 
+              fontWeight: 700,
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              {lang === 'es' ? 'Certificaciones OEA & C-TPAT' : 'AEO & C-TPAT Certified'}
+            </span>
+          </div>
+
+          <Link href="#cotizador" className="btn btn--primary fade-in-up delay-3" style={{ padding: '0.9rem 2.25rem' }}>
+            {lang === 'es' ? 'Solicitar Cotización Inmediata' : 'Request Instant Quote'}
           </Link>
         </div>
       </section>

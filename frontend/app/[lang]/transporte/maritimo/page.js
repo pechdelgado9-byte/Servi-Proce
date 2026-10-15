@@ -1,7 +1,18 @@
 import Link from 'next/link';
 
+export async function generateMetadata({ params }) {
+  const { lang } = await params;
+  return {
+    title: lang === 'es' ? 'Transporte Marítimo | Servi Proce' : 'Maritime Transport | Servi Proce',
+    description: lang === 'es'
+      ? 'Soluciones de transporte marítimo internacional FCL, LCL, refrigerado y Break Bulk desde los principales puertos del mundo.'
+      : 'International ocean freight solutions: FCL, LCL, refrigerated and Break Bulk from major world ports.',
+  };
+}
+
 export default async function Maritimo({ params }) {
   const { lang } = await params;
+
 
   return (
     <main className="page-wrapper">
@@ -25,7 +36,9 @@ export default async function Maritimo({ params }) {
             <div className="icon-wrapper">
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h20"></path><path d="M20 12v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"></path><path d="M12 12v-5"></path><path d="M12 7l-4 5"></path><path d="M12 7l4 5"></path><path d="M22 22H2"></path></svg>
             </div>
-            <h2 className="mb-3 text-secondary">FCL, LCL & Break Bulk</h2>
+            <h2 className="mb-3 text-secondary">
+              {lang === 'es' ? 'Contenedor Completo (FCL), Consolidado (LCL) y Break Bulk' : 'FCL, LCL & Break Bulk Ocean Freight'}
+            </h2>
             <ul className="list-styled text-text-muted mb-4">
               <li>{lang === 'es' ? 'Transporte marítimo (LCL & FCL) Refrigerado.' : 'Refrigerated maritime transport (LCL & FCL).'}</li>
               <li>{lang === 'es' ? 'Transporte marítimo desde los principales puertos del mundo.' : 'Maritime transport from the main ports of the world.'}</li>
@@ -41,12 +54,12 @@ export default async function Maritimo({ params }) {
 
           <div className="split-image zoom-in delay-1">
             <img 
-              src="https://images.unsplash.com/photo-1534008897995-27a23e859048?q=80&w=2070&auto=format&fit=crop" 
-              alt="Ocean Freight Ships" 
+              src="/images/maritimo-ship.jpg" 
+              alt={lang === 'es' ? 'Buque portacontenedores de transporte marítimo internacional' : 'International ocean freight container ship'} 
               className="img-fluid"
               loading="lazy"
               decoding="async"
-              style={{ height: '100%', minHeight: '400px' }}
+              style={{ height: '100%', minHeight: '400px', objectFit: 'cover', borderRadius: '1rem' }}
             />
           </div>
         </div>

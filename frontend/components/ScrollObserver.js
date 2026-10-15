@@ -6,40 +6,84 @@ export default function ScrollObserver() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          // Delay adding the class slightly to ensure React hydration has finished
-          setTimeout(() => {
-            entry.target.classList.add('is-visible');
-          }, 50);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.05, rootMargin: "0px 0px 50px 0px" });
+    let observer = null;
+    let isCleanedUp = false;
 
-    // Use interval to find unobserved elements and act as a failsafe
-    const intervalId = setInterval(() => {
-      const elements = document.querySelectorAll('.fade-in-up:not(.is-observed), .zoom-in:not(.is-observed), .slide-in-right:not(.is-observed)');
-      elements.forEach(el => {
-        el.classList.add('is-observed');
-        
-        // Failsafe: if the element is already in the viewport upon observation,
-        // force it visible immediately to prevent blank blocks if observer drops it
+    // Función para revelar elementos visibles o cercanos al viewport
+    const checkElements = () => {
+      if (isCleanedUp) return;
+      const elements = document.querySelectorAll(
+        '.fade-in-up:not(.is-visible), .zoom-in:not(.is-visible), .slide-in-right:not(.is-visible)'
+      );
+      
+      const vh = window.innerHeight || 800;
+      elements.forEach((el) => {
         const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom >= 0) {
-           setTimeout(() => {
-             el.classList.add('is-visible');
-           }, 50);
-        } else {
-           observer.observe(el);
+        if (rect.top < vh + 300 && rect.bottom >= -100) {
+          el.classList.add('is-visible');
         }
       });
-    }, 250);
+    };
+
+    // Se difiere la inicialización 100ms para asegurar que React termine
+    // completamente la fase de hidratación del DOM y evitar cualquier Hydration Mismatch
+    const initTimer = setTimeout(() => {
+      if (isCleanedUp) return;
+
+      if (typeof IntersectionObserver !== 'undefined') {
+        observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.01, rootMargin: '0px 0px 300px 0px' }
+        );
+
+        const elements = document.querySelectorAll(
+          '.fade-in-up:not(.is-visible), .zoom-in:not(.is-visible), .slide-in-right:not(.is-visible)'
+        );
+        elements.forEach((el) => observer.observe(el));
+      }
+
+      // Comprobación de viewport tras hidratación
+      checkElements();
+
+      // Revelar elementos si hay un ancla en la URL (#cotizador, etc.)
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) {
+          target.classList.add('is-visible');
+          target.querySelectorAll('.fade-in-up, .zoom-in, .slide-in-right').forEach((el) => {
+            el.classList.add('is-visible');
+          });
+        }
+      }
+    }, 100);
+
+    // Failsafe de seguridad: a los 800ms forzar visibilidad de cualquier elemento restante
+    const failsafeTimer = setTimeout(() => {
+      if (isCleanedUp) return;
+      const hidden = document.querySelectorAll(
+        '.fade-in-up:not(.is-visible), .zoom-in:not(.is-visible), .slide-in-right:not(.is-visible)'
+      );
+      hidden.forEach((el) => el.classList.add('is-visible'));
+    }, 800);
+
+    // Escuchar scroll pasivo
+    window.addEventListener('scroll', checkElements, { passive: true });
+    window.addEventListener('resize', checkElements, { passive: true });
 
     return () => {
-      clearInterval(intervalId);
-      observer.disconnect();
+      isCleanedUp = true;
+      clearTimeout(initTimer);
+      clearTimeout(failsafeTimer);
+      window.removeEventListener('scroll', checkElements);
+      window.removeEventListener('resize', checkElements);
+      if (observer) observer.disconnect();
     };
   }, [pathname]);
 

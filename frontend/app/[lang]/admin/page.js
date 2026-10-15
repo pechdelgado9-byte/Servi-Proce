@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { adminEnabled, isAdmin } from '@/lib/auth';
 import { AVISO_TYPES, readAllAvisos } from '@/lib/avisos';
 import { typeLabel } from '../../../components/AvisoCard';
 import { login, logout, saveAviso, removeAviso } from './actions';
+
 
 export const metadata = { title: 'Administración | Servi Proce', robots: { index: false, follow: false } };
 
@@ -118,7 +120,7 @@ async function AdminContent({ params, searchParams }) {
               </div>
               <div className="flex-center gap-4" style={{ justifyContent: 'flex-start' }}>
                 <button type="submit" className="btn btn--primary">{editing ? L('Guardar cambios', 'Save changes') : L('Publicar', 'Publish')}</button>
-                {editing && <a className="btn btn--secondary" href={`/${lang}/admin`}>{L('Cancelar', 'Cancel')}</a>}
+                {editing && <Link className="btn btn--secondary" href={`/${lang}/admin`}>{L('Cancelar', 'Cancel')}</Link>}
               </div>
             </form>
           </div>
@@ -136,7 +138,7 @@ async function AdminContent({ params, searchParams }) {
                     <p className="text-sm text-text-muted">{a.publishedAt}{a.expiresAt ? ` → ${a.expiresAt}` : ''}</p>
                   </div>
                   <div className="admin-list__actions">
-                    <a className="btn btn--secondary text-sm" href={`/${lang}/admin?edit=${a.id}`}>{L('Editar', 'Edit')}</a>
+                    <Link className="btn btn--secondary text-sm" href={`/${lang}/admin?edit=${a.id}`}>{L('Editar', 'Edit')}</Link>
                     <form action={removeAviso}>
                       <input type="hidden" name="lang" value={lang} />
                       <input type="hidden" name="id" value={a.id} />
@@ -146,6 +148,7 @@ async function AdminContent({ params, searchParams }) {
                 </li>
               ))}
             </ul>
+
           </div>
         </div>
       </div>

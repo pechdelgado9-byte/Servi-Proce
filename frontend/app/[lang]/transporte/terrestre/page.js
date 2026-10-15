@@ -1,7 +1,18 @@
 import Link from 'next/link';
 
+export async function generateMetadata({ params }) {
+  const { lang } = await params;
+  return {
+    title: lang === 'es' ? 'Transporte Terrestre | Servi Proce' : 'Land Transport | Servi Proce',
+    description: lang === 'es'
+      ? 'Transporte terrestre de carga nacional e internacional (LTL, FTL) en México, Estados Unidos y Canadá.'
+      : 'Domestic and international ground transportation (LTL, FTL) across Mexico, USA and Canada.',
+  };
+}
+
 export default async function Terrestre({ params }) {
   const { lang } = await params;
+
 
   return (
     <main className="page-wrapper">
@@ -25,7 +36,9 @@ export default async function Terrestre({ params }) {
             <div className="icon-wrapper">
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             </div>
-            <h2 className="mb-3 text-secondary">LTL, FTL & MEX-USA-CAN</h2>
+            <h2 className="mb-3 text-secondary">
+              {lang === 'es' ? 'Carga Consolidada (LTL), Completa (FTL) y Corredor MEX-USA-CAN' : 'LTL, FTL & MEX-USA-CAN Ground Corridor'}
+            </h2>
             <p className="text-text-muted mb-4">
               {lang === 'es'
                 ? 'Le ayudamos a lograr una eficiencia superior y un alcance más amplio para su cadena de suministro terrestre en todo Norteamérica.'
@@ -33,13 +46,13 @@ export default async function Terrestre({ params }) {
             </p>
             <div className="grid-2-col mt-4 mb-4">
               <div className="feature-box">
-                <h3 className="text-primary">LTL (Less Truck Load)</h3>
+                <h3 className="text-primary">{lang === 'es' ? 'Carga Consolidada (LTL)' : 'Less Than Truckload (LTL)'}</h3>
                 <p className="text-text-muted">
                   {lang === 'es' ? 'Carga consolidada desde puertos y aeropuertos.' : 'Consolidated cargo from ports and airports.'}
                 </p>
               </div>
               <div className="feature-box">
-                <h3 className="text-primary">FTL (Full Truck Load)</h3>
+                <h3 className="text-primary">{lang === 'es' ? 'Camión Completo (FTL)' : 'Full Truckload (FTL)'}</h3>
                 <p className="text-text-muted">
                   {lang === 'es' ? 'Unidades directas dedicadas para máxima seguridad.' : 'Dedicated direct units for maximum security.'}
                 </p>

@@ -28,8 +28,13 @@ const T = {
     errors: {
       default: 'No se pudo procesar su solicitud. Revise los datos e intente de nuevo.',
       rate_limited: 'Demasiadas solicitudes. Intente de nuevo más tarde.',
-      file_invoice_required: 'Debe subir la factura comercial.',
-      file_msds_required: 'Para mercancía peligrosa debe subir el MSDS.',
+      name_required: 'Por favor ingrese su nombre completo.',
+      email_invalid: 'Por favor ingrese un correo electrónico válido.',
+      country_required: 'Por favor ingrese el país correspondiente.',
+      industry_required: 'Por favor seleccione una industria.',
+      desc_required: 'Por favor describa la mercancía.',
+      file_invoice_required: 'Debe adjuntar la factura comercial (archivo requerido para cotizar).',
+      file_msds_required: 'Para mercancía peligrosa o química debe subir la hoja de seguridad (MSDS).',
       file_type: 'Algún archivo no es válido (use PDF, JPG, PNG, DOCX, XLSX o XML).',
       file_size: 'Algún archivo supera los 5 MB.',
       recaptcha: 'No pudimos verificar que usted es una persona. Intente de nuevo.',
@@ -54,8 +59,13 @@ const T = {
     errors: {
       default: 'Your request could not be processed. Please check the data and try again.',
       rate_limited: 'Too many requests. Please try again later.',
-      file_invoice_required: 'You must upload the commercial invoice.',
-      file_msds_required: 'For hazardous goods you must upload the MSDS.',
+      name_required: 'Please enter your full name.',
+      email_invalid: 'Please enter a valid email address.',
+      country_required: 'Please enter the country.',
+      industry_required: 'Please select an industry.',
+      desc_required: 'Please describe the cargo.',
+      file_invoice_required: 'You must upload the commercial invoice (required file).',
+      file_msds_required: 'For hazardous goods you must upload the MSDS sheet.',
       file_type: 'A file is not valid (use PDF, JPG, PNG, DOCX, XLSX or XML).',
       file_size: 'A file exceeds 5 MB.',
       recaptcha: 'We could not verify that you are human. Please try again.',
@@ -99,7 +109,43 @@ export default function QuickQuoteForm({ lang }) {
 
   async function onSubmit(e) {
     e.preventDefault();
-    if (!valid) return;
+
+    if (!f.name.trim()) {
+      setError(t.errors.name_required);
+      setStatus('error');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
+      setError(t.errors.email_invalid);
+      setStatus('error');
+      return;
+    }
+    if (!f.country.trim()) {
+      setError(t.errors.country_required);
+      setStatus('error');
+      return;
+    }
+    if (!f.industry) {
+      setError(t.errors.industry_required);
+      setStatus('error');
+      return;
+    }
+    if (!f.description.trim()) {
+      setError(t.errors.desc_required);
+      setStatus('error');
+      return;
+    }
+    if (!files.invoice) {
+      setError(t.errors.file_invoice_required);
+      setStatus('error');
+      return;
+    }
+    if (f.hazmat && !files.msds) {
+      setError(t.errors.file_msds_required);
+      setStatus('error');
+      return;
+    }
+
     setStatus('loading');
     setError('');
     try {
@@ -151,8 +197,36 @@ export default function QuickQuoteForm({ lang }) {
   return (
     <>
       {siteKey && <Script src={`https://www.google.com/recaptcha/api.js?render=${siteKey}`} strategy="afterInteractive" />}
-      <h2 className="text-secondary mb-2">{t.title}</h2>
-      <p className="text-text-muted mb-4">{t.intro}</p>
+      
+      {/* Header moderno con badge */}
+      <div className="quote-form-header text-center mb-4">
+        <span className="priority-badge mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>
+          {lang === 'es' ? 'COTIZACIÓN DIRECTA EN LÍNEA' : 'DIRECT ONLINE QUOTATION'}
+        </span>
+        <h2 className="text-secondary mb-2" style={{ fontSize: '1.85rem', fontWeight: 800 }}>{t.title}</h2>
+        <p className="text-text-muted" style={{ maxWidth: '650px', margin: '0 auto', fontSize: '0.95rem', lineHeight: '1.5' }}>
+          {t.intro}
+        </p>
+
+        {/* Indicadores visuales de paso */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+            <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>1</span>
+            <span>{lang === 'es' ? 'Datos de Contacto' : 'Contact Details'}</span>
+          </div>
+          <span style={{ opacity: 0.3 }}>→</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+            <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>2</span>
+            <span>{lang === 'es' ? 'Operación y Carga' : 'Cargo & Route'}</span>
+          </div>
+          <span style={{ opacity: 0.3 }}>→</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+            <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>3</span>
+            <span>{lang === 'es' ? 'Factura y Archivos' : 'Invoice & Files'}</span>
+          </div>
+        </div>
+      </div>
+
       <form className="form quote-form" onSubmit={onSubmit} noValidate>
         <div className="form-grid">
           <div className="form__group">
@@ -242,11 +316,30 @@ export default function QuickQuoteForm({ lang }) {
           </p>
         </div>
 
-        {status === 'error' && <p className="alert alert--error mb-4" role="alert">{error}</p>}
+        {status === 'error' && (
+          <div className="alert alert--error mb-4" role="alert" style={{ padding: '0.85rem 1.25rem', borderRadius: '0.5rem' }}>
+            {error}
+          </div>
+        )}
 
-        <button type="submit" className={`btn btn--primary form__submit ${!valid ? 'btn--disabled' : ''}`} disabled={!valid || status === 'loading'} style={{ width: '100%' }}>
+        <button type="submit" className="btn btn--primary form__submit" disabled={status === 'loading'} style={{ width: '100%', padding: '1rem', fontSize: '1rem', fontWeight: 700 }}>
           {status === 'loading' ? t.loading : t.submit}
         </button>
+
+        {/* Sellos de confianza y seguridad */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap', opacity: 0.85, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            🔒 {lang === 'es' ? 'Cifrado SSL 256-bit' : '256-bit SSL Encryption'}
+          </span>
+          <span>•</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            ⚡ {lang === 'es' ? 'Respuesta en < 2 Horas' : 'Response in < 2 Hours'}
+          </span>
+          <span>•</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            📋 {lang === 'es' ? 'Confidencialidad bajo NDA' : 'NDA Confidentiality'}
+          </span>
+        </div>
       </form>
     </>
   );
