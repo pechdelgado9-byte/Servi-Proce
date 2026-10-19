@@ -1,0 +1,16 @@
+{
+  "name": "serviproce-backend-cms",
+  "version": "1.0.0",
+  "description": "Backend Headless CMS y API REST para Servi Proce (Apegado 100% al ERS)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.16",
+    "pg": "^8.13.1"
+  }
+}

@@ -3,28 +3,38 @@ import { notFound } from 'next/navigation';
 import { fetchBlogPostBySlug, fetchBlogPosts } from '@/lib/api';
 import ReadingProgressBar from '../../../../components/ReadingProgressBar';
 
+// RF-10: Inyección Dinámica de Metadatos SEO (<=60 / <=160) y Fallback Automático Open Graph (/logo.png)
 export async function generateMetadata({ params }) {
   const { lang, slug } = await params;
   const post = await fetchBlogPostBySlug(slug, lang);
-  if (!post) return { title: 'Blog | Servi Proce' };
+  if (!post) {
+    return {
+      title: 'Blog | Servi Proce',
+      openGraph: { images: ['/logo.png'] },
+    };
+  }
+
+  const seoTitle = (post.seo?.title || `${post.title} | Servi Proce`).slice(0, 60);
+  const seoDesc = (post.seo?.description || post.excerpt || post.title).slice(0, 160);
+  const ogImage = post.seo?.ogImage || post.imageUrl || '/logo.png';
 
   return {
-    title: `${post.title} | Servi Proce`,
-    description: post.excerpt,
+    title: seoTitle,
+    description: seoDesc,
     openGraph: {
-      title: `${post.title} | Servi Proce`,
-      description: post.excerpt,
-      images: [post.imageUrl],
+      title: seoTitle,
+      description: seoDesc,
+      images: [ogImage],
     },
   };
 }
 
 export async function generateStaticParams() {
   const params = [];
-  const slugs = ['nueva-normativa-aduanera-2026', 'ventajas-nearshoring-mexico'];
   for (const lang of ['es', 'en']) {
-    for (const slug of slugs) {
-      params.push({ lang, slug });
+    const posts = await fetchBlogPosts(lang);
+    for (const post of posts) {
+      params.push({ lang, slug: post.slug });
     }
   }
   return params;
