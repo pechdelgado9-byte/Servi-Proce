@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337/api';
+const API_CLIENT_URL = '/api/backend';
 
 export default function NewsletterForm({ lang }) {
   const [email, setEmail] = useState('');
@@ -18,7 +18,7 @@ export default function NewsletterForm({ lang }) {
 
     setStatus('loading');
     try {
-      const res = await fetch(`${API_BASE_URL}/newsletter?locale=${lang}`, {
+      const res = await fetch(`${API_CLIENT_URL}/newsletter?locale=${lang}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

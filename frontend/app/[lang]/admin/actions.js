@@ -2,12 +2,20 @@
 
 import { redirect } from 'next/navigation';
 import { cookies, headers } from 'next/headers';
-import { updateTag } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { API_BASE_URL, BLOG_TAG, PROMOTIONS_TAG } from '@/lib/api';
 import { ADMIN_COOKIE, SESSION_MAX_AGE_S, getAdminToken } from '@/lib/auth';
 import { AVISOS_TAG } from '@/lib/avisos';
 
 const safeLang = (v) => (v === 'en' ? 'en' : 'es');
+
+function revalidateAllPublicPaths() {
+  for (const l of ['es', 'en']) {
+    revalidatePath(`/${l}`);
+    revalidatePath(`/${l}/blog`);
+    revalidatePath(`/${l}/avisos`);
+  }
+}
 
 /**
  * Sube opcionalmente un archivo de imagen al Backend Headless (/api/admin/upload)
@@ -165,6 +173,7 @@ export async function saveBlogPost(formData) {
   }
 
   updateTag(BLOG_TAG);
+  revalidateAllPublicPaths();
   redirect(`/${lang}/admin?tab=blog&ok=saved`);
 }
 
@@ -180,6 +189,7 @@ export async function removeBlogPost(formData) {
   });
 
   updateTag(BLOG_TAG);
+  revalidateAllPublicPaths();
   redirect(`/${lang}/admin?tab=blog&ok=deleted`);
 }
 
@@ -228,6 +238,7 @@ export async function savePromotion(formData) {
   }
 
   updateTag(PROMOTIONS_TAG);
+  revalidateAllPublicPaths();
   redirect(`/${lang}/admin?tab=promotions&ok=saved`);
 }
 
@@ -243,7 +254,27 @@ export async function removePromotion(formData) {
   });
 
   updateTag(PROMOTIONS_TAG);
+  revalidateAllPublicPaths();
   redirect(`/${lang}/admin?tab=promotions&ok=deleted`);
+}
+
+/**
+ * Ejecuta en vivo la auditoría del Cron Job de 365 días (RF-02) desde el panel Admin
+ */
+export async function runCronAudit(formData) {
+  const lang = safeLang(formData.get('lang'));
+  const token = await getAdminToken();
+  if (!token) redirect(`/${lang}/admin`);
+
+  await fetch(`${API_BASE_URL}/admin/promotions/audit-cron`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  updateTag(PROMOTIONS_TAG);
+  updateTag(AVISOS_TAG);
+  revalidateAllPublicPaths();
+  redirect(`/${lang}/admin?tab=promotions&ok=cron`);
 }
 
 /**
@@ -284,6 +315,7 @@ export async function saveAviso(formData) {
   }
 
   updateTag(AVISOS_TAG);
+  revalidateAllPublicPaths();
   redirect(`/${lang}/admin?tab=avisos&ok=saved`);
 }
 
@@ -299,5 +331,6 @@ export async function removeAviso(formData) {
   });
 
   updateTag(AVISOS_TAG);
+  revalidateAllPublicPaths();
   redirect(`/${lang}/admin?tab=avisos&ok=deleted`);
 }

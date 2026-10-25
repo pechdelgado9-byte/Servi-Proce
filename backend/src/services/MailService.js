@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import path from 'node:path';
 import { envConfig } from '../config/EnvironmentConfig.js';
 import { quotationLogRepository } from '../repositories/ContentRepository.js';
@@ -7,14 +8,14 @@ import { quotationLogRepository } from '../repositories/ContentRepository.js';
  * Servicio Orientado a Objetos para Envío de Correos SMTP y Cola de Mensajes (RF-01, Sección 2.1.6, 2.1.8.3 y 3.1.3.2 del ERS)
  *  - Utiliza Nodemailer sobre SMTP (puertos seguros 465 o 587 con TLS).
  *  - Encola automáticamente envíos fallidos para reintento (Sección 2.1.8.3).
- *  - Si no hay credenciales SMTP en .env, almacena el respaldo en database/mail_outbox/ para inspección local.
+ *  - Guarda siempre una copia HTML/JSON en database/mail_outbox/ para que el Administrador pueda visualizar
+ *    el correo exacto desde la tabla de Historial de Cotizaciones (Log).
  */
 export class MailService {
   #retryQueue = [];
-  #outboxDir;
 
-  constructor() {
-    this.#outboxDir = path.join(envConfig.rootDir, 'database', 'mail_outbox');
+  get outboxDir() {
+    return path.join(envConfig.storageRootDir, 'database', 'mail_outbox');
   }
 
   /**
@@ -22,37 +23,45 @@ export class MailService {
    */
   static buildQuotationHtml(quotation) {
     const filesHtml = quotation.files?.length > 0
-      ? `<ul>${quotation.files.map((f) => `<li>${f}</li>`).join('')}</ul>`
+      ? `<ul>${quotation.files.map((f) => `<li><a href="http://localhost:${envConfig.port}/api/quotations/${quotation.reference}/files/${encodeURIComponent(f)}" target="_blank">${f}</a></li>`).join('')}</ul>`
       : '<p><em>Sin documentos adjuntos (El cliente requiere orientación de un asesor).</em></p>';
 
     return `
       <!DOCTYPE html>
       <html lang="es">
-      <head><meta charset="utf-8" /></head>
-      <body style="font-family: Arial, sans-serif; color: #1e293b; line-height: 1.6;">
-        <div style="max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-          <div style="background: #0b1120; color: #ffffff; padding: 20px 24px; border-bottom: 3px solid #9d0000;">
-            <h2 style="margin: 0; font-size: 20px;">Nueva Solicitud de Cotización — SERVI PROCE</h2>
-            <p style="margin: 4px 0 0; font-size: 13px; color: #cbd5e1;">Folio de seguimiento: <strong>${quotation.reference}</strong></p>
+      <head>
+        <meta charset="utf-8" />
+        <title>Cotización ${quotation.reference} — Servi Proce</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; padding: 24px;">
+        <div style="max-width: 640px; margin: 0 auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
+          <div style="background: #0b1120; color: #ffffff; padding: 22px 28px; border-bottom: 4px solid #9d0000;">
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 4px;">Notificación Automática SMTP (RF-01)</div>
+            <h2 style="margin: 0; font-size: 21px;">Nueva Solicitud de Cotización — SERVI PROCE</h2>
+            <p style="margin: 6px 0 0; font-size: 13px; color: #cbd5e1;">Folio de seguimiento: <strong style="color: #ffffff;">${quotation.reference}</strong></p>
           </div>
-          <div style="padding: 24px;">
-            <h3 style="margin-top: 0; color: #9d0000;">Datos del Prospecto Comercial</h3>
+          <div style="padding: 28px;">
+            <div style="background: #f1f5f9; border-left: 4px solid #0b1120; padding: 10px 14px; margin-bottom: 20px; font-size: 13px;">
+              <strong>Destinatarios (Ventas):</strong> ${envConfig.smtp.salesEmail}<br/>
+              <strong>Responder a (Prospecto):</strong> <a href="mailto:${quotation.email}">${quotation.email}</a>
+            </div>
+            <h3 style="margin-top: 0; color: #9d0000; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Datos del Prospecto Comercial</h3>
             <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-              <tr><td style="padding: 6px 0; font-weight: bold; width: 160px;">Nombre:</td><td>${quotation.name}</td></tr>
-              <tr><td style="padding: 6px 0; font-weight: bold;">Correo Electrónico:</td><td><a href="mailto:${quotation.email}">${quotation.email}</a></td></tr>
-              <tr><td style="padding: 6px 0; font-weight: bold;">Teléfono:</td><td>${quotation.phone || 'No especificado'}</td></tr>
-              <tr><td style="padding: 6px 0; font-weight: bold;">Empresa:</td><td>${quotation.company || 'No especificada'}</td></tr>
-              <tr><td style="padding: 6px 0; font-weight: bold;">Servicio Seleccionado:</td><td><strong>${quotation.service}</strong></td></tr>
-              ${quotation.operation ? `<tr><td style="padding: 6px 0; font-weight: bold;">Operación / Modo:</td><td>${quotation.operation} / ${quotation.mode}</td></tr>` : ''}
-              ${quotation.country ? `<tr><td style="padding: 6px 0; font-weight: bold;">País / Industria:</td><td>${quotation.country} / ${quotation.industry}</td></tr>` : ''}
-              ${quotation.hazmat ? `<tr><td style="padding: 6px 0; font-weight: bold; color: #b91c1c;">Mercancía Peligrosa:</td><td>SÍ (HAZMAT)</td></tr>` : ''}
+              <tr><td style="padding: 7px 0; font-weight: bold; width: 170px;">Nombre Completo:</td><td>${quotation.name}</td></tr>
+              <tr><td style="padding: 7px 0; font-weight: bold;">Correo Electrónico:</td><td><a href="mailto:${quotation.email}">${quotation.email}</a></td></tr>
+              <tr><td style="padding: 7px 0; font-weight: bold;">Teléfono:</td><td>${quotation.phone || 'No especificado'}</td></tr>
+              <tr><td style="padding: 7px 0; font-weight: bold;">Empresa:</td><td>${quotation.company || 'No especificada'}</td></tr>
+              <tr><td style="padding: 7px 0; font-weight: bold;">Servicio Seleccionado:</td><td><span style="background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 999px; font-weight: bold; font-size: 13px;">${quotation.service}</span></td></tr>
+              ${quotation.operation ? `<tr><td style="padding: 7px 0; font-weight: bold;">Operación / Modalidad:</td><td>${quotation.operation.toUpperCase()} / ${quotation.mode.toUpperCase()}</td></tr>` : ''}
+              ${quotation.country ? `<tr><td style="padding: 7px 0; font-weight: bold;">País Origen/Destino:</td><td>${quotation.country} (${quotation.industry || 'General'})</td></tr>` : ''}
+              ${quotation.hazmat ? `<tr><td style="padding: 7px 0; font-weight: bold; color: #b91c1c;">Mercancía Peligrosa:</td><td><strong style="color: #b91c1c;">SÍ (HAZMAT - Requiere MSDS)</strong></td></tr>` : ''}
             </table>
-            ${quotation.description ? `<h4 style="margin-bottom: 6px;">Descripción / Comentarios:</h4><p style="background: #f8fafc; padding: 12px; border-radius: 6px;">${quotation.description}</p>` : ''}
-            <h4 style="margin-bottom: 6px;">Documentación Adjunta:</h4>
+            ${quotation.description ? `<h4 style="margin: 20px 0 6px; color: #0f172a;">Descripción de la Carga / Requerimiento:</h4><p style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 6px; margin-top: 0;">${quotation.description}</p>` : ''}
+            <h4 style="margin: 20px 0 6px; color: #0f172a;">Documentación Adjunta (Sanitizada según RF-09):</h4>
             ${filesHtml}
           </div>
-          <div style="background: #f1f5f9; padding: 12px 24px; font-size: 12px; color: #64748b;">
-            Mensaje generado automáticamente por el Sistema Web de Servi Proce conforme al RF-01 del ERS. Score reCAPTCHA: ${quotation.recaptchaScore}
+          <div style="background: #0f172a; padding: 14px 28px; font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between;">
+            <span>Cumplimiento Normativo LFPDPPP • Regla de Cero Costos (RF-01) • Validación reCAPTCHA Score: ${quotation.recaptchaScore}</span>
           </div>
         </div>
       </body>
@@ -61,36 +70,54 @@ export class MailService {
   }
 
   /**
-   * Envía la notificación de cotización por SMTP o la registra en el buzón de respaldo local
+   * Obtiene el HTML del correo enviado/generado para vista previa desde el Panel Admin
+   */
+  async getEmailPreviewHtml(reference) {
+    const htmlFile = path.join(this.outboxDir, `${reference}.html`);
+    if (fsSync.existsSync(htmlFile)) {
+      return fs.readFile(htmlFile, 'utf8');
+    }
+    return null;
+  }
+
+  /**
+   * Envía la notificación de cotización por SMTP y guarda copia verificable en mail_outbox
    */
   async sendQuotationNotification(quotation, attachments = []) {
     const smtpConfig = envConfig.smtp;
     const html = MailService.buildQuotationHtml(quotation);
     const subject = `[Servi Proce ${quotation.reference}] Solicitud de Cotización: ${quotation.service} - ${quotation.name}`;
 
-    // Si no hay servidor SMTP configurado aún en .env, guardar en outbox local de respaldo
+    // Guardar copia auditable del correo HTML y metadatos
+    await fs.mkdir(this.outboxDir, { recursive: true });
+    const outboxHtmlFile = path.join(this.outboxDir, `${quotation.reference}.html`);
+    const outboxJsonFile = path.join(this.outboxDir, `${quotation.reference}.json`);
+    await fs.writeFile(outboxHtmlFile, html, 'utf8');
+    await fs.writeFile(
+      outboxJsonFile,
+      JSON.stringify(
+        {
+          reference: quotation.reference,
+          to: smtpConfig.salesEmail,
+          from: smtpConfig.from,
+          replyTo: quotation.email,
+          subject,
+          attachments: quotation.files || [],
+          createdAt: new Date().toISOString(),
+        },
+        null,
+        2
+      ),
+      'utf8'
+    );
+
     if (!smtpConfig.host || !smtpConfig.user || !smtpConfig.pass) {
-      await fs.mkdir(this.#outboxDir, { recursive: true });
-      const outboxFile = path.join(this.#outboxDir, `${quotation.reference}.json`);
-      await fs.writeFile(
-        outboxFile,
-        JSON.stringify(
-          {
-            to: smtpConfig.salesEmail,
-            from: smtpConfig.from,
-            replyTo: quotation.email,
-            subject,
-            html,
-            createdAt: new Date().toISOString(),
-          },
-          null,
-          2
-        ),
-        'utf8'
-      );
-      await quotationLogRepository.updateSmtpStatus(quotation.reference, 'saved_local_outbox');
-      console.log(`[MailService] (Modo Respaldo sin credenciales SMTP) Correo guardado en ${outboxFile}`);
-      return { sent: true, mode: 'local_outbox' };
+      await quotationLogRepository.updateSmtpStatus(quotation.reference, 'ready_html_outbox');
+      return {
+        sent: true,
+        mode: 'ready_html_outbox',
+        previewUrl: `http://localhost:${envConfig.port}/api/quotations/${quotation.reference}/email-preview`,
+      };
     }
 
     try {
@@ -100,7 +127,7 @@ export class MailService {
       const transporter = createTransport({
         host: smtpConfig.host,
         port: smtpConfig.port,
-        secure: smtpConfig.port === 465, // Puerto 465 SSL directo o 587 STARTTLS (Sección 3.1.4)
+        secure: smtpConfig.port === 465,
         auth: {
           user: smtpConfig.user,
           pass: smtpConfig.pass,
@@ -117,7 +144,11 @@ export class MailService {
       });
 
       await quotationLogRepository.updateSmtpStatus(quotation.reference, 'sent_smtp');
-      return { sent: true, mode: 'smtp' };
+      return {
+        sent: true,
+        mode: 'smtp',
+        previewUrl: `http://localhost:${envConfig.port}/api/quotations/${quotation.reference}/email-preview`,
+      };
     } catch (err) {
       console.error(`[MailService] Fallo temporal SMTP para ${quotation.reference}, encolando reintento:`, err.message);
       await quotationLogRepository.updateSmtpStatus(quotation.reference, 'queued_retry');
@@ -126,9 +157,6 @@ export class MailService {
     }
   }
 
-  /**
-   * Sección 2.1.8.3: Encolamiento de Correos (Cola de mensajes con reintento automático)
-   */
   #enqueueRetry(quotation, attachments, attempt = 1) {
     if (attempt > 3) {
       quotationLogRepository.updateSmtpStatus(quotation.reference, 'failed_smtp').catch(() => {});

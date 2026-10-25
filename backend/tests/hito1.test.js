@@ -10,6 +10,9 @@ import { promotionCronService } from '../src/services/PromotionCronService.js';
 
 test('Hito 1 - Pruebas de Unidad y Módulos según ERS (RF-01, RF-02, RF-07, RF-09, RF-10, RNF-03, RNF-04, RNF-05)', async (t) => {
   await dbManager.initialize();
+  t.after(async () => {
+    await dbManager.close();
+  });
 
   await t.test('RF-09: Sanitización y Normalización de Nombres de Archivos', () => {
     const result = SanitizationService.normalizeFilename('Cotización Aérea ÁÉÍÓÚ Ñ #2026 (Final).PDF');

@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export default function Footer({ lang }) {
-  const [currentYear, setCurrentYear] = useState(() => new Date().getFullYear().toString());
+  const [currentYear, setCurrentYear] = useState('2026');
 
   useEffect(() => {
-    // RF-08: Extracción dinámica del año en curso para Derechos Reservados
+    // RF-08: Extracción dinámica del año en curso dentro de useEffect para cumplir cacheComponents de Next.js 16
     setCurrentYear(new Date().getFullYear().toString());
   }, []);
 

@@ -30,8 +30,8 @@ export class BackendServer {
   #rateLimitMap = new Map();
 
   constructor() {
-    this.#uploadsDir = path.join(envConfig.rootDir, 'uploads');
-    this.#quotationsFilesDir = path.join(envConfig.rootDir, 'database', 'cotizaciones');
+    this.#uploadsDir = path.join(envConfig.storageRootDir, 'uploads');
+    this.#quotationsFilesDir = path.join(envConfig.storageRootDir, 'database', 'cotizaciones');
   }
 
   async initialize() {
@@ -394,6 +394,67 @@ export class BackendServer {
         return BackendServer.#sendJson(res, 200, { ok: true, data: logs });
       }
 
+      // 12.b GET /api/quotations/:ref/email-preview (Vista previa del correo HTML generado/enviado para el Admin)
+      const emailPreviewMatch = pathname.match(/^\/api\/quotations\/([A-Za-z0-9-]+)\/email-preview$/);
+      if (req.method === 'GET' && emailPreviewMatch) {
+        const ref = emailPreviewMatch[1];
+        let html = await mailService.getEmailPreviewHtml(ref);
+        if (!html) {
+          const allLogs = await quotationLogRepository.findAllReadOnly();
+          const logEntry = allLogs.find((l) => l.reference === ref);
+          if (logEntry) {
+            html = mailService.constructor.buildQuotationHtml(logEntry);
+          }
+        }
+        if (!html) {
+          return BackendServer.#sendJson(res, 404, { ok: false, error: 'EMAIL_PREVIEW_NOT_FOUND' });
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(html);
+        return;
+      }
+
+      // 12.c GET /api/quotations/:ref/files/:filename (Descarga/Visualización de archivos adjuntos sanitizados RF-09)
+      const fileDownloadMatch = pathname.match(/^\/api\/quotations\/([A-Za-z0-9-]+)\/files\/(.+)$/);
+      if (req.method === 'GET' && fileDownloadMatch) {
+        const ref = fileDownloadMatch[1];
+        const rawFile = fileDownloadMatch[2];
+        const safeName = SanitizationService.normalizeFilename(rawFile).fullName;
+        const filePath = path.join(this.#quotationsFilesDir, ref, safeName);
+
+        if (!fsSync.existsSync(filePath)) {
+          return BackendServer.#sendJson(res, 404, { ok: false, error: 'ATTACHMENT_NOT_FOUND' });
+        }
+
+        const ext = path.extname(safeName).toLowerCase();
+        const mimeMap = {
+          '.pdf': 'application/pdf',
+          '.png': 'image/png',
+          '.jpg': 'image/jpeg',
+          '.jpeg': 'image/jpeg',
+          '.webp': 'image/webp',
+          '.xml': 'application/xml',
+          '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        };
+        const buf = await fs.readFile(filePath);
+        res.writeHead(200, {
+          'Content-Type': mimeMap[ext] || 'application/octet-stream',
+          'Content-Disposition': `inline; filename="${safeName}"`,
+        });
+        res.end(buf);
+        return;
+      }
+
+      // 12.d POST /api/admin/promotions/audit-cron (Demostración en vivo del Cron Job RF-02 de 365 días)
+      if (req.method === 'POST' && pathname === '/api/admin/promotions/audit-cron') {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+        const auditResult = await promotionCronService.auditAndExpirePromotions();
+        await WebhookService.emitRevalidation({ entity: 'promotion', action: 'cron-audit', tags: ['promotions', 'avisos'] });
+        return BackendServer.#sendJson(res, 200, { ok: true, ...auditResult });
+      }
+
       // 13. POST /api/admin/upload (RF-09: Subida y Normalización de Archivos Multimedia <= 2 MB)
       if (req.method === 'POST' && pathname === '/api/admin/upload') {
         const admin = await this.#requireAdmin(req, res);
@@ -411,7 +472,7 @@ export class BackendServer {
         const filePath = path.join(this.#uploadsDir, uniqueSafeName);
         await fs.writeFile(filePath, buffer);
 
-        const publicUrl = `http://localhost:${envConfig.port}/uploads/${uniqueSafeName}`;
+        const publicUrl = `/uploads/${uniqueSafeName}`;
         return BackendServer.#sendJson(res, 201, {
           ok: true,
           originalName: body.filename,
@@ -530,6 +591,7 @@ export class BackendServer {
 
   async close() {
     promotionCronService.stop();
+    await dbManager.close();
     if (!this.#server) return;
     return new Promise((resolve) => this.#server.close(() => resolve()));
   }

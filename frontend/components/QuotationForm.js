@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Script from 'next/script';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337/api';
+const API_CLIENT_URL = '/api/backend';
 
 export default function QuotationForm({ lang }) {
   const [formData, setFormData] = useState({
@@ -36,7 +36,7 @@ export default function QuotationForm({ lang }) {
 
   const sendToBackend = async (recaptchaToken = '') => {
     try {
-      const response = await fetch(`${API_BASE_URL}/quotations`, {
+      const response = await fetch(`${API_CLIENT_URL}/quotations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

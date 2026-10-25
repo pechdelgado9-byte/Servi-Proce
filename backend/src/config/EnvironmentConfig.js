@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,6 +11,8 @@ const ROOT_DIR = path.resolve(__dirname, '..', '..');
  * Carga variables de entorno desde .env sin exponer credenciales en el código fuente.
  */
 export class EnvironmentConfig {
+  #writableBaseDir = null;
+
   constructor() {
     this.#loadDotEnv();
   }
@@ -37,6 +40,23 @@ export class EnvironmentConfig {
 
   get rootDir() {
     return ROOT_DIR;
+  }
+
+  /**
+   * Devuelve el directorio base escribible para datos y subidas (usa ROOT_DIR o fallback temporal si corre en sandbox restringido)
+   */
+  get storageRootDir() {
+    if (this.#writableBaseDir) return this.#writableBaseDir;
+    try {
+      const testDir = path.join(ROOT_DIR, 'database');
+      fs.mkdirSync(testDir, { recursive: true });
+      this.#writableBaseDir = ROOT_DIR;
+    } catch {
+      const fallback = path.join(os.tmpdir(), 'serviproce-backend-runtime');
+      fs.mkdirSync(fallback, { recursive: true });
+      this.#writableBaseDir = fallback;
+    }
+    return this.#writableBaseDir;
   }
 
   get port() {

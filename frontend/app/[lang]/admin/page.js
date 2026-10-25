@@ -11,9 +11,11 @@ import {
   removeBlogPost,
   savePromotion,
   removePromotion,
+  runCronAudit,
   saveAviso,
   removeAviso,
 } from './actions';
+import { API_BASE_URL } from '@/lib/api';
 
 export const metadata = {
   title: 'Panel de Administración (CMS) | Servi Proce',
@@ -170,6 +172,11 @@ async function AdminContent({ params, searchParams }) {
         {sp.ok === 'saved' && (
           <p className="alert alert--success mb-4" role="status">
             {L('Cambios guardados y sincronizados con el sitio público (Webhook SSG ejecutado).', 'Changes saved and synced with the public site (SSG Webhook triggered).')}
+          </p>
+        )}
+        {sp.ok === 'cron' && (
+          <p className="alert alert--success mb-4" role="status">
+            {L('Auditoría del Cron Job (RF-02) ejecutada: las promociones con más de 365 días han sido ocultadas automáticamente.', 'Cron Job Audit (RF-02) executed: promotions older than 365 days have been automatically hidden.')}
           </p>
         )}
         {sp.ok === 'deleted' && (
@@ -484,9 +491,17 @@ async function AdminContent({ params, searchParams }) {
             </div>
 
             <div>
-              <h2 className="mb-4" style={{ fontSize: '1.4rem' }}>
-                {L('Promociones Registradas', 'Registered Promotions')} ({dashboard.promotions.length})
-              </h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.4rem', margin: 0 }}>
+                  {L('Promociones Registradas', 'Registered Promotions')} ({dashboard.promotions.length})
+                </h2>
+                <form action={runCronAudit}>
+                  <input type="hidden" name="lang" value={lang} />
+                  <button type="submit" className="btn btn--secondary text-sm">
+                    ⏱️ {L('Ejecutar Auditoría Cron 365d (RF-02)', 'Run 365d Cron Audit (RF-02)')}
+                  </button>
+                </form>
+              </div>
               <ul className="admin-list" role="list">
                 {dashboard.promotions.map((p) => (
                   <li key={p.id} className="admin-list__item card glass-card">
@@ -551,9 +566,9 @@ async function AdminContent({ params, searchParams }) {
                       <th style={{ padding: '0.75rem 0.5rem' }}>{L('Fecha', 'Date')}</th>
                       <th style={{ padding: '0.75rem 0.5rem' }}>{L('Prospecto', 'Lead')}</th>
                       <th style={{ padding: '0.75rem 0.5rem' }}>{L('Servicio (RF-01)', 'Service (RF-01)')}</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Detalles / Archivos', 'Details / Files')}</th>
+                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Detalles / Archivos (RF-09)', 'Details / Files (RF-09)')}</th>
                       <th style={{ padding: '0.75rem 0.5rem' }}>reCAPTCHA</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>SMTP</th>
+                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Correo SMTP (RF-01)', 'SMTP Email (RF-01)')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -574,14 +589,36 @@ async function AdminContent({ params, searchParams }) {
                         <td style={{ padding: '0.75rem 0.5rem', maxWidth: '280px' }}>
                           {log.description && <div className="mb-1">{log.description}</div>}
                           {log.files?.length > 0 && (
-                            <div className="text-sm text-primary">
-                              📎 {log.files.join(', ')}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.35rem' }}>
+                              {log.files.map((fileName) => (
+                                <a
+                                  key={fileName}
+                                  href={`/api/backend/quotations/${encodeURIComponent(log.reference)}/files/${encodeURIComponent(fileName)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-primary"
+                                  style={{ textDecoration: 'underline', fontWeight: 600 }}
+                                >
+                                  📎 {fileName}
+                                </a>
+                              ))}
                             </div>
                           )}
                         </td>
                         <td style={{ padding: '0.75rem 0.5rem' }}>{Number(log.recaptchaScore).toFixed(1)}</td>
                         <td style={{ padding: '0.75rem 0.5rem' }}>
-                          <code>{log.smtpStatus}</code>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-start' }}>
+                            <code>{log.smtpStatus}</code>
+                            <a
+                              href={`/api/backend/quotations/${encodeURIComponent(log.reference)}/email-preview`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn--secondary text-sm"
+                              style={{ padding: '0.25rem 0.6rem', fontSize: '0.78rem' }}
+                            >
+                              ✉️ {L('Ver Correo HTML', 'View HTML Email')}
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     ))}

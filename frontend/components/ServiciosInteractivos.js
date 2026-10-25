@@ -1,11 +1,31 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-// Servicios secundarios modernizados: selector dinámico con numeración, detalle visual con imagen y beneficios claros.
+// Servicios secundarios modernizados: selector dinámico con soporte de anclas URL (#nom, #immex, etc. según RF-03)
 export default function ServiciosInteractivos({ lang, items }) {
   const [activeId, setActiveId] = useState(items[0]?.id ?? null);
+
+  useEffect(() => {
+    const syncFromHash = () => {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (hash && items.some((i) => i.id === hash)) {
+        setActiveId(hash);
+      }
+    };
+    syncFromHash();
+    window.addEventListener('hashchange', syncFromHash);
+    return () => window.removeEventListener('hashchange', syncFromHash);
+  }, [items]);
+
+  const handleSelect = (id) => {
+    setActiveId(id);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `#${id}`);
+    }
+  };
+
   const active = items.find((i) => i.id === activeId) ?? items[0];
 
   return (
@@ -23,7 +43,7 @@ export default function ServiciosInteractivos({ lang, items }) {
               aria-selected={isActive}
               aria-controls="service-panel"
               className={`master-detail__item ${isActive ? 'master-detail__item--active' : ''}`}
-              onClick={() => setActiveId(item.id)}
+              onClick={() => handleSelect(item.id)}
             >
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span className="master-detail__index">{indexNum}</span>
@@ -102,4 +122,3 @@ export default function ServiciosInteractivos({ lang, items }) {
     </div>
   );
 }
-

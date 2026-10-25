@@ -67,6 +67,13 @@ test('Hito 2 - Pruebas de Integración de la API REST, Cotizaciones, reCAPTCHA, 
     const data = await res.json();
     assert.equal(data.ok, true);
     assert.match(data.ref, /^SP-\d{8}-[A-F0-9]{4}$/);
+
+    // Verificar visor en vivo del correo HTML generado para esta cotización
+    const previewRes = await fetch(`${baseUrl}/api/quotations/${data.ref}/email-preview`);
+    assert.equal(previewRes.status, 200);
+    const previewHtml = await previewRes.text();
+    assert.ok(previewHtml.includes(data.ref));
+    assert.ok(previewHtml.includes('Exportadora del Pacífico'));
   });
 
   await t.test('RF-07 y Sección 3.1.1: Login JWT, CRUD de Blog y consulta de Tabla Log de Cotizaciones (Solo Lectura)', async () => {

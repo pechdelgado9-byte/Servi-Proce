@@ -21,11 +21,22 @@ export class DatabaseManager {
   #dbDir;
 
   constructor() {
-    this.#dbDir = path.join(envConfig.rootDir, 'database');
+    this.#dbDir = path.join(envConfig.storageRootDir, 'database');
   }
 
   get mode() {
     return this.#mode;
+  }
+
+  async close() {
+    if (this.#pgPool) {
+      await this.#pgPool.end();
+      this.#pgPool = null;
+    }
+    if (this.#sqliteDb) {
+      this.#sqliteDb.close();
+      this.#sqliteDb = null;
+    }
   }
 
   async initialize() {
@@ -53,6 +64,7 @@ export class DatabaseManager {
       const { DatabaseSync } = await import('node:sqlite');
       const sqliteFile = path.join(this.#dbDir, 'serviproce.sqlite');
       this.#sqliteDb = new DatabaseSync(sqliteFile);
+      this.#sqliteDb.exec('PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;');
       this.#mode = 'sqlite';
       console.log(`[DatabaseManager] Motor SQL embebido activo en ${sqliteFile} (Prepared Statements RNF-05 activos).`);
       this.#createSqliteSchema();
