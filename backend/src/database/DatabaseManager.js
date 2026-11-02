@@ -3,7 +3,7 @@ import fsSync from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { envConfig } from '../config/EnvironmentConfig.js';
-import { INITIAL_PROMOTIONS, INITIAL_BLOG_POSTS, INITIAL_AVISOS } from './SeedData.js';
+import { INITIAL_PROMOTIONS, INITIAL_BLOG_POSTS, INITIAL_AVISOS, INITIAL_HOME_STATS } from './SeedData.js';
 
 /**
  * Clase DatabaseManager (Sección 2.1.9.1, 3.1.3 y RNF-05 del ERS)
@@ -94,6 +94,7 @@ export class DatabaseManager {
         avisos: [],
         quotation_logs: [],
         newsletter_subscribers: [],
+        home_stats: [],
       };
       await this.#saveJsonStore();
     }
@@ -191,6 +192,16 @@ export class DatabaseManager {
           }
         }
         await this.#saveJsonStore();
+      } else {
+        const allMatch = norm.match(/UPDATE\s+([a-z_]+)\s+SET\s+([a-z_]+)\s*=\s*\$1$/i);
+        if (allMatch) {
+          const table = allMatch[1];
+          const col = allMatch[2];
+          for (const r of this.#jsonTables[table] || []) {
+            r[col] = params[0];
+          }
+          await this.#saveJsonStore();
+        }
       }
       return [];
     }
@@ -309,6 +320,15 @@ export class DatabaseManager {
         locale TEXT NOT NULL DEFAULT 'es',
         subscribed_at TEXT NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS home_stats (
+        id TEXT PRIMARY KEY,
+        value INTEGER NOT NULL DEFAULT 0,
+        suffix TEXT NOT NULL DEFAULT '+',
+        label_es TEXT NOT NULL,
+        label_en TEXT NOT NULL,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        active INTEGER NOT NULL DEFAULT 0
+      );
     `);
   }
 
@@ -404,6 +424,15 @@ export class DatabaseManager {
         locale TEXT NOT NULL DEFAULT 'es',
         subscribed_at TEXT NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS home_stats (
+        id TEXT PRIMARY KEY,
+        value INTEGER NOT NULL DEFAULT 0,
+        suffix TEXT NOT NULL DEFAULT '+',
+        label_es TEXT NOT NULL,
+        label_en TEXT NOT NULL,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        active INTEGER NOT NULL DEFAULT 0
+      );
     `);
   }
 
@@ -469,6 +498,18 @@ export class DatabaseManager {
           `INSERT INTO avisos (id, type, title_es, title_en, body_es, body_en, source_url, published_at, expires_at, pinned)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [a.id, a.type, a.title_es, a.title_en, a.body_es, a.body_en, a.sourceUrl, a.publishedAt, a.expiresAt, a.pinned ? 1 : 0]
+        );
+      }
+    }
+
+    // 5. Sembrar Métricas / Estadísticas de Inicio iniciales (Ocultas por defecto, editables en Admin)
+    const stats = await this.query('SELECT id FROM home_stats LIMIT 1');
+    if (stats.length === 0) {
+      for (const s of INITIAL_HOME_STATS) {
+        await this.query(
+          `INSERT INTO home_stats (id, value, suffix, label_es, label_en, sort_order, active)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [s.id, s.value, s.suffix, s.label_es, s.label_en, s.sort_order, s.active ? 1 : 0]
         );
       }
     }

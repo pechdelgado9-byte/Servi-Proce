@@ -116,3 +116,33 @@ export const INITIAL_AVISOS = [
     pinned: false,
   },
 ];
+
+export const INITIAL_HOME_STATS = [
+  {
+    id: 'stat-01',
+    value: 10,
+    suffix: '+',
+    label_es: 'Años de Experiencia',
+    label_en: 'Years of Experience',
+    sort_order: 1,
+    active: 0,
+  },
+  {
+    id: 'stat-02',
+    value: 500,
+    suffix: '+',
+    label_es: 'Clientes Satisfechos',
+    label_en: 'Satisfied Clients',
+    sort_order: 2,
+    active: 0,
+  },
+  {
+    id: 'stat-03',
+    value: 30,
+    suffix: '+',
+    label_es: 'Países Conectados',
+    label_en: 'Connected Countries',
+    sort_order: 3,
+    active: 0,
+  },
+];

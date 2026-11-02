@@ -11,6 +11,7 @@ import {
   blogRepository,
   avisoRepository,
   quotationLogRepository,
+  homeStatRepository,
 } from './repositories/ContentRepository.js';
 import { AuthService } from './services/AuthService.js';
 import { SanitizationService } from './services/SanitizationService.js';
@@ -189,6 +190,12 @@ export class BackendServer {
         });
       }
 
+      // 3.b GET /api/stats (Métricas / Estadísticas dinámicas de Inicio)
+      if (req.method === 'GET' && pathname === '/api/stats') {
+        const stats = await homeStatRepository.findAllPublic(locale);
+        return BackendServer.#sendJson(res, 200, { ok: true, data: stats });
+      }
+
       // 4. GET /api/blog-posts y GET /api/blog-posts/:slug (RF-07, RF-10)
       if (req.method === 'GET' && pathname === '/api/blog-posts') {
         const posts = await blogRepository.findAllPublic(locale);
@@ -361,17 +368,18 @@ export class BackendServer {
         return BackendServer.#sendJson(res, verification.valid ? 200 : 401, verification);
       }
 
-      // 11. GET /api/admin/dashboard (Datos completos para el CMS: Blog, Promociones, Avisos y Tabla Log de Cotizaciones)
+      // 11. GET /api/admin/dashboard (Datos completos para el CMS: Blog, Promociones, Avisos, Métricas y Tabla Log de Cotizaciones)
       if (req.method === 'GET' && pathname === '/api/admin/dashboard') {
         const admin = await this.#requireAdmin(req, res);
         if (!admin) return;
 
-        const [promotions, blogPosts, avisos, quotationLogs, newsletter] = await Promise.all([
+        const [promotions, blogPosts, avisos, quotationLogs, newsletter, homeStats] = await Promise.all([
           promotionRepository.findAllAdmin(),
           blogRepository.findAllAdmin(),
           avisoRepository.findAllAdmin(),
           quotationLogRepository.findAllReadOnly(),
           dbManager.query('SELECT * FROM newsletter_subscribers ORDER BY subscribed_at DESC'),
+          homeStatRepository.findAllAdmin(),
         ]);
 
         return BackendServer.#sendJson(res, 200, {
@@ -383,6 +391,7 @@ export class BackendServer {
             avisos,
             quotationLogs,
             newsletter,
+            homeStats,
           },
         });
       }
@@ -563,6 +572,43 @@ export class BackendServer {
 
         await avisoRepository.delete(id);
         await WebhookService.emitRevalidation({ entity: 'aviso', action: 'delete', tags: ['avisos'] });
+        return BackendServer.#sendJson(res, 200, { ok: true });
+      }
+
+      // 17. CRUD de Métricas / Estadísticas de Inicio (/api/admin/stats) - RF-07
+      if (pathname === '/api/admin/stats/visibility' && req.method === 'POST') {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+        const body = await BackendServer.#readJsonBody(req);
+        const list = await homeStatRepository.setAllVisibility(Boolean(body.active));
+        await WebhookService.emitRevalidation({ entity: 'stats', action: 'visibility', tags: ['stats'] });
+        return BackendServer.#sendJson(res, 200, { ok: true, data: list });
+      }
+
+      if (pathname === '/api/admin/stats' && req.method === 'POST') {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+        const body = await BackendServer.#readJsonBody(req);
+        const created = await homeStatRepository.create(body);
+        await WebhookService.emitRevalidation({ entity: 'stats', action: 'create', tags: ['stats'] });
+        return BackendServer.#sendJson(res, 201, { ok: true, data: created });
+      }
+
+      if (pathname.startsWith('/api/admin/stats/') && (req.method === 'PUT' || req.method === 'DELETE')) {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+        const id = pathname.slice('/api/admin/stats/'.length);
+
+        if (req.method === 'PUT') {
+          const body = await BackendServer.#readJsonBody(req);
+          const updated = await homeStatRepository.update(id, body);
+          if (!updated) return BackendServer.#sendJson(res, 404, { ok: false, error: 'NOT_FOUND' });
+          await WebhookService.emitRevalidation({ entity: 'stats', action: 'update', tags: ['stats'] });
+          return BackendServer.#sendJson(res, 200, { ok: true, data: updated });
+        }
+
+        await homeStatRepository.delete(id);
+        await WebhookService.emitRevalidation({ entity: 'stats', action: 'delete', tags: ['stats'] });
         return BackendServer.#sendJson(res, 200, { ok: true });
       }
 

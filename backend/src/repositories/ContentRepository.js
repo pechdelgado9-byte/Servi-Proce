@@ -411,7 +411,88 @@ export class QuotationLogRepository {
   }
 }
 
+export class HomeStatRepository {
+  async findAllPublic(locale = 'es') {
+    const rows = await dbManager.query('SELECT * FROM home_stats ORDER BY sort_order ASC, id ASC');
+    return rows
+      .filter((r) => Boolean(r.active))
+      .map((r) => ({
+        id: r.id,
+        value: Number(r.value) || 0,
+        suffix: r.suffix || '',
+        label: locale === 'en' && r.label_en ? r.label_en : r.label_es,
+      }));
+  }
+
+  async findAllAdmin() {
+    const rows = await dbManager.query('SELECT * FROM home_stats ORDER BY sort_order ASC, id ASC');
+    return rows.map((r) => ({
+      id: r.id,
+      value: Number(r.value) || 0,
+      suffix: r.suffix || '',
+      label_es: r.label_es,
+      label_en: r.label_en,
+      sortOrder: Number(r.sort_order) || 0,
+      active: Boolean(r.active),
+    }));
+  }
+
+  async create(data) {
+    const label_es = SanitizationService.sanitizeText(data.label_es);
+    if (!label_es) {
+      throw new Error('STAT_INVALID: La etiqueta en español es obligatoria.');
+    }
+    const label_en = SanitizationService.sanitizeText(data.label_en || label_es);
+    const value = Math.max(0, Number(data.value) || 0);
+    const suffix = SanitizationService.sanitizeText(data.suffix ?? '+').slice(0, 10);
+    const sortOrder = Number(data.sortOrder) || 1;
+    const active = Boolean(data.active);
+    const id = `stat-${crypto.randomUUID().slice(0, 6)}`;
+
+    await dbManager.query(
+      `INSERT INTO home_stats (id, value, suffix, label_es, label_en, sort_order, active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [id, value, suffix, label_es, label_en, sortOrder, active ? 1 : 0]
+    );
+
+    return { id, value, suffix, label_es, label_en, sortOrder, active };
+  }
+
+  async update(id, data) {
+    const rows = await dbManager.query('SELECT * FROM home_stats WHERE id = $1', [id]);
+    if (rows.length === 0) return null;
+    const prev = rows[0];
+
+    const label_es = SanitizationService.sanitizeText(data.label_es ?? prev.label_es);
+    const label_en = SanitizationService.sanitizeText(data.label_en ?? prev.label_en);
+    const value = data.value !== undefined ? Math.max(0, Number(data.value) || 0) : Number(prev.value);
+    const suffix = data.suffix !== undefined ? SanitizationService.sanitizeText(data.suffix).slice(0, 10) : prev.suffix;
+    const sortOrder = data.sortOrder !== undefined ? Number(data.sortOrder) || 1 : Number(prev.sort_order);
+    const active = data.active !== undefined ? Boolean(data.active) : Boolean(prev.active);
+
+    await dbManager.query(
+      `UPDATE home_stats
+       SET value = $1, suffix = $2, label_es = $3, label_en = $4, sort_order = $5, active = $6
+       WHERE id = $7`,
+      [value, suffix, label_es, label_en, sortOrder, active ? 1 : 0, id]
+    );
+
+    return { id, value, suffix, label_es, label_en, sortOrder, active };
+  }
+
+  async delete(id) {
+    await dbManager.query('DELETE FROM home_stats WHERE id = $1', [id]);
+    return true;
+  }
+
+  async setAllVisibility(active) {
+    await dbManager.query('UPDATE home_stats SET active = $1', [active ? 1 : 0]);
+    return this.findAllAdmin();
+  }
+}
+
 export const promotionRepository = new PromotionRepository();
 export const blogRepository = new BlogRepository();
 export const avisoRepository = new AvisoRepository();
 export const quotationLogRepository = new QuotationLogRepository();
+export const homeStatRepository = new HomeStatRepository();

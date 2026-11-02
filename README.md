@@ -123,7 +123,7 @@ npm run db:down   # Detiene el contenedor PostgreSQL
 
 ### 4. Contacto Omnicanal (`RF-05`)
 * Integración directa en Footer y vista Contacto con esquemas URI nativos:
-  * **Instagram Oficial:** `@serviproce`
+  * **Instagram Oficial:** `@serviproce_em` (`https://www.instagram.com/serviproce_em/`)
   * **WhatsApp Business:** `wa.me/52...`
   * **LinkedIn Corporativo:** Perfil oficial Servi Proce
   * **Facebook:** Presencia institucional

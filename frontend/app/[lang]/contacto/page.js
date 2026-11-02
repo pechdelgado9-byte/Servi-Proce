@@ -160,7 +160,7 @@ export default async function Contacto({ params }) {
 
               {/* Instagram */}
               <a 
-                href="https://www.instagram.com/serviproce/" 
+                href="https://www.instagram.com/serviproce_em/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="social-card-btn social-card-btn--instagram"
@@ -184,7 +184,7 @@ export default async function Contacto({ params }) {
                 </div>
                 <div style={{ textAlign: 'left' }}>
                   <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-secondary)' }}>Instagram Oficial</div>
-                  <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>@serviproce</div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>@serviproce_em</div>
                 </div>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', color: 'var(--color-primary)' }}>
                   <polyline points="9 18 15 12 9 6"></polyline>

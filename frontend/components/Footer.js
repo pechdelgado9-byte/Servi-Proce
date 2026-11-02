@@ -108,7 +108,7 @@ export default function Footer({ lang }) {
 
               {/* Instagram */}
               <a
-                href="https://www.instagram.com/serviproce/"
+                href="https://www.instagram.com/serviproce_em/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram Servi Proce"

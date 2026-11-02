@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { fetchPromotions } from '@/lib/api';
+import { fetchPromotions, fetchHomeStats } from '@/lib/api';
 import { fetchAvisos } from '@/lib/avisos';
 import { despachoSubservices, pick } from '@/lib/services-data';
 import AvisoCard from '../../components/AvisoCard';
@@ -19,9 +19,12 @@ export async function generateMetadata({ params }) {
 export default async function Home({ params }) {
   const { lang } = await params;
 
-  // Consumo de banner promocional (RF-02)
+  // Consumo de banner promocional (RF-02), avisos y estadísticas dinámicas
   const promo = await fetchPromotions(lang);
-  const avisos = await fetchAvisos(lang, { limit: 3 });
+  const [avisos, homeStats] = await Promise.all([
+    fetchAvisos(lang, { limit: 3 }),
+    fetchHomeStats(lang),
+  ]);
 
   return (
     <main className="page-wrapper">
@@ -142,23 +145,21 @@ export default async function Home({ params }) {
         </section>
       )}
 
-      {/* Stats Section */}
-      <section className="section bg-background">
-        <div className="container grid-3-col">
-          <div className="stat-box fade-in-up">
-            <div className="stat-number text-primary"><AnimatedCounter end={10} suffix="+" /></div>
-            <div className="text-secondary">{lang === 'es' ? 'Años de Experiencia' : 'Years of Experience'}</div>
+      {/* Stats Section (Gestionable y ocultable desde el Panel de Administración) */}
+      {homeStats.length > 0 && (
+        <section className="section bg-background">
+          <div className="container grid-3-col">
+            {homeStats.map((stat, idx) => (
+              <div key={stat.id} className={`stat-box fade-in-up${idx > 0 ? ` delay-${Math.min(idx, 2)}` : ''}`}>
+                <div className="stat-number text-primary">
+                  <AnimatedCounter end={Number(stat.value) || 0} suffix={stat.suffix || ''} duration={Number(stat.value) >= 100 ? 2500 : 2000} />
+                </div>
+                <div className="text-secondary">{stat.label}</div>
+              </div>
+            ))}
           </div>
-          <div className="stat-box fade-in-up delay-1">
-            <div className="stat-number text-primary"><AnimatedCounter end={500} suffix="+" duration={2500} /></div>
-            <div className="text-secondary">{lang === 'es' ? 'Clientes Satisfechos' : 'Satisfied Clients'}</div>
-          </div>
-          <div className="stat-box fade-in-up delay-2">
-            <div className="stat-number text-primary"><AnimatedCounter end={30} suffix="+" /></div>
-            <div className="text-secondary">{lang === 'es' ? 'Países Conectados' : 'Connected Countries'}</div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Compromiso / Tratos Section */}
       <section className="section bg-surface">

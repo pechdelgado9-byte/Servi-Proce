@@ -122,5 +122,10 @@ export async function fetchAdminDashboardData() {
       },
     ],
     newsletter: [{ id: 'sub-1', email: 'cliente@empresa.com.mx' }],
+    homeStats: [
+      { id: 'stat-01', value: 10, suffix: '+', label_es: 'Años de Experiencia', label_en: 'Years of Experience', sortOrder: 1, active: false },
+      { id: 'stat-02', value: 500, suffix: '+', label_es: 'Clientes Satisfechos', label_en: 'Satisfied Clients', sortOrder: 2, active: false },
+      { id: 'stat-03', value: 30, suffix: '+', label_es: 'Países Conectados', label_en: 'Connected Countries', sortOrder: 3, active: false },
+    ],
   };
 }

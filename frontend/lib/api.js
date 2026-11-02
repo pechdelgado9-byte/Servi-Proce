@@ -4,6 +4,7 @@ import { cacheTag, cacheLife } from 'next/cache';
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337/api';
 export const PROMOTIONS_TAG = 'promotions';
 export const BLOG_TAG = 'blog';
+export const STATS_TAG = 'stats';
 
 const FALLBACK_PROMOTION = {
   es: {
@@ -180,4 +181,25 @@ export async function fetchBlogPostBySlug(slug, lang = 'es') {
       ogImage: article.imageUrl || '/logo.png',
     },
   };
+}
+
+// Obtener métricas / estadísticas de inicio desde el Backend Headless (Ocultas por defecto si están desactivadas)
+export async function fetchHomeStats(lang = 'es') {
+  'use cache';
+  cacheTag(STATS_TAG);
+  cacheLife('hours');
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/stats?locale=${lang}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json.data)) return json.data;
+    }
+  } catch {
+    // Fallback vacío (sección oculta)
+  }
+
+  return [];
 }

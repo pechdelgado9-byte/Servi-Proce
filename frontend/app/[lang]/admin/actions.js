@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { cookies, headers } from 'next/headers';
 import { revalidatePath, updateTag } from 'next/cache';
-import { API_BASE_URL, BLOG_TAG, PROMOTIONS_TAG } from '@/lib/api';
+import { API_BASE_URL, BLOG_TAG, PROMOTIONS_TAG, STATS_TAG } from '@/lib/api';
 import { ADMIN_COOKIE, SESSION_MAX_AGE_S, getAdminToken } from '@/lib/auth';
 import { AVISOS_TAG } from '@/lib/avisos';
 
@@ -333,4 +333,80 @@ export async function removeAviso(formData) {
   updateTag(AVISOS_TAG);
   revalidateAllPublicPaths();
   redirect(`/${lang}/admin?tab=avisos&ok=deleted`);
+}
+
+/**
+ * CRUD de Métricas / Estadísticas de Inicio (/api/admin/stats)
+ */
+export async function saveHomeStat(formData) {
+  const lang = safeLang(formData.get('lang'));
+  const token = await getAdminToken();
+  if (!token) redirect(`/${lang}/admin`);
+
+  const s = (k) => String(formData.get(k) ?? '').trim();
+  const id = s('id');
+  const payload = {
+    value: Number(s('value')) || 0,
+    suffix: s('suffix') || '+',
+    label_es: s('label_es'),
+    label_en: s('label_en') || s('label_es'),
+    sortOrder: Number(s('sortOrder')) || 1,
+    active: formData.get('active') === 'on',
+  };
+
+  const url = id ? `${API_BASE_URL}/admin/stats/${encodeURIComponent(id)}` : `${API_BASE_URL}/admin/stats`;
+  const method = id ? 'PUT' : 'POST';
+
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    redirect(`/${lang}/admin?tab=stats&error=validation${id ? `&editStat=${encodeURIComponent(id)}` : ''}`);
+  }
+
+  updateTag(STATS_TAG);
+  revalidateAllPublicPaths();
+  redirect(`/${lang}/admin?tab=stats&ok=saved`);
+}
+
+export async function removeHomeStat(formData) {
+  const lang = safeLang(formData.get('lang'));
+  const token = await getAdminToken();
+  if (!token) redirect(`/${lang}/admin`);
+
+  const id = String(formData.get('id') ?? '').trim();
+  await fetch(`${API_BASE_URL}/admin/stats/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  updateTag(STATS_TAG);
+  revalidateAllPublicPaths();
+  redirect(`/${lang}/admin?tab=stats&ok=deleted`);
+}
+
+export async function toggleAllHomeStats(formData) {
+  const lang = safeLang(formData.get('lang'));
+  const token = await getAdminToken();
+  if (!token) redirect(`/${lang}/admin`);
+
+  const active = String(formData.get('active')) === 'true';
+  await fetch(`${API_BASE_URL}/admin/stats/visibility`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ active }),
+  });
+
+  updateTag(STATS_TAG);
+  revalidateAllPublicPaths();
+  redirect(`/${lang}/admin?tab=stats&ok=saved`);
 }
