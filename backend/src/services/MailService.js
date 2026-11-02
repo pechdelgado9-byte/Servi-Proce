@@ -70,6 +70,53 @@ export class MailService {
   }
 
   /**
+   * Construye el correo HTML de confirmación / acuse de recibo para el cliente que solicitó la cotización
+   */
+  static buildClientConfirmationHtml(quotation) {
+    const filesCount = quotation.files?.length || 0;
+    return `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="utf-8" />
+        <title>Confirmación de Solicitud ${quotation.reference} — Servi Proce</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; padding: 24px;">
+        <div style="max-width: 640px; margin: 0 auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
+          <div style="background: #0b1120; color: #ffffff; padding: 22px 28px; border-bottom: 4px solid #9d0000;">
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 4px;">SERVI PROCE • Logística y Despacho Aduanal</div>
+            <h2 style="margin: 0; font-size: 21px;">Hemos recibido su solicitud de cotización</h2>
+            <p style="margin: 6px 0 0; font-size: 13px; color: #cbd5e1;">Folio de seguimiento: <strong style="color: #ffffff;">${quotation.reference}</strong></p>
+          </div>
+          <div style="padding: 28px;">
+            <p style="margin-top: 0; font-size: 15px;">Estimado(a) <strong>${quotation.name}</strong>,</p>
+            <p style="font-size: 14px; color: #334155;">
+              Gracias por contactar a <strong>Servi Proce</strong>. Confirmamos la recepción de los datos de su operación. Un ejecutivo especializado ya cuenta con su requerimiento y se pondrá en contacto con usted a la brevedad para brindarle atención personalizada.
+            </p>
+            <h3 style="margin-top: 22px; color: #9d0000; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; font-size: 16px;">Resumen de su Solicitud</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+              <tr><td style="padding: 7px 0; font-weight: bold; width: 170px;">Folio:</td><td><strong>${quotation.reference}</strong></td></tr>
+              <tr><td style="padding: 7px 0; font-weight: bold;">Servicio:</td><td><span style="background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 999px; font-weight: bold; font-size: 13px;">${quotation.service}</span></td></tr>
+              ${quotation.operation ? `<tr><td style="padding: 7px 0; font-weight: bold;">Operación / Modalidad:</td><td>${quotation.operation.toUpperCase()} / ${quotation.mode.toUpperCase()}</td></tr>` : ''}
+              ${quotation.country ? `<tr><td style="padding: 7px 0; font-weight: bold;">País Origen/Destino:</td><td>${quotation.country} (${quotation.industry || 'General'})</td></tr>` : ''}
+              <tr><td style="padding: 7px 0; font-weight: bold;">Archivos Adjuntos:</td><td>${filesCount > 0 ? `${filesCount} documento(s) recibido(s)` : 'Sin adjuntos'}</td></tr>
+            </table>
+            ${quotation.description ? `<h4 style="margin: 18px 0 6px; color: #0f172a; font-size: 14px;">Detalles registrados:</h4><p style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-top: 0; font-size: 13px;">${quotation.description}</p>` : ''}
+            <div style="margin-top: 24px; padding: 14px; background: #f1f5f9; border-radius: 8px; font-size: 13px; color: #475569;">
+              <strong>Contacto directo Servi Proce:</strong><br/>
+              Correo de atención: <a href="mailto:customerservice@serviproce.com.mx" style="color: #9d0000;">customerservice@serviproce.com.mx</a>
+            </div>
+          </div>
+          <div style="background: #0f172a; padding: 14px 28px; font-size: 12px; color: #94a3b8;">
+            <span>© ${new Date().getFullYear()} Servi Proce • Cumplimiento Normativo LFPDPPP</span>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  /**
    * Obtiene el HTML del correo enviado/generado para vista previa desde el Panel Admin
    */
   async getEmailPreviewHtml(reference) {
@@ -142,6 +189,20 @@ export class MailService {
         html,
         attachments,
       });
+
+      // Enviar también correo de confirmación (acuse de recibo) directamente al cliente/prospecto
+      const isMockTestEmail = /@(exportadora\.com\.mx|example\.com|test\.com)$/i.test(quotation.email || '');
+      if (quotation.email && !isMockTestEmail) {
+        const clientHtml = MailService.buildClientConfirmationHtml(quotation);
+        const clientSubject = `[Servi Proce] Confirmación de Solicitud de Cotización (${quotation.reference})`;
+        await transporter.sendMail({
+          from: smtpConfig.from,
+          to: quotation.email,
+          replyTo: 'customerservice@serviproce.com.mx',
+          subject: clientSubject,
+          html: clientHtml,
+        });
+      }
 
       await quotationLogRepository.updateSmtpStatus(quotation.reference, 'sent_smtp');
       return {
