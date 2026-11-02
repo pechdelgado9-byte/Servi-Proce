@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { envConfig } from './config/EnvironmentConfig.js';
 import { dbManager } from './database/DatabaseManager.js';
 import {
@@ -598,7 +599,11 @@ export class BackendServer {
 }
 
 // Si se ejecuta directamente con `node src/server.js` o `npm run dev`
-if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
+const isMainModule =
+  process.argv[1] &&
+  path.resolve(fileURLToPath(import.meta.url)).toLowerCase() === path.resolve(process.argv[1]).toLowerCase();
+
+if (isMainModule) {
   const app = new BackendServer();
   app.listen().catch((err) => {
     console.error('[BackendServer] Error fatal al iniciar:', err);
