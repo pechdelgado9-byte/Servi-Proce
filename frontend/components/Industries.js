@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import Link from 'next/link';
 import { industries, pick } from '@/lib/services-data';
 
 // Iconos vectoriales minimalistas para cada sector industrial
@@ -61,9 +61,11 @@ export default function Industries({ lang }) {
     <div className="industries-wrapper fade-in-up">
       <div className="grid-3-col" style={{ gap: '1.25rem', marginTop: '1.5rem' }}>
         {industries.map((ind) => (
-          <div 
+          <Link 
             key={ind.id} 
+            href={`/${lang}/despachos-aduanales#cotizador`}
             className="industry-card"
+            style={{ textDecoration: 'none' }}
           >
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
@@ -89,7 +91,7 @@ export default function Industries({ lang }) {
                 {lang === 'es' ? 'Despacho Especializado →' : 'Specialized Clearance →'}
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

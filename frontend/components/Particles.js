@@ -70,6 +70,10 @@ export default function Particles() {
     }
 
     function animate() {
+      if (document.hidden) {
+        animationFrameId = null;
+        return;
+      }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const dark = isDarkMode();
 
@@ -101,10 +105,18 @@ export default function Particles() {
       animationFrameId = requestAnimationFrame(animate);
     }
 
+    const handleVisibilityChange = () => {
+      if (!document.hidden && !animationFrameId) {
+        animate();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     animate();
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }

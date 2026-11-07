@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 export default function ClientsCarousel({ lang }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [resetKey, setResetKey] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
 
@@ -104,15 +105,19 @@ export default function ClientsCarousel({ lang }) {
     setResetKey((k) => k + 1);
   };
 
-  // Autoplay continuo e ininterrumpido cada 7.5s (sin importar que se pase el cursor)
+  // Autoplay cada 7.5s con pausa accesible al pasar el cursor, enfocar con teclado o preferir movimiento reducido (WCAG 2.2 SC 2.2.2)
   useEffect(() => {
+    if (isPaused) return;
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % total);
       setResetKey((k) => k + 1);
     }, 7500);
 
     return () => clearInterval(timer);
-  }, [currentIndex, resetKey, total]);
+  }, [currentIndex, resetKey, total, isPaused]);
 
   // Soporte táctil móvil
   const handleTouchStart = (e) => {
@@ -135,6 +140,10 @@ export default function ClientsCarousel({ lang }) {
   return (
     <div 
       className="clients-carousel"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -145,7 +154,7 @@ export default function ClientsCarousel({ lang }) {
       <div className="services-slider__progress">
         <div 
           key={`${currentIndex}-${resetKey}`} 
-          className="services-slider__progress-bar is-animating" 
+          className={`services-slider__progress-bar is-animating ${isPaused ? 'is-paused' : ''}`} 
         />
       </div>
 
@@ -159,7 +168,7 @@ export default function ClientsCarousel({ lang }) {
           }}
         >
           {clients.map((c, idx) => (
-            <div key={c.id} className="clients-carousel__slide">
+            <div key={c.id} className="clients-carousel__slide" aria-hidden={currentIndex !== idx}>
               <div className="clients-carousel__card glass-card hover-elevate">
                 <div className="clients-carousel__grid">
                   {/* Fotografía de alta definición */}

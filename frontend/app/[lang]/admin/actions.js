@@ -9,6 +9,23 @@ import { AVISOS_TAG } from '@/lib/avisos';
 
 const safeLang = (v) => (v === 'en' ? 'en' : 'es');
 
+async function requireAndRefreshToken(lang) {
+  const token = await getAdminToken();
+  if (!token) redirect(`/${lang}/admin`);
+  try {
+    (await cookies()).set(ADMIN_COOKIE, token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: SESSION_MAX_AGE_S,
+    });
+  } catch {
+    // Ignorar si el contexto no permite renovar cookies
+  }
+  return token;
+}
+
 function revalidateAllPublicPaths() {
   for (const l of ['es', 'en']) {
     revalidatePath(`/${l}`);
@@ -65,18 +82,6 @@ export async function login(formData) {
     });
     data = await res.json();
   } catch {
-    // Modo Vista Previa cuando se ejecuta únicamente el Frontend sin encender el Backend
-    const expectedPass = process.env.ADMIN_PASSWORD || 'ServiProce2026!';
-    if (password === expectedPass) {
-      (await cookies()).set(ADMIN_COOKIE, 'frontend-preview-mode', {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: SESSION_MAX_AGE_S,
-      });
-      redirect(`/${lang}/admin?tab=blog`);
-    }
     redirect(`/${lang}/admin?error=login`);
   }
 
@@ -123,8 +128,7 @@ export async function logout(formData) {
  */
 export async function saveBlogPost(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const s = (k) => String(formData.get(k) ?? '').trim();
   const id = s('id');
@@ -179,8 +183,7 @@ export async function saveBlogPost(formData) {
 
 export async function removeBlogPost(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const id = String(formData.get('id') ?? '').trim();
   await fetch(`${API_BASE_URL}/admin/blog-posts/${encodeURIComponent(id)}`, {
@@ -198,8 +201,7 @@ export async function removeBlogPost(formData) {
  */
 export async function savePromotion(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const s = (k) => String(formData.get(k) ?? '').trim();
   const id = s('id');
@@ -244,8 +246,7 @@ export async function savePromotion(formData) {
 
 export async function removePromotion(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const id = String(formData.get('id') ?? '').trim();
   await fetch(`${API_BASE_URL}/admin/promotions/${encodeURIComponent(id)}`, {
@@ -263,8 +264,7 @@ export async function removePromotion(formData) {
  */
 export async function runCronAudit(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   await fetch(`${API_BASE_URL}/admin/promotions/audit-cron`, {
     method: 'POST',
@@ -282,8 +282,7 @@ export async function runCronAudit(formData) {
  */
 export async function saveAviso(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const s = (k) => String(formData.get(k) ?? '').trim();
   const id = s('id');
@@ -321,8 +320,7 @@ export async function saveAviso(formData) {
 
 export async function removeAviso(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const id = String(formData.get('id') ?? '').trim();
   await fetch(`${API_BASE_URL}/admin/avisos/${encodeURIComponent(id)}`, {
@@ -340,8 +338,7 @@ export async function removeAviso(formData) {
  */
 export async function saveHomeStat(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const s = (k) => String(formData.get(k) ?? '').trim();
   const id = s('id');
@@ -377,8 +374,7 @@ export async function saveHomeStat(formData) {
 
 export async function removeHomeStat(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const id = String(formData.get('id') ?? '').trim();
   await fetch(`${API_BASE_URL}/admin/stats/${encodeURIComponent(id)}`, {
@@ -393,8 +389,7 @@ export async function removeHomeStat(formData) {
 
 export async function toggleAllHomeStats(formData) {
   const lang = safeLang(formData.get('lang'));
-  const token = await getAdminToken();
-  if (!token) redirect(`/${lang}/admin`);
+  const token = await requireAndRefreshToken(lang);
 
   const active = String(formData.get('active')) === 'true';
   await fetch(`${API_BASE_URL}/admin/stats/visibility`, {
@@ -409,4 +404,19 @@ export async function toggleAllHomeStats(formData) {
   updateTag(STATS_TAG);
   revalidateAllPublicPaths();
   redirect(`/${lang}/admin?tab=stats&ok=saved`);
+}
+
+export async function removeQuotationLog(formData) {
+  const lang = safeLang(formData.get('lang'));
+  const token = await requireAndRefreshToken(lang);
+
+  const id = String(formData.get('id') ?? '').trim();
+  if (id) {
+    await fetch(`${API_BASE_URL}/admin/quotations/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+
+  redirect(`/${lang}/admin?tab=logs&ok=deleted`);
 }

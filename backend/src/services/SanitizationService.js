@@ -87,8 +87,13 @@ export class SanitizationService {
         return head.subarray(0, 4).toString('latin1') === 'RIFF' && head.subarray(8, 12).toString('latin1') === 'WEBP';
       case '.svg':
       case '.xml': {
-        const textHead = buf.subarray(0, 300).toString('utf8').trimStart().toLowerCase();
-        return (textHead.startsWith('<svg') || textHead.startsWith('<?xml') || textHead.startsWith('<')) && !this.containsXss(textHead);
+        const fullText = buf.toString('utf8').trimStart();
+        const textHead = fullText.slice(0, 300).toLowerCase();
+        const dangerousSvgPattern = /<\s*\/?\s*script\b|javascript\s*:|vbscript\s*:|data\s*:\s*text\/html|\bon[a-z]+\s*=|<\s*\/?\s*(?:iframe|object|embed|foreignobject)\b/i;
+        return (
+          (textHead.startsWith('<svg') || textHead.startsWith('<?xml') || textHead.startsWith('<')) &&
+          !dangerousSvgPattern.test(fullText)
+        );
       }
       case '.docx':
       case '.xlsx':
@@ -99,12 +104,24 @@ export class SanitizationService {
   }
 
   /**
+   * Escapa entidades HTML para prevenir inyección HTML / XSS almacenado al interpolar en plantillas
+   */
+  static escapeHtml(input) {
+    return String(input ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  /**
    * RF-07 Precondición 2: Sanitización de Datos (Anti-XSS)
    * Verifica que el payload esté libre de scripts ejecutables (<script>, javascript:, on* handlers)
    */
   static containsXss(input) {
     const str = String(input ?? '');
-    const dangerousPattern = /<\s*\/?\s*script\b|javascript\s*:|on\w+\s*=\s*["']|<iframe\b|<object\b/i;
+    const dangerousPattern = /<\s*\/?\s*script\b|javascript\s*:|vbscript\s*:|data\s*:\s*text\/html|\bon[a-z]+\s*=|<\s*\/?\s*(?:iframe|object|embed|svg|math|base|meta)\b/i;
     return dangerousPattern.test(str);
   }
 

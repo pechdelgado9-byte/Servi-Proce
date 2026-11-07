@@ -17,6 +17,7 @@ import {
   saveHomeStat,
   removeHomeStat,
   toggleAllHomeStats,
+  removeQuotationLog,
 } from './actions';
 import { API_BASE_URL } from '@/lib/api';
 
@@ -58,16 +59,16 @@ async function AdminContent({ params, searchParams }) {
             {sp.error === 'locked' && (
               <p className="alert alert--error mb-4" role="alert">
                 {L(
-                  'Cuenta/IP bloqueada temporalmente por 15 minutos tras 5 intentos fallidos consecutivos (Política RNF-03).',
-                  'Account/IP locked for 15 minutes after 5 consecutive failed attempts (Policy RNF-03).'
+                  'Cuenta o dirección IP bloqueada temporalmente por 15 minutos tras 5 intentos fallidos consecutivos.',
+                  'Account or IP locked for 15 minutes after 5 consecutive failed attempts.'
                 )}
               </p>
             )}
             {sp.error === 'inactivity' && (
               <p className="alert alert--error mb-4" role="alert">
                 {L(
-                  'Su sesión se cerró automáticamente tras 15 minutos de inactividad continua (Política RNF-04).',
-                  'Your session was automatically closed after 15 minutes of continuous inactivity (Policy RNF-04).'
+                  'Su sesión se cerró automáticamente tras 15 minutos de inactividad continua.',
+                  'Your session was automatically closed after 15 minutes of continuous inactivity.'
                 )}
               </p>
             )}
@@ -133,7 +134,7 @@ async function AdminContent({ params, searchParams }) {
 
   return (
     <main className="page-wrapper section">
-      <div className="container">
+      <div className="container" style={activeTab === 'logs' ? { maxWidth: '1440px', width: '100%' } : undefined}>
         <div className="admin-head" style={{ flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 style={{ fontSize: '1.85rem', marginBottom: '0.25rem' }}>
@@ -165,19 +166,19 @@ async function AdminContent({ params, searchParams }) {
             href={`/${lang}/admin?tab=promotions`}
             className={`btn text-sm ${activeTab === 'promotions' ? 'btn--primary' : 'btn--secondary'}`}
           >
-            {L('Banner Promocional (RF-02)', 'Promo Banner (RF-02)')} ({dashboard.promotions.length})
+            {L('Banner Promocional', 'Promo Banner')} ({dashboard.promotions.length})
           </Link>
           <Link
             href={`/${lang}/admin?tab=stats`}
             className={`btn text-sm ${activeTab === 'stats' ? 'btn--primary' : 'btn--secondary'}`}
           >
-            {L('Métricas de Inicio (Stats)', 'Home Metrics (Stats)')} ({homeStats.filter((s) => s.active).length}/{homeStats.length})
+            {L('Métricas de Inicio', 'Home Metrics')} ({homeStats.filter((s) => s.active).length}/{homeStats.length})
           </Link>
           <Link
             href={`/${lang}/admin?tab=logs`}
             className={`btn text-sm ${activeTab === 'logs' ? 'btn--primary' : 'btn--secondary'}`}
           >
-            {L('Historial de Cotizaciones (Log)', 'Quotation History (Log)')} ({dashboard.quotationLogs.length})
+            {L('Historial de Cotizaciones', 'Quotation Requests')} ({dashboard.quotationLogs.length})
           </Link>
         </div>
 
@@ -188,7 +189,7 @@ async function AdminContent({ params, searchParams }) {
         )}
         {sp.ok === 'cron' && (
           <p className="alert alert--success mb-4" role="status">
-            {L('Auditoría del Cron Job (RF-02) ejecutada: las promociones con más de 365 días han sido ocultadas automáticamente.', 'Cron Job Audit (RF-02) executed: promotions older than 365 days have been automatically hidden.')}
+            {L('Auditoría ejecutada: las promociones vencidas han sido ocultadas automáticamente.', 'Audit executed: expired promotions have been automatically hidden.')}
           </p>
         )}
         {sp.ok === 'deleted' && (
@@ -198,12 +199,12 @@ async function AdminContent({ params, searchParams }) {
         )}
         {sp.error === 'validation' && (
           <p className="alert alert--error mb-4" role="alert">
-            {L('Verifique los campos obligatorios o que el texto no incluya etiquetas <script> no permitidas (RF-07).', 'Check required fields or ensure no forbidden <script> tags are present (RF-07).')}
+            {L('Verifique los campos obligatorios o que el texto no incluya etiquetas HTML no permitidas.', 'Check required fields or ensure no forbidden HTML tags are present.')}
           </p>
         )}
         {sp.error === 'upload' && (
           <p className="alert alert--error mb-4" role="alert">
-            {L('Error al subir archivo: verifique que sea una imagen válida (.webp, .jpg, .png, .svg) menor a 2 MB (RF-09).', 'Upload error: ensure it is a valid image (.webp, .jpg, .png, .svg) under 2 MB (RF-09).')}
+            {L('Error al subir archivo: verifique que sea una imagen válida (.webp, .jpg, .png, .svg) menor a 2 MB.', 'Upload error: ensure it is a valid image (.webp, .jpg, .png, .svg) under 2 MB.')}
           </p>
         )}
 
@@ -284,33 +285,55 @@ async function AdminContent({ params, searchParams }) {
                     <input id="blog_author" name="author" className="form__input" defaultValue={editingBlog?.author ?? 'Equipo Legal Servi Proce'} />
                   </div>
                   <div className="form__group">
+                    <label className="form__label" htmlFor="blog_slug">{L('Slug URL (Opcional, autogenerado si se deja vacío)', 'URL Slug (Optional, auto-generated if empty)')}</label>
+                    <input id="blog_slug" name="slug" className="form__input" defaultValue={editingBlog?.slug ?? ''} placeholder="ej-guia-comercio-exterior-2026" />
+                  </div>
+                </div>
+
+                <div className="grid-2-col" style={{ gap: '0.75rem' }}>
+                  <div className="form__group">
                     <label className="form__label" htmlFor="blog_read_es">{L('Tiempo de lectura (ES)', 'Read time (ES)')}</label>
                     <input id="blog_read_es" name="read_time_es" className="form__input" defaultValue={editingBlog?.read_time_es ?? '5 min de lectura'} />
+                  </div>
+                  <div className="form__group">
+                    <label className="form__label" htmlFor="blog_read_en">{L('Tiempo de lectura (EN)', 'Read time (EN)')}</label>
+                    <input id="blog_read_en" name="read_time_en" className="form__input" defaultValue={editingBlog?.read_time_en ?? '5 min read'} />
                   </div>
                 </div>
 
                 <div className="form__group">
                   <label className="form__label" htmlFor="blog_image_file">
-                    {L('Subir imagen destacada (RF-09: máx. 2 MB, se normaliza automáticamente a [a-z0-9-])', 'Upload featured image (RF-09: max 2 MB, auto-normalized to [a-z0-9-])')}
+                    {L('Subir imagen destacada (máx. 2 MB, formatos: .webp, .jpg, .png, .svg)', 'Upload featured image (max 2 MB, formats: .webp, .jpg, .png, .svg)')}
                   </label>
                   <input id="blog_image_file" name="image_file" type="file" accept=".webp,.jpg,.jpeg,.png,.svg" className="form__input" />
                 </div>
 
                 <div className="form__group">
                   <label className="form__label" htmlFor="blog_image_url">
-                    {L('O URL de imagen (Si se deja vacío usa el Fallback /logo.png según RF-10)', 'Or Image URL (Defaults to /logo.png fallback per RF-10)')}
+                    {L('O ingresar URL de imagen (Opcional, por defecto utiliza el logotipo corporativo)', 'Or enter Image URL (Optional, defaults to corporate logo)')}
                   </label>
                   <input id="blog_image_url" name="image_url" className="form__input" defaultValue={editingBlog?.image_url ?? ''} placeholder="https://... o /logo.png" />
                 </div>
 
                 <div className="grid-2-col" style={{ gap: '0.75rem' }}>
                   <div className="form__group">
-                    <label className="form__label" htmlFor="seo_title_es">{L('Título SEO ES (máx. 60 car. RF-10)', 'SEO Title ES (max 60 chars RF-10)')}</label>
+                    <label className="form__label" htmlFor="seo_title_es">{L('Título SEO (ES - máx. 60 car.)', 'SEO Title (ES - max 60 chars)')}</label>
                     <input id="seo_title_es" name="seo_title_es" className="form__input" defaultValue={editingBlog?.seo_title_es ?? ''} maxLength={60} />
                   </div>
                   <div className="form__group">
-                    <label className="form__label" htmlFor="seo_desc_es">{L('Descripción SEO ES (máx. 160 car. RF-10)', 'SEO Desc ES (max 160 chars RF-10)')}</label>
+                    <label className="form__label" htmlFor="seo_desc_es">{L('Descripción SEO (ES - máx. 160 car.)', 'SEO Description (ES - max 160 chars)')}</label>
                     <input id="seo_desc_es" name="seo_desc_es" className="form__input" defaultValue={editingBlog?.seo_desc_es ?? ''} maxLength={160} />
+                  </div>
+                </div>
+
+                <div className="grid-2-col" style={{ gap: '0.75rem' }}>
+                  <div className="form__group">
+                    <label className="form__label" htmlFor="seo_title_en">{L('Título SEO (EN - máx. 60 car.)', 'SEO Title (EN - max 60 chars)')}</label>
+                    <input id="seo_title_en" name="seo_title_en" className="form__input" defaultValue={editingBlog?.seo_title_en ?? ''} maxLength={60} />
+                  </div>
+                  <div className="form__group">
+                    <label className="form__label" htmlFor="seo_desc_en">{L('Descripción SEO (EN - máx. 160 car.)', 'SEO Description (EN - max 160 chars)')}</label>
+                    <input id="seo_desc_en" name="seo_desc_en" className="form__input" defaultValue={editingBlog?.seo_desc_en ?? ''} maxLength={160} />
                   </div>
                 </div>
 
@@ -396,7 +419,7 @@ async function AdminContent({ params, searchParams }) {
                   <input id="sourceUrl" name="sourceUrl" type="url" className="form__input" defaultValue={editingAviso?.sourceUrl ?? ''} placeholder="https://" maxLength={500} />
                 </div>
                 <div className="form__group">
-                  <label className="form__label" htmlFor="expiresAt">{L('Ocultar a partir de (máx. 1 año según RF-02)', 'Hide after (max 1 year per RF-02)')}</label>
+                  <label className="form__label" htmlFor="expiresAt">{L('Ocultar a partir de (Fecha de vigencia)', 'Hide after (Expiration date)')}</label>
                   <input id="expiresAt" name="expiresAt" type="date" className="form__input" defaultValue={editingAviso?.expiresAt ?? ''} />
                 </div>
                 <div className="form__group">
@@ -438,18 +461,18 @@ async function AdminContent({ params, searchParams }) {
         )}
 
         {/* ================================================================== */}
-        {/* MÓDULO 3: BANNER PROMOCIONAL CON CADUCIDAD DE 365 DÍAS (RF-02)     */}
+        {/* MÓDULO 3: BANNER PROMOCIONAL                                       */}
         {/* ================================================================== */}
         {activeTab === 'promotions' && (
           <div className="grid-2-col" style={{ alignItems: 'start' }}>
             <div className="card glass-card">
               <h2 className="mb-2" style={{ fontSize: '1.4rem' }}>
-                {editingPromo ? L('Editar Promoción', 'Edit Promotion') : L('Nueva Promoción (RF-02)', 'New Promotion (RF-02)')}
+                {editingPromo ? L('Editar Promoción', 'Edit Promotion') : L('Nueva Promoción', 'New Promotion')}
               </h2>
               <p className="text-sm text-text-muted mb-4">
                 {L(
-                  'Por regla de negocio (RF-02), toda promoción es auditada por el Cron Job del servidor y se oculta automáticamente al cumplir exactamente 1 año (365 días) desde su publicación original.',
-                  'By business rule (RF-02), every promotion is audited by the server Cron Job and automatically hidden after 1 year (365 days) from its initial publication.'
+                  'Toda promoción se oculta automáticamente al alcanzar su fecha de vencimiento programada o tras cumplir 1 año de vigencia.',
+                  'By policy, every promotion is automatically hidden when reaching its scheduled expiration date or after 1 year of validity.'
                 )}
               </p>
               <form action={savePromotion} className="form" key={editingPromo?.id ?? 'new-promo'}>
@@ -477,7 +500,21 @@ async function AdminContent({ params, searchParams }) {
                 </div>
 
                 <div className="form__group">
-                  <label className="form__label" htmlFor="promo_expires">{L('Fecha de caducidad (máx. 365 días obligatorios)', 'Expiration date (mandatory max 365 days)')}</label>
+                  <label className="form__label" htmlFor="promo_image_file">
+                    {L('Subir imagen promocional (Opcional, máx. 2 MB)', 'Upload promotional image (Optional, max 2 MB)')}
+                  </label>
+                  <input id="promo_image_file" name="image_file" type="file" accept=".webp,.jpg,.jpeg,.png,.svg" className="form__input" />
+                </div>
+
+                <div className="form__group">
+                  <label className="form__label" htmlFor="promo_image_url">
+                    {L('O ingresar URL de imagen promocional (Opcional)', 'Or enter Promotional Image URL (Optional)')}
+                  </label>
+                  <input id="promo_image_url" name="image_url" className="form__input" defaultValue={editingPromo?.image_url ?? ''} placeholder="https://... o /uploads/..." />
+                </div>
+
+                <div className="form__group">
+                  <label className="form__label" htmlFor="promo_expires">{L('Fecha de caducidad', 'Expiration date')}</label>
                   <input id="promo_expires" name="expires_at" type="date" className="form__input" defaultValue={editingPromo?.expires_at ? editingPromo.expires_at.slice(0, 10) : ''} />
                 </div>
 
@@ -510,7 +547,7 @@ async function AdminContent({ params, searchParams }) {
                 <form action={runCronAudit}>
                   <input type="hidden" name="lang" value={lang} />
                   <button type="submit" className="btn btn--secondary text-sm">
-                    ⏱️ {L('Ejecutar Auditoría Cron 365d (RF-02)', 'Run 365d Cron Audit (RF-02)')}
+                    ⏱️ {L('Ejecutar Auditoría de Vigencia', 'Run Expiration Audit')}
                   </button>
                 </form>
               </div>
@@ -524,7 +561,7 @@ async function AdminContent({ params, searchParams }) {
                       <p className="mt-2 mb-1"><strong>{p.title_es}</strong></p>
                       <p className="text-sm text-text-muted mb-1">{p.description_es}</p>
                       <p className="text-sm text-text-muted">
-                        {L('Publicado (t0):', 'Published (t0):')} {String(p.published_at).slice(0, 10)} → {L('Caduca (365d):', 'Expires (365d):')} {String(p.expires_at).slice(0, 10)}
+                        {L('Publicado:', 'Published:')} {String(p.published_at).slice(0, 10)} → {L('Vigencia:', 'Expires:')} {String(p.expires_at).slice(0, 10)}
                       </p>
                     </div>
                     <div className="admin-list__actions">
@@ -710,20 +747,19 @@ async function AdminContent({ params, searchParams }) {
         )}
 
         {/* ================================================================== */}
-        {/* MÓDULO 4: TABLA DE REGISTROS (LOG) DE COTIZACIONES (SOLO LECTURA)  */}
-        {/* Cumple Sección 3.1.1 Interfaces de Usuario y Sección 2.1.8.3       */}
+        {/* MÓDULO 4: TABLA DE REGISTROS DE COTIZACIONES                       */}
         {/* ================================================================== */}
         {activeTab === 'logs' && (
           <div className="card glass-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
               <div>
                 <h2 style={{ fontSize: '1.4rem', marginBottom: '0.25rem' }}>
-                  {L('Historial de Solicitudes de Cotización (Modo Sólo Lectura)', 'Quotation Requests History (Read-Only Log)')}
+                  {L('Historial de Solicitudes de Cotización', 'Quotation Requests History')}
                 </h2>
                 <p className="text-sm text-text-muted">
                   {L(
-                    'Respaldo inmutable en Base de Datos de todos los formularios enviados (Sección 2.1.8.3 y 3.1.1 del ERS).',
-                    'Immutable database backup of all submitted quotation forms (ERS Section 2.1.8.3 & 3.1.1).'
+                    'Registro y gestión de todos los formularios de cotización recibidos.',
+                    'Log and management of all received quotation forms.'
                   )}
                 </p>
               </div>
@@ -736,34 +772,35 @@ async function AdminContent({ params, searchParams }) {
               <p className="text-text-muted">{L('Aún no se han recibido solicitudes de cotización.', 'No quotation requests received yet.')}</p>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', textAlign: 'left' }}>
+                <table style={{ width: '100%', minWidth: '1050px', borderCollapse: 'collapse', fontSize: '0.88rem', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid rgba(148,163,184,0.3)' }}>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Folio', 'Ref')}</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Fecha', 'Date')}</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Prospecto', 'Lead')}</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Servicio (RF-01)', 'Service (RF-01)')}</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Detalles / Archivos (RF-09)', 'Details / Files (RF-09)')}</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>reCAPTCHA</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>{L('Correo SMTP (RF-01)', 'SMTP Email (RF-01)')}</th>
+                      <th style={{ padding: '0.85rem 0.75rem' }}>{L('Folio', 'Ref')}</th>
+                      <th style={{ padding: '0.85rem 0.75rem' }}>{L('Fecha', 'Date')}</th>
+                      <th style={{ padding: '0.85rem 0.75rem' }}>{L('Prospecto', 'Lead')}</th>
+                      <th style={{ padding: '0.85rem 0.75rem' }}>{L('Servicio', 'Service')}</th>
+                      <th style={{ padding: '0.85rem 0.75rem' }}>{L('Detalles y Archivos', 'Details & Files')}</th>
+                      <th style={{ padding: '0.85rem 0.75rem' }}>reCAPTCHA</th>
+                      <th style={{ padding: '0.85rem 0.75rem' }}>{L('Estado de Notificación', 'Notification Status')}</th>
+                      <th style={{ padding: '0.85rem 0.75rem', textAlign: 'center' }}>{L('Acciones', 'Actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dashboard.quotationLogs.map((log) => (
                       <tr key={log.id} style={{ borderBottom: '1px solid rgba(148,163,184,0.15)' }}>
-                        <td style={{ padding: '0.75rem 0.5rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>{log.reference}</td>
-                        <td style={{ padding: '0.75rem 0.5rem', whiteSpace: 'nowrap' }}>{String(log.createdAt).slice(0, 16).replace('T', ' ')}</td>
-                        <td style={{ padding: '0.75rem 0.5rem' }}>
+                        <td style={{ padding: '0.85rem 0.75rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>{log.reference}</td>
+                        <td style={{ padding: '0.85rem 0.75rem', whiteSpace: 'nowrap' }}>{String(log.createdAt).slice(0, 16).replace('T', ' ')}</td>
+                        <td style={{ padding: '0.85rem 0.75rem' }}>
                           <div><strong>{log.name}</strong></div>
                           <div><a href={`mailto:${log.email}`} className="text-primary">{log.email}</a></div>
                           {log.phone && <div className="text-sm text-text-muted">{log.phone}</div>}
                           {log.company && <div className="text-sm text-text-muted">{log.company}</div>}
                         </td>
-                        <td style={{ padding: '0.75rem 0.5rem' }}>
+                        <td style={{ padding: '0.85rem 0.75rem' }}>
                           <span className="aviso__tag aviso__tag--noticia">{log.service}</span>
                           {log.operation && <div className="text-sm text-text-muted mt-1">{log.operation} / {log.mode} ({log.country})</div>}
                         </td>
-                        <td style={{ padding: '0.75rem 0.5rem', maxWidth: '280px' }}>
+                        <td style={{ padding: '0.85rem 0.75rem', maxWidth: '320px' }}>
                           {log.description && <div className="mb-1">{log.description}</div>}
                           {log.files?.length > 0 && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.35rem' }}>
@@ -782,8 +819,8 @@ async function AdminContent({ params, searchParams }) {
                             </div>
                           )}
                         </td>
-                        <td style={{ padding: '0.75rem 0.5rem' }}>{Number(log.recaptchaScore).toFixed(1)}</td>
-                        <td style={{ padding: '0.75rem 0.5rem' }}>
+                        <td style={{ padding: '0.85rem 0.75rem' }}>{Number(log.recaptchaScore).toFixed(1)}</td>
+                        <td style={{ padding: '0.85rem 0.75rem' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-start' }}>
                             <code>{log.smtpStatus}</code>
                             <a
@@ -797,12 +834,65 @@ async function AdminContent({ params, searchParams }) {
                             </a>
                           </div>
                         </td>
+                        <td style={{ padding: '0.85rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <form action={removeQuotationLog}>
+                            <input type="hidden" name="lang" value={lang} />
+                            <input type="hidden" name="id" value={log.id} />
+                            <button
+                              type="submit"
+                              className="btn btn--danger text-sm"
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                              title={L('Eliminar folio', 'Delete quote')}
+                            >
+                              🗑️ {L('Eliminar', 'Delete')}
+                            </button>
+                          </form>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             )}
+
+            {/* Listado de Suscriptores del Boletín */}
+            <div style={{ marginTop: '2.5rem', paddingTop: '1.75rem', borderTop: '1px solid rgba(148,163,184,0.25)' }}>
+              <h3 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>
+                {L('Correos Suscritos al Boletín Informativo', 'Newsletter Subscribed Emails')} ({dashboard.newsletter?.length || 0})
+              </h3>
+              {!dashboard.newsletter || dashboard.newsletter.length === 0 ? (
+                <p className="text-sm text-text-muted">
+                  {L('Aún no hay correos registrados en el boletín.', 'No emails subscribed to the newsletter yet.')}
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+                  {dashboard.newsletter.map((sub) => (
+                    <span
+                      key={sub.id || sub.email}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.4rem 0.85rem',
+                        borderRadius: '999px',
+                        background: 'var(--color-surface)',
+                        border: '1px solid rgba(148,163,184,0.3)',
+                        fontSize: '0.84rem',
+                      }}
+                    >
+                      <a href={`mailto:${sub.email}`} className="text-primary" style={{ fontWeight: 600 }}>
+                        {sub.email}
+                      </a>
+                      {sub.subscribed_at && (
+                        <span className="text-text-muted" style={{ fontSize: '0.75rem' }}>
+                          ({String(sub.subscribed_at).slice(0, 10)})
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

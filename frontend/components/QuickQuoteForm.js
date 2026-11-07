@@ -78,10 +78,34 @@ const initial = {
 const noFiles = { invoice: null, specs: null, msds: null };
 
 function FileUploadBox({ id, name, label, file, onChange, onRemove, required, hint, lang }) {
+  const [isDragging, setIsDragging] = useState(false);
+
   const formatSize = (bytes) => {
     if (!bytes) return '';
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragging) setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer?.files?.[0];
+    if (droppedFile) {
+      onChange({ target: { files: [droppedFile] } });
+    }
   };
 
   return (
@@ -100,11 +124,18 @@ function FileUploadBox({ id, name, label, file, onChange, onRemove, required, hi
         accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.xml"
         className="modern-file-dropzone__native-input"
         onChange={onChange}
-        required={required}
+        required={required && !file}
       />
 
       {!file ? (
-        <label htmlFor={id} className="modern-file-dropzone__box">
+        <label
+          htmlFor={id}
+          className="modern-file-dropzone__box"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          style={isDragging ? { borderColor: 'var(--color-primary)', background: 'rgba(157, 0, 0, 0.12)' } : undefined}
+        >
           <div className="modern-file-dropzone__icon-circle">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -114,7 +145,7 @@ function FileUploadBox({ id, name, label, file, onChange, onRemove, required, hi
           </div>
           <div className="modern-file-dropzone__texts">
             <span className="modern-file-dropzone__action">
-              {lang === 'es' ? 'Seleccionar archivo' : 'Choose file'}
+              {lang === 'es' ? 'Seleccionar o arrastrar archivo' : 'Choose or drag file'}
             </span>
             <span className="modern-file-dropzone__hint">
               {hint || (lang === 'es' ? 'PDF, imagen o doc' : 'PDF, image or doc')}

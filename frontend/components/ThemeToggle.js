@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ lang = 'es' }) {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -40,12 +40,16 @@ export default function ThemeToggle() {
     }
   };
 
+  const label = lang === 'es'
+    ? (isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro')
+    : (isDark ? 'Switch to light mode' : 'Switch to dark mode');
+
   return (
     <button 
       onClick={toggleTheme} 
       className="theme-toggle" 
-      aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-      title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      aria-label={label}
+      title={label}
       style={{
         background: 'transparent',
         border: '1px solid var(--color-primary)',

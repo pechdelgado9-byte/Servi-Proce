@@ -19,6 +19,7 @@ const nextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   experimental: {
+    agentUpgrade: 'security',
     serverActions: {
       allowedOrigins: [
         'localhost:3000',
@@ -28,6 +29,19 @@ const nextConfig = {
         '192.168.1.*:3000',
       ],
     },
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ];
   },
   async rewrites() {
     return [

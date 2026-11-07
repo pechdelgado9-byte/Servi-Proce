@@ -6,6 +6,7 @@ import Link from 'next/link';
 export default function ServicesCarousel({ lang }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [resetKey, setResetKey] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
 
@@ -82,12 +83,12 @@ export default function ServicesCarousel({ lang }) {
         'Conexiones con los aeropuertos más importantes a nivel global.',
         'Vuelos comerciales regulares, vuelos charter y servicio consolidado.',
         'Manejo de mercancía peligrosa (Hazmat con MSDS) y perecederos.',
-        'Agente certificado IATA con trazabilidad continua.'
+        'Alianzas con agentes certificados IATA con trazabilidad continua.'
       ] : [
         'Connections with major international airports worldwide.',
         'Commercial scheduled flights, dedicated charter and consolidation.',
         'Dangerous goods handling (Hazmat with MSDS) and perishables.',
-        'IATA certified freight forwarder with end-to-end tracking.'
+        'Alliances with IATA-certified agents and end-to-end tracking.'
       ],
       image: 'https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=1200&auto=format&fit=crop',
       alt: lang === 'es' ? 'Transporte aéreo de carga internacional' : 'International air freight cargo plane',
@@ -179,15 +180,19 @@ export default function ServicesCarousel({ lang }) {
     setResetKey((k) => k + 1);
   };
 
-  // Autoplay continuo e ininterrumpido (avanza automáticamente cada 7.5s sin importar que se pase el cursor)
+  // Autoplay cada 7.5s con pausa accesible al pasar el cursor, enfocar con teclado o preferir movimiento reducido (WCAG 2.2 SC 2.2.2)
   useEffect(() => {
+    if (isPaused) return;
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % total);
       setResetKey((k) => k + 1);
     }, 7500);
 
     return () => clearInterval(timer);
-  }, [currentIndex, resetKey, total]);
+  }, [currentIndex, resetKey, total, isPaused]);
 
   // Soporte táctil móvil (swipe)
   const handleTouchStart = (e) => {
@@ -210,6 +215,10 @@ export default function ServicesCarousel({ lang }) {
   return (
     <div 
       className="services-slider"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -220,7 +229,7 @@ export default function ServicesCarousel({ lang }) {
       <div className="services-slider__progress">
         <div 
           key={`${currentIndex}-${resetKey}`} 
-          className="services-slider__progress-bar is-animating" 
+          className={`services-slider__progress-bar is-animating ${isPaused ? 'is-paused' : ''}`} 
         />
       </div>
 
@@ -234,7 +243,7 @@ export default function ServicesCarousel({ lang }) {
           }}
         >
           {services.map((item, idx) => (
-            <div key={item.id} className="services-slider__slide">
+            <div key={item.id} className="services-slider__slide" aria-hidden={currentIndex !== idx}>
               <div className="services-slider__card glass-card hover-elevate">
                 <div className="services-slider__grid">
                   {/* Contenido izquierdo */}
@@ -266,10 +275,10 @@ export default function ServicesCarousel({ lang }) {
                     </ul>
 
                     <div className="services-slider__actions">
-                      <Link href={item.primaryBtn.href} className="btn btn--primary">
+                      <Link href={item.primaryBtn.href} className="btn btn--primary" tabIndex={currentIndex === idx ? 0 : -1}>
                         {item.primaryBtn.text}
                       </Link>
-                      <Link href={item.secondaryBtn.href} className="btn btn--secondary">
+                      <Link href={item.secondaryBtn.href} className="btn btn--secondary" tabIndex={currentIndex === idx ? 0 : -1}>
                         {item.secondaryBtn.text}
                       </Link>
                     </div>

@@ -387,6 +387,13 @@ export class QuotationLogRepository {
     );
   }
 
+  async delete(id) {
+    const rows = await dbManager.query('SELECT reference FROM quotation_logs WHERE id = $1', [id]);
+    const ref = rows[0]?.reference || id;
+    await dbManager.query('DELETE FROM quotation_logs WHERE id = $1', [id]);
+    return { ok: true, deletedRef: ref };
+  }
+
   async findAllReadOnly() {
     const rows = await dbManager.query('SELECT * FROM quotation_logs ORDER BY created_at DESC');
     return rows.map((r) => ({

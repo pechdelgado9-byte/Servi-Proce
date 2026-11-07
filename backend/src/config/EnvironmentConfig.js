@@ -72,6 +72,9 @@ export class EnvironmentConfig {
   }
 
   get jwtSecret() {
+    if (this.nodeEnv === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'sp_default_dev_jwt_secret_change_in_prod')) {
+      throw new Error('FATAL_CONFIG: JWT_SECRET debe estar definido con un valor seguro en producción.');
+    }
     return process.env.JWT_SECRET || 'sp_default_dev_jwt_secret_change_in_prod';
   }
 
@@ -84,6 +87,9 @@ export class EnvironmentConfig {
   }
 
   get adminPassword() {
+    if (this.nodeEnv === 'production' && (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'ServiProce2026!')) {
+      throw new Error('FATAL_CONFIG: ADMIN_PASSWORD debe estar definido con un valor seguro en producción.');
+    }
     return process.env.ADMIN_PASSWORD || 'ServiProce2026!';
   }
 
@@ -96,7 +102,14 @@ export class EnvironmentConfig {
   }
 
   get webhookSecret() {
+    if (this.nodeEnv === 'production' && (!process.env.WEBHOOK_SECRET || process.env.WEBHOOK_SECRET === 'sp_webhook_ssg_secret_2026')) {
+      throw new Error('FATAL_CONFIG: WEBHOOK_SECRET debe estar definido con un valor seguro en producción.');
+    }
     return process.env.WEBHOOK_SECRET || 'sp_webhook_ssg_secret_2026';
+  }
+
+  get trustProxy() {
+    return process.env.TRUST_PROXY === 'true' || process.env.TRUST_PROXY === '1';
   }
 
   get recaptchaSecretKey() {

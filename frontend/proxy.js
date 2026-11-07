@@ -37,13 +37,30 @@ export default function proxy(request) {
     return NextResponse.next();
   }
 
-  // Si no tiene idioma, intentar obtenerlo de las cabeceras (Sección 2.1.9.1)
+  // Si no tiene idioma, obtener el idioma preferido ordenando por factor de peso (q=) en Accept-Language
   const acceptLanguage = request.headers.get('accept-language');
   let localeToUse = defaultLocale;
 
   if (acceptLanguage) {
-    if (acceptLanguage.includes('en')) {
-      localeToUse = 'en';
+    const parsed = acceptLanguage
+      .split(',')
+      .map((part) => {
+        const [tagPart, ...params] = part.trim().split(';');
+        const langCode = (tagPart || '').split('-')[0].toLowerCase();
+        let q = 1.0;
+        for (const p of params) {
+          const [k, v] = p.trim().split('=');
+          if (k === 'q' && !Number.isNaN(Number(v))) {
+            q = Number(v);
+          }
+        }
+        return { langCode, q };
+      })
+      .filter((item) => locales.includes(item.langCode))
+      .sort((a, b) => b.q - a.q);
+
+    if (parsed.length > 0) {
+      localeToUse = parsed[0].langCode;
     }
   }
 

@@ -46,6 +46,15 @@ export default async function Home({ params }) {
             </span>
             <h2 className="mb-2" style={{ color: '#ffffff', fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.02em' }}>{promo.title}</h2>
             <p style={{ color: '#cbd5e1', fontSize: '0.98rem', maxWidth: '640px', margin: '0 auto', lineHeight: '1.5' }}>{promo.description}</p>
+            {promo.imageUrl && (
+              <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
+                <img
+                  src={promo.imageUrl}
+                  alt={promo.title}
+                  style={{ maxHeight: '180px', width: 'auto', maxWidth: '100%', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.15)', objectFit: 'cover' }}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -85,20 +94,20 @@ export default async function Home({ params }) {
       </section>
 
       {/* Trust Badges Marquee */}
-      <section className="marquee-container">
+      <section className="marquee-container" aria-label={lang === 'es' ? 'Alianzas y redes certificadas' : 'Certified alliances and networks'}>
         <div className="marquee-content">
-          <span className="marquee-item">IATA CERTIFIED</span>
-          <span className="marquee-item">OEA PARTNER</span>
-          <span className="marquee-item">C-TPAT COMPLIANT</span>
-          <span className="marquee-item">ISO 9001:2015</span>
-          <span className="marquee-item">WCA MEMBER</span>
-          <span className="marquee-item">AMACARGA</span>
-          <span className="marquee-item">IATA CERTIFIED</span>
-          <span className="marquee-item">OEA PARTNER</span>
-          <span className="marquee-item">C-TPAT COMPLIANT</span>
-          <span className="marquee-item">ISO 9001:2015</span>
-          <span className="marquee-item">WCA MEMBER</span>
-          <span className="marquee-item">AMACARGA</span>
+          <span className="marquee-item">{lang === 'es' ? 'ALIANZAS IATA' : 'IATA ALLIANCES'}</span>
+          <span className="marquee-item">{lang === 'es' ? 'AGENTES CERTIFICADOS OEA' : 'AEO CERTIFIED PARTNERS'}</span>
+          <span className="marquee-item">{lang === 'es' ? 'RED C-TPAT' : 'C-TPAT NETWORK'}</span>
+          <span className="marquee-item">{lang === 'es' ? 'ESTÁNDARES ISO 9001' : 'ISO 9001 STANDARDS'}</span>
+          <span className="marquee-item">{lang === 'es' ? 'RED GLOBAL WCA' : 'WCA GLOBAL NETWORK'}</span>
+          <span className="marquee-item">{lang === 'es' ? 'ALIANZA AMACARGA' : 'AMACARGA ALLIANCE'}</span>
+          <span className="marquee-item" aria-hidden="true">{lang === 'es' ? 'ALIANZAS IATA' : 'IATA ALLIANCES'}</span>
+          <span className="marquee-item" aria-hidden="true">{lang === 'es' ? 'AGENTES CERTIFICADOS OEA' : 'AEO CERTIFIED PARTNERS'}</span>
+          <span className="marquee-item" aria-hidden="true">{lang === 'es' ? 'RED C-TPAT' : 'C-TPAT NETWORK'}</span>
+          <span className="marquee-item" aria-hidden="true">{lang === 'es' ? 'ESTÁNDARES ISO 9001' : 'ISO 9001 STANDARDS'}</span>
+          <span className="marquee-item" aria-hidden="true">{lang === 'es' ? 'RED GLOBAL WCA' : 'WCA GLOBAL NETWORK'}</span>
+          <span className="marquee-item" aria-hidden="true">{lang === 'es' ? 'ALIANZA AMACARGA' : 'AMACARGA ALLIANCE'}</span>
         </div>
       </section>
 

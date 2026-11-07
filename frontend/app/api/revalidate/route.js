@@ -1,16 +1,19 @@
+import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 /**
- * Receptor del Webhook de Regeneración Estática SSG (RF-07 Postcondición 3 y Sección 2.1.9.2.3 del ERS)
+ * Receptor del Webhook de Regeneración Estática SSG
  * Cuando el administrador publica o modifica un artículo del blog, promoción o aviso en el Backend,
  * el CMS dispara una señal a este endpoint para regenerar las vistas inmediatamente.
  */
 export async function POST(request) {
   const expectedSecret = process.env.WEBHOOK_SECRET || 'sp_webhook_ssg_secret_2026';
-  const providedSecret = request.headers.get('x-webhook-secret');
+  const providedSecret = request.headers.get('x-webhook-secret') || '';
 
-  if (providedSecret !== expectedSecret) {
+  const expectedBuf = Buffer.from(expectedSecret, 'utf8');
+  const providedBuf = Buffer.from(providedSecret, 'utf8');
+  if (expectedBuf.length !== providedBuf.length || !crypto.timingSafeEqual(expectedBuf, providedBuf)) {
     return NextResponse.json({ ok: false, error: 'INVALID_WEBHOOK_SECRET' }, { status: 401 });
   }
 

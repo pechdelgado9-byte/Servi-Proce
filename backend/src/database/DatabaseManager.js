@@ -437,19 +437,45 @@ export class DatabaseManager {
   }
 
   static hashPassword(password) {
-    return crypto.createHash('sha256').update(`serviproce_salt_2026:${password}`).digest('hex');
+    const salt = crypto.randomBytes(16).toString('hex');
+    const derived = crypto.scryptSync(String(password ?? ''), salt, 64).toString('hex');
+    return `scrypt$${salt}$${derived}`;
+  }
+
+  static verifyPassword(password, storedHash) {
+    if (!storedHash || typeof storedHash !== 'string') return false;
+    const rawPassword = String(password ?? '');
+
+    if (storedHash.startsWith('scrypt$')) {
+      const parts = storedHash.split('$');
+      if (parts.length !== 3) return false;
+      const [, salt, hashHex] = parts;
+      const expectedBuf = Buffer.from(hashHex, 'hex');
+      const actualBuf = crypto.scryptSync(rawPassword, salt, expectedBuf.length);
+      if (expectedBuf.length !== actualBuf.length) return false;
+      return crypto.timingSafeEqual(expectedBuf, actualBuf);
+    }
+
+    // Compatibilidad con hashes SHA-256 legados
+    const legacyHash = crypto.createHash('sha256').update(`serviproce_salt_2026:${rawPassword}`).digest('hex');
+    const expectedBuf = Buffer.from(storedHash, 'hex');
+    const actualBuf = Buffer.from(legacyHash, 'hex');
+    if (expectedBuf.length !== actualBuf.length) return false;
+    return crypto.timingSafeEqual(expectedBuf, actualBuf);
   }
 
   async #seedIfEmpty() {
     // 1. Crear SuperAdmin obligatorio (Sección 2.1.9.1)
-    const admins = await this.query('SELECT id FROM admins WHERE username = $1', [envConfig.adminUsername]);
-    const passwordHash = DatabaseManager.hashPassword(envConfig.adminPassword);
+    const admins = await this.query('SELECT id, password_hash FROM admins WHERE username = $1', [envConfig.adminUsername]);
     if (admins.length === 0) {
+      const passwordHash = DatabaseManager.hashPassword(envConfig.adminPassword);
       await this.query(
         'INSERT INTO admins (id, username, password_hash, role, created_at) VALUES ($1, $2, $3, $4, $5)',
         ['admin-root', envConfig.adminUsername, passwordHash, 'SuperAdmin', new Date().toISOString()]
       );
-    } else {
+    } else if (!String(admins[0].password_hash || '').startsWith('scrypt$')) {
+      // Migrar automáticamente el hash legado a scrypt
+      const passwordHash = DatabaseManager.hashPassword(envConfig.adminPassword);
       await this.query(
         'UPDATE admins SET password_hash = $1 WHERE username = $2',
         [passwordHash, envConfig.adminUsername]
@@ -490,8 +516,8 @@ export class DatabaseManager {
       }
     }
 
-    // 4. Sembrar Avisos iniciales
-    const avisos = await this.query('SELECT id FROM avisos LIMIT 1');
+    // 4. Sembrar Avisos iniciales (y reemplazar textos "(Ejemplo)" si aún permanecen de semillas previas)
+    const avisos = await this.query('SELECT id, title_es FROM avisos');
     if (avisos.length === 0) {
       for (const a of INITIAL_AVISOS) {
         await this.query(
@@ -499,6 +525,18 @@ export class DatabaseManager {
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [a.id, a.type, a.title_es, a.title_en, a.body_es, a.body_en, a.sourceUrl, a.publishedAt, a.expiresAt, a.pinned ? 1 : 0]
         );
+      }
+    } else {
+      for (const a of INITIAL_AVISOS) {
+        const existing = avisos.find((row) => row.id === a.id && String(row.title_es || '').startsWith('(Ejemplo)'));
+        if (existing) {
+          await this.query(
+            `UPDATE avisos
+             SET type = $1, title_es = $2, title_en = $3, body_es = $4, body_en = $5, source_url = $6, pinned = $7
+             WHERE id = $8`,
+            [a.type, a.title_es, a.title_en, a.body_es, a.body_en, a.sourceUrl, a.pinned ? 1 : 0, a.id]
+          );
+        }
       }
     }
 
