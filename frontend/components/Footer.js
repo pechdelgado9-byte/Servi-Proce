@@ -68,13 +68,21 @@ export default function Footer({ lang }) {
               </p>
               <p>
                 <a href="tel:+523311402745" className="footer__contact-link">
-                  +52 (33) 1140-2745
+                  +52 (33) 1140-2745 (WhatsApp)
                 </a>
               </p>
               <p>
                 <a href="tel:+523321837862" className="footer__contact-link">
-                  +52 (33) 2183-7862
+                  +52 (33) 2183-7862 ({lang === 'es' ? 'Oficina' : 'Office'})
                 </a>
+              </p>
+              <p style={{ fontSize: '0.86rem', color: '#94a3b8', lineHeight: 1.5, marginTop: '0.5rem' }}>
+                Av. Altavista Poniente 450 Int. 110, Col. Altavista Residencial, C.P. 45133, Zapopan, Jal.
+              </p>
+              <p style={{ fontSize: '0.83rem', color: '#cbd5e1', lineHeight: 1.45 }}>
+                {lang === 'es'
+                  ? 'Horario: Lun–Vie 9:00 a 18:00 hrs (CST) • Emergencias 24/7'
+                  : 'Hours: Mon–Fri 9:00 AM–6:00 PM (CST) • 24/7 Emergency Support'}
               </p>
             </div>
 
@@ -121,7 +129,7 @@ export default function Footer({ lang }) {
 
               {/* Facebook */}
               <a
-                href="https://www.facebook.com/SERVIPROCE.EM/#"
+                href="https://www.facebook.com/SERVIPROCE.EM/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook Servi Proce"

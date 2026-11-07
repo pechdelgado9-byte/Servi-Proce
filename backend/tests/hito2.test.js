@@ -68,8 +68,23 @@ test('Hito 2 - Pruebas de Integración de la API REST, Cotizaciones, reCAPTCHA, 
     assert.equal(data.ok, true);
     assert.match(data.ref, /^SP-\d{8}-[A-F0-9]{4}$/);
 
-    // Verificar visor en vivo del correo HTML generado para esta cotización
-    const previewRes = await fetch(`${baseUrl}/api/quotations/${data.ref}/email-preview`);
+    // Verificar que el visor del correo HTML esté protegido contra acceso anónimo (OWASP B-01)
+    const unauthPreviewRes = await fetch(`${baseUrl}/api/quotations/${data.ref}/email-preview`);
+    assert.equal(unauthPreviewRes.status, 401);
+
+    // Iniciar sesión como administrador para verificar el visor protegido
+    const adminLogin = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: process.env.ADMIN_PASSWORD || 'ServiProce2026!',
+      }),
+    }).then((r) => r.json());
+    assert.equal(adminLogin.ok, true);
+
+    const previewRes = await fetch(`${baseUrl}/api/quotations/${data.ref}/email-preview`, {
+      headers: { Authorization: `Bearer ${adminLogin.token}` },
+    });
     assert.equal(previewRes.status, 200);
     const previewHtml = await previewRes.text();
     assert.ok(previewHtml.includes(data.ref));

@@ -65,6 +65,7 @@ export default function Navbar({ lang }) {
                     href={link.href} 
                     className={`navbar__link ${link.priority ? 'navbar__link--priority' : ''} ${isActive ? 'navbar__link--active' : ''}`}
                     aria-current={pathname === link.href ? 'page' : undefined}
+                    aria-haspopup={link.subLinks ? 'true' : undefined}
                   >
                     {link.priority && (
                       <span className="navbar__priority-icon" aria-hidden="true">
@@ -100,7 +101,7 @@ export default function Navbar({ lang }) {
 
         {/* Acciones e Interfaz Móvil */}
         <div className="navbar__actions">
-          <ThemeToggle />
+          <ThemeToggle lang={lang} />
           <Link href={toggleLanguage()} className="navbar__lang-switch">
             {lang === 'es' ? 'EN' : 'ES'}
           </Link>
@@ -108,7 +109,11 @@ export default function Navbar({ lang }) {
           <button 
             className="navbar__toggle" 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-label={
+              lang === 'es'
+                ? (isMenuOpen ? 'Cerrar menú' : 'Abrir menú')
+                : (isMenuOpen ? 'Close menu' : 'Open menu')
+            }
             aria-expanded={isMenuOpen}
             aria-controls="mobile-menu"
           >

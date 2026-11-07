@@ -11,8 +11,8 @@ export class RecaptchaService {
   static GOOGLE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
   static async verify(token) {
-    // Permite simular un bot en pruebas unitarias/integración para comprobar el rechazo HTTP 403 (RF-04)
-    if (token === 'bot-low-score') {
+    // Permite simular un bot en pruebas unitarias/integración (deshabilitado en producción)
+    if (envConfig.nodeEnv !== 'production' && token === 'bot-low-score') {
       return {
         valid: false,
         score: 0.1,
@@ -22,6 +22,9 @@ export class RecaptchaService {
 
     const secret = envConfig.recaptchaSecretKey;
     if (!secret) {
+      if (envConfig.nodeEnv === 'production') {
+        console.warn('[RecaptchaService] ADVERTENCIA: RECAPTCHA_SECRET_KEY no configurada en producción.');
+      }
       // En entorno local sin clave configurada, aprueba con score 1.0
       return {
         valid: true,

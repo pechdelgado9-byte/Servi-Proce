@@ -150,7 +150,7 @@ export default async function FreightForwarder({ params }) {
               textShadow: '0 2px 20px rgba(0,0,0,0.85), 0 0 35px rgba(0,0,0,0.6)'
             }}
           >
-            Freight Forwarder Integral
+            {lang === 'es' ? 'Freight Forwarder Integral' : 'Comprehensive Freight Forwarding'}
           </h1>
           <p className="page-subtitle fade-in-up delay-2 text-white opacity-90" style={{ maxWidth: '720px', margin: '0 auto 2.5rem auto', lineHeight: '1.6' }}>
             {lang === 'es'

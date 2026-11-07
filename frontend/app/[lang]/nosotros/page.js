@@ -124,7 +124,9 @@ export default async function Nosotros({ params }) {
                 <div>
                   <strong className="text-secondary">{lang === 'es' ? 'Estándares Internacionales:' : 'International Standards:'}</strong>
                   <span className="text-text-muted text-sm ml-1">
-                    {lang === 'es' ? ' Procesos respaldados por certificaciones ISO 9001:2015, OEA y C-TPAT.' : ' Processes backed by ISO 9001:2015, AEO, and C-TPAT certifications.'}
+                    {lang === 'es'
+                      ? ' Operación con alianzas y agentes certificados bajo estándares ISO 9001, OEA, C-TPAT, IATA y WCA.'
+                      : ' Operations backed by alliances and certified agents under ISO 9001, AEO, C-TPAT, IATA, and WCA standards.'}
                   </span>
                 </div>
               </div>

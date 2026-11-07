@@ -16,6 +16,9 @@
   --glass-border: rgba(255, 255, 255, 0.5);
   --overlay-bg: rgba(255, 255, 255, 0.85);
 
+  --color-input-border: #cbd5e1;
+  --color-input-border-hover: #94a3b8;
+
   --font-base: 'Inter', sans-serif;
 }
 
@@ -29,6 +32,8 @@
     --glass-bg: rgba(31, 41, 55, 0.85);
     --glass-border: rgba(255, 255, 255, 0.1);
     --overlay-bg: rgba(17, 24, 39, 0.85);
+    --color-input-border: #374151;
+    --color-input-border-hover: #4b5563;
   }
 }
 
@@ -41,6 +46,8 @@ html.dark {
   --glass-bg: rgba(31, 41, 55, 0.85);
   --glass-border: rgba(255, 255, 255, 0.1);
   --overlay-bg: rgba(17, 24, 39, 0.85);
+  --color-input-border: #374151;
+  --color-input-border-hover: #4b5563;
 }
 
 html.light {
@@ -52,6 +59,8 @@ html.light {
   --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(255, 255, 255, 0.5);
   --overlay-bg: rgba(255, 255, 255, 0.85);
+  --color-input-border: #cbd5e1;
+  --color-input-border-hover: #94a3b8;
 }
 
 /* Custom Scrollbar */

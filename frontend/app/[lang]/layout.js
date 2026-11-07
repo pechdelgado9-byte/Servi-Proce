@@ -49,7 +49,7 @@ export default async function RootLayout({ children, params }) {
         <div style={{ minHeight: 'calc(100vh - 80px)' /* offset for navbar and footer */, position: 'relative', zIndex: 1 }}>
           {children}
         </div>
-        <FloatingContact />
+        <FloatingContact lang={lang} />
         <Footer lang={lang} />
         <ScrollObserver />
       </body>

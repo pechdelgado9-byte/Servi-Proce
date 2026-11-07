@@ -101,6 +101,16 @@ export class BackendServer {
     if (authHeader.startsWith('Bearer ')) {
       return authHeader.slice(7).trim();
     }
+    const cookieHeader = req.headers.cookie || '';
+    if (cookieHeader) {
+      const match = cookieHeader
+        .split(';')
+        .map((c) => c.trim())
+        .find((c) => c.startsWith('sp_admin_jwt='));
+      if (match) {
+        return decodeURIComponent(match.slice('sp_admin_jwt='.length).trim());
+      }
+    }
     return '';
   }
 
@@ -132,7 +142,10 @@ export class BackendServer {
     const urlObj = new URL(req.url || '/', `http://${req.headers.host || 'localhost:1337'}`);
     const pathname = decodeURIComponent(urlObj.pathname);
     const locale = urlObj.searchParams.get('locale') === 'en' ? 'en' : 'es';
-    const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'local').split(',')[0].trim();
+    const rawIp = envConfig.trustProxy
+      ? (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'local')
+      : (req.socket?.remoteAddress || 'local');
+    const ip = String(rawIp).split(',')[0].trim();
 
     // RF-03 Precondición 2: Exclusión Topológica Absoluta de "vacantes" o "bolsa-de-trabajo"
     if (/vacantes|bolsa-de-trabajo/i.test(pathname)) {
@@ -162,10 +175,15 @@ export class BackendServer {
           '.pdf': 'application/pdf',
         };
         const buf = await fs.readFile(filePath);
-        res.writeHead(200, {
+        const headers = {
           'Content-Type': mimeMap[ext] || 'application/octet-stream',
           'Cache-Control': 'public, max-age=86400',
-        });
+          'X-Content-Type-Options': 'nosniff',
+        };
+        if (ext === '.svg') {
+          headers['Content-Security-Policy'] = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
+        }
+        res.writeHead(200, headers);
         res.end(buf);
         return;
       }
@@ -265,7 +283,14 @@ export class BackendServer {
               buffer: buf,
               mode: 'quote',
             });
-            const finalFileName = `${sanitized.baseName}${sanitized.extension}`;
+            const safeFieldPrefix =
+              typeof f.field === 'string' && /^[a-z0-9]+$/i.test(f.field)
+                ? `${f.field.toLowerCase()}-`
+                : '';
+            let finalFileName = `${safeFieldPrefix}${sanitized.baseName}${sanitized.extension}`;
+            if (savedFiles.includes(finalFileName)) {
+              finalFileName = `${safeFieldPrefix}${sanitized.baseName}-${savedFiles.length + 1}${sanitized.extension}`;
+            }
             const targetPath = path.join(refDir, finalFileName);
             await fs.writeFile(targetPath, buf);
             savedFiles.push(finalFileName);
@@ -321,7 +346,7 @@ export class BackendServer {
       if (req.method === 'POST' && pathname === '/api/newsletter') {
         const body = await BackendServer.#readJsonBody(req);
         const email = SanitizationService.sanitizeText(body.email || '').toLowerCase();
-        if (!QuotationRequest.RFC5322_EMAIL_REGEX.test(email)) {
+        if (!email || email.length > 254 || !QuotationRequest.RFC5322_EMAIL_REGEX.test(email)) {
           return BackendServer.#sendJson(res, 400, { ok: false, error: 'INVALID_EMAIL' });
         }
 
@@ -396,7 +421,7 @@ export class BackendServer {
         });
       }
 
-      // 12. GET /api/admin/quotations (Sección 3.1.1: Tabla de registros Log en formato de sólo lectura)
+      // 12. GET /api/admin/quotations (Tabla de registros de cotizaciones)
       if (req.method === 'GET' && pathname === '/api/admin/quotations') {
         const admin = await this.#requireAdmin(req, res);
         if (!admin) return;
@@ -404,9 +429,31 @@ export class BackendServer {
         return BackendServer.#sendJson(res, 200, { ok: true, data: logs });
       }
 
+      // 12.a DELETE /api/admin/quotations/:id (Eliminar un folio individual de cotización)
+      if (req.method === 'DELETE' && pathname.startsWith('/api/admin/quotations/')) {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+        const id = pathname.slice('/api/admin/quotations/'.length);
+        const result = await quotationLogRepository.delete(id);
+        if (result.deletedRef) {
+          const refDir = path.join(this.#quotationsFilesDir, result.deletedRef);
+          const outboxHtml = path.join(mailService.outboxDir, `${result.deletedRef}.html`);
+          const outboxJson = path.join(mailService.outboxDir, `${result.deletedRef}.json`);
+          try {
+            await fs.rm(refDir, { recursive: true, force: true });
+            await fs.rm(outboxHtml, { force: true });
+            await fs.rm(outboxJson, { force: true });
+          } catch {}
+        }
+        return BackendServer.#sendJson(res, 200, { ok: true, deleted: id });
+      }
+
       // 12.b GET /api/quotations/:ref/email-preview (Vista previa del correo HTML generado/enviado para el Admin)
       const emailPreviewMatch = pathname.match(/^\/api\/quotations\/([A-Za-z0-9-]+)\/email-preview$/);
       if (req.method === 'GET' && emailPreviewMatch) {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+
         const ref = emailPreviewMatch[1];
         let html = await mailService.getEmailPreviewHtml(ref);
         if (!html) {
@@ -419,7 +466,11 @@ export class BackendServer {
         if (!html) {
           return BackendServer.#sendJson(res, 404, { ok: false, error: 'EMAIL_PREVIEW_NOT_FOUND' });
         }
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.writeHead(200, {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; img-src data: https:;",
+          'X-Content-Type-Options': 'nosniff',
+        });
         res.end(html);
         return;
       }
@@ -427,6 +478,9 @@ export class BackendServer {
       // 12.c GET /api/quotations/:ref/files/:filename (Descarga/Visualización de archivos adjuntos sanitizados RF-09)
       const fileDownloadMatch = pathname.match(/^\/api\/quotations\/([A-Za-z0-9-]+)\/files\/(.+)$/);
       if (req.method === 'GET' && fileDownloadMatch) {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+
         const ref = fileDownloadMatch[1];
         const rawFile = fileDownloadMatch[2];
         const safeName = SanitizationService.normalizeFilename(rawFile).fullName;
@@ -451,6 +505,7 @@ export class BackendServer {
         res.writeHead(200, {
           'Content-Type': mimeMap[ext] || 'application/octet-stream',
           'Content-Disposition': `inline; filename="${safeName}"`,
+          'X-Content-Type-Options': 'nosniff',
         });
         res.end(buf);
         return;

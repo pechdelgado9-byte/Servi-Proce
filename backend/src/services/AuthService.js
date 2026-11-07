@@ -50,7 +50,11 @@ export class AuthService {
     }
 
     try {
-      return JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8'));
+      const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8'));
+      if (payload.exp && Math.floor(Date.now() / 1000) > Number(payload.exp)) {
+        return null;
+      }
+      return payload;
     } catch {
       return null;
     }
@@ -109,6 +113,11 @@ export class AuthService {
 
   static async clearFailedAttempts(ipKey) {
     await dbManager.query('DELETE FROM login_attempts WHERE ip_or_user = $1', [ipKey]);
+    if (String(ipKey).startsWith('ip:')) {
+      await dbManager.query('DELETE FROM login_attempts WHERE ip_or_user = $1', [
+        `user:${envConfig.adminUsername.toLowerCase()}`,
+      ]);
+    }
   }
 
   /**
@@ -116,41 +125,51 @@ export class AuthService {
    */
   static async login({ username, password, ip = 'local' }) {
     const ipKey = `ip:${ip}`;
-    const lockout = await this.checkLockout(ipKey);
-    if (lockout.locked) {
+    const targetUsername = username ? String(username).trim() : envConfig.adminUsername;
+    const userKey = `user:${targetUsername.toLowerCase()}`;
+
+    const ipLockout = await this.checkLockout(ipKey);
+    if (ipLockout.locked) {
       return {
         ok: false,
         status: 429,
         error: 'ACCOUNT_LOCKED_BRUTE_FORCE',
-        remainingSeconds: Math.ceil(lockout.remainingMs / 1000),
+        remainingSeconds: Math.ceil(ipLockout.remainingMs / 1000),
       };
     }
 
-    const targetUsername = username ? String(username).trim() : envConfig.adminUsername;
+    const userLockout = await this.checkLockout(userKey);
+    if (userLockout.locked) {
+      return {
+        ok: false,
+        status: 429,
+        error: 'ACCOUNT_LOCKED_BRUTE_FORCE',
+        remainingSeconds: Math.ceil(userLockout.remainingMs / 1000),
+      };
+    }
+
     const rows = await dbManager.query(
       'SELECT id, username, password_hash, role FROM admins WHERE username = $1',
       [targetUsername]
     );
 
-    const inputHash = DatabaseManager.hashPassword(String(password ?? ''));
     const admin = rows[0];
-
-    const valid = admin && crypto.timingSafeEqual(
-      Buffer.from(admin.password_hash, 'hex'),
-      Buffer.from(inputHash, 'hex')
-    );
+    const valid = admin ? DatabaseManager.verifyPassword(password, admin.password_hash) : false;
 
     if (!valid) {
       const attempt = await this.recordFailedAttempt(ipKey);
+      const userAttempt = await this.recordFailedAttempt(userKey);
+      const isLocked = attempt.locked || userAttempt.locked;
       return {
         ok: false,
-        status: attempt.locked ? 429 : 401,
-        error: attempt.locked ? 'ACCOUNT_LOCKED_BRUTE_FORCE' : 'INVALID_CREDENTIALS',
-        failedCount: attempt.failedCount,
+        status: isLocked ? 429 : 401,
+        error: isLocked ? 'ACCOUNT_LOCKED_BRUTE_FORCE' : 'INVALID_CREDENTIALS',
+        failedCount: Math.max(attempt.failedCount, userAttempt.failedCount),
       };
     }
 
     await this.clearFailedAttempts(ipKey);
+    await this.clearFailedAttempts(userKey);
 
     const now = Date.now();
     const tokenId = crypto.randomUUID();
@@ -159,11 +178,13 @@ export class AuthService {
       [tokenId, admin.username, admin.role, now, now]
     );
 
+    const nowSec = Math.floor(now / 1000);
     const jwt = this.#signJwt({
       jti: tokenId,
       sub: admin.username,
       role: admin.role,
-      iat: Math.floor(now / 1000),
+      iat: nowSec,
+      exp: nowSec + 24 * 60 * 60,
     });
 
     return {

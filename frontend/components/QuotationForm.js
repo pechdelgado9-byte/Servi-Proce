@@ -176,13 +176,47 @@ export default function QuotationForm({ lang }) {
               className="form__input"
               value={formData.email}
               onChange={handleChange}
-              placeholder="ejemplo@empresa.com"
+              placeholder={lang === 'es' ? 'ejemplo@empresa.com' : 'name@company.com'}
               required
               aria-required="true"
             />
           </div>
 
-          {/* Selección obligatoria de servicio según RF-01 y Sección 3.1.1 del ERS */}
+          <div className="form-grid">
+            <div className="form__group">
+              <label htmlFor="phone" className="form__label">
+                {lang === 'es' ? 'Teléfono / WhatsApp (Opcional)' : 'Phone / WhatsApp (Optional)'}
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                className="form__input"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+52 (33) 1140-2745"
+                maxLength={40}
+              />
+            </div>
+
+            <div className="form__group">
+              <label htmlFor="company" className="form__label">
+                {lang === 'es' ? 'Empresa (Opcional)' : 'Company (Optional)'}
+              </label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                className="form__input"
+                value={formData.company}
+                onChange={handleChange}
+                placeholder={lang === 'es' ? 'Nombre de su empresa' : 'Your company name'}
+                maxLength={120}
+              />
+            </div>
+          </div>
+
+          {/* Selección obligatoria de servicio */}
           <div className="form__group">
             <label htmlFor="service" className="form__label">
               {lang === 'es' ? 'Servicio de Interés' : 'Service of Interest'} <span className="text-primary" aria-hidden="true">*</span>
@@ -256,9 +290,19 @@ export default function QuotationForm({ lang }) {
         </button>
 
         <p className="text-sm text-text-muted text-center mt-4">
-          This site is protected by reCAPTCHA and the Google
-          <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" className="text-primary"> Privacy Policy</a> and
-          <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer" className="text-primary"> Terms of Service</a> apply.
+          {lang === 'es' ? (
+            <>
+              Este sitio está protegido por reCAPTCHA y se aplican la{' '}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" className="text-primary">Política de Privacidad</a> y los{' '}
+              <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer" className="text-primary">Términos de Servicio</a> de Google.
+            </>
+          ) : (
+            <>
+              This site is protected by reCAPTCHA and the Google{' '}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" className="text-primary">Privacy Policy</a> and{' '}
+              <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer" className="text-primary">Terms of Service</a> apply.
+            </>
+          )}
         </p>
       </form>
     </>

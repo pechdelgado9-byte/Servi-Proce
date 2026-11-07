@@ -75,5 +75,21 @@ export class QuotationRequest {
     if (!this.service || !QuotationRequest.VALID_SERVICES.includes(this.service)) {
       throw new Error(`INVALID_SERVICE: El servicio seleccionado "${this.service}" no pertenece al catálogo válido S (RF-01).`);
     }
+
+    if (this.phone.length > 50) {
+      throw new Error('INVALID_PHONE: El número telefónico no debe exceder 50 caracteres.');
+    }
+
+    if (this.company.length > 160) {
+      throw new Error('INVALID_COMPANY: El nombre de la empresa no debe exceder 160 caracteres.');
+    }
+
+    if (this.country.length > 100 || this.industry.length > 100) {
+      throw new Error('INVALID_DETAILS: Los campos de país o industria exceden la longitud permitida.');
+    }
+
+    if (this.description.length > 5000) {
+      throw new Error('INVALID_DESCRIPTION: La descripción no debe exceder 5000 caracteres.');
+    }
   }
 }

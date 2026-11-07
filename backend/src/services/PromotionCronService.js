@@ -58,12 +58,15 @@ export class PromotionCronService {
       }
     }
 
-    // También auditar avisos cuya fecha de caducidad o antigüedad de 365 días se haya cumplido
-    const todayIso = new Date(tSys).toISOString().slice(0, 10);
-    const oneYearAgoIso = new Date(tSys - Promotion.ONE_YEAR_MS).toISOString().slice(0, 10);
+    // Depurar sesiones administrativas expiradas (> 15 min de inactividad) e intentos de login antiguos
+    const sessionExpiryCutoff = tSys - 15 * 60 * 1000;
     await dbManager.query(
-      'DELETE FROM avisos WHERE (expires_at != $1 AND expires_at < $2) OR published_at <= $3',
-      ['', todayIso, oneYearAgoIso]
+      'DELETE FROM sessions WHERE last_activity_at < $1',
+      [sessionExpiryCutoff]
+    );
+    await dbManager.query(
+      'DELETE FROM login_attempts WHERE locked_until > 0 AND locked_until < $1',
+      [tSys]
     );
 
     if (expiredCount > 0) {

@@ -117,7 +117,7 @@ export default async function BlogPostPage({ params }) {
               </p>
             </div>
 
-            {/* Puntos clave / Key Takeaways Box */}
+            {/* Puntos clave / Key Takeaways Box contextualizados al artículo */}
             <div className="article-takeaways" style={{ 
               background: 'rgba(157, 0, 0, 0.05)', 
               border: '1px solid rgba(157, 0, 0, 0.18)', 
@@ -132,13 +132,21 @@ export default async function BlogPostPage({ params }) {
                   </svg>
                 </div>
                 <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
-                  {lang === 'es' ? 'Puntos Clave del Análisis' : 'Key Strategic Takeaways'}
+                  {lang === 'es' ? `Síntesis Ejecutiva • ${post.category}` : `Executive Summary • ${post.category}`}
                 </h3>
               </div>
               <ul style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-text)' }}>
-                <li>{lang === 'es' ? 'Adecuación anticipada de documentación para evitar detenciones en aduana.' : 'Advance document validation to eliminate entry point holds.'}</li>
-                <li>{lang === 'es' ? 'Trazabilidad digital integral y cumplimiento fiscal regulatorio.' : 'Comprehensive digital traceability and compliance safeguards.'}</li>
-                <li>{lang === 'es' ? 'Acompañamiento especializado con ejecutivos aduanales certificados.' : 'Direct oversight by licensed foreign trade specialists.'}</li>
+                <li>{post.seo?.description || post.excerpt}</li>
+                <li>
+                  {lang === 'es'
+                    ? `Enfoque especializado en ${post.category.toLowerCase()} con validación normativa previa al despacho.`
+                    : `Specialized focus on ${post.category.toLowerCase()} with pre-clearance regulatory validation.`}
+                </li>
+                <li>
+                  {lang === 'es'
+                    ? `Análisis elaborado por ${post.author} para operaciones de importación y exportación en México.`
+                    : `Analysis prepared by ${post.author} for import and export operations in Mexico.`}
+                </li>
               </ul>
             </div>
 
@@ -163,11 +171,9 @@ export default async function BlogPostPage({ params }) {
               color: 'var(--color-secondary)',
               lineHeight: '1.6'
             }}>
-              &ldquo;{lang === 'es' 
-                ? 'La prevención y la auditoría documental previa cuestan una fracción de lo que representa un solo día de demora o almacenaje extraordinario en puerto o frontera.' 
-                : 'Proactive compliance and pre-clearance audits cost a fraction of a single day of port demurrage or border delays.'}&rdquo;
+              &ldquo;{post.content.length > 1 ? post.content[post.content.length - 1] : post.excerpt}&rdquo;
               <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, fontStyle: 'normal', color: 'var(--color-primary)', marginTop: '0.5rem' }}>
-                — Servi Proce Advisory Team
+                — {post.author}
               </span>
             </blockquote>
 
@@ -215,11 +221,11 @@ export default async function BlogPostPage({ params }) {
                   {lang === 'es' ? 'Compartir:' : 'Share:'}
                 </span>
                 <a 
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(post.title)}`} 
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${post.title} — https://serviproce.com.mx/${lang}/blog/${post.slug}`)}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="social-share-btn"
-                  aria-label="Compartir en WhatsApp"
+                  aria-label={lang === 'es' ? 'Compartir en WhatsApp' : 'Share on WhatsApp'}
                   style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#25D366', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -227,11 +233,11 @@ export default async function BlogPostPage({ params }) {
                   </svg>
                 </a>
                 <a 
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://serviproce.com.mx')}`} 
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://serviproce.com.mx/${lang}/blog/${post.slug}`)}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="social-share-btn"
-                  aria-label="Compartir en LinkedIn"
+                  aria-label={lang === 'es' ? 'Compartir en LinkedIn' : 'Share on LinkedIn'}
                   style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#0A66C2', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -239,11 +245,11 @@ export default async function BlogPostPage({ params }) {
                   </svg>
                 </a>
                 <a 
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://serviproce.com.mx')}`} 
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://serviproce.com.mx/${lang}/blog/${post.slug}`)}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="social-share-btn"
-                  aria-label="Compartir en Facebook"
+                  aria-label={lang === 'es' ? 'Compartir en Facebook' : 'Share on Facebook'}
                   style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#1877F2', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
