@@ -157,7 +157,7 @@ export default async function Home({ params }) {
       {/* Stats Section (Gestionable y ocultable desde el Panel de Administración) */}
       {homeStats.length > 0 && (
         <section className="section bg-background">
-          <div className="container grid-3-col">
+          <div className="container grid-3-col" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
             {homeStats.map((stat, idx) => (
               <div key={stat.id} className={`stat-box fade-in-up${idx > 0 ? ` delay-${Math.min(idx, 2)}` : ''}`}>
                 <div className="stat-number text-primary">

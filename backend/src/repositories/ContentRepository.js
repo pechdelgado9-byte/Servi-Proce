@@ -445,6 +445,10 @@ export class HomeStatRepository {
   }
 
   async create(data) {
+    const currentRows = await dbManager.query('SELECT id FROM home_stats');
+    if (currentRows.length >= 5) {
+      throw new Error('STAT_MAX_REACHED: Solo se permiten máximo 5 métricas.');
+    }
     const label_es = SanitizationService.sanitizeText(data.label_es);
     if (!label_es) {
       throw new Error('STAT_INVALID: La etiqueta en español es obligatoria.');

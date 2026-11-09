@@ -586,118 +586,34 @@ async function AdminContent({ params, searchParams }) {
         {/* Permite ocultar o mostrar toda la sección, agregar y editar cifras */}
         {/* ================================================================== */}
         {activeTab === 'stats' && (
-          <div className="admin-grid">
-            <div className="card glass-card">
-              <h2 style={{ fontSize: '1.4rem' }} className="mb-3">
-                {editingStat ? L('Editar Métrica', 'Edit Metric') : L('Agregar Nueva Métrica', 'Add New Metric')}
-              </h2>
-              <p className="text-sm text-text-muted mb-4">
-                {L(
-                  'Configure los contadores animados de la página de Inicio (ej. 10+ Años de Experiencia). Si todas las métricas están ocultas, la sección completa desaparece del Inicio.',
-                  'Configure the animated counters on the Home page (e.g. 10+ Years of Experience). If all metrics are hidden, the entire section disappears from Home.'
-                )}
-              </p>
-              <form action={saveHomeStat} className="form" key={editingStat?.id ?? 'new-stat'}>
-                <input type="hidden" name="lang" value={lang} />
-                {editingStat && <input type="hidden" name="id" value={editingStat.id} />}
-
-                <div className="grid-2-col" style={{ gap: '1rem' }}>
-                  <div className="form__group">
-                    <label className="form__label">{L('Número / Cantidad *', 'Number / Value *')}</label>
-                    <input
-                      name="value"
-                      type="number"
-                      min="0"
-                      className="form__input"
-                      defaultValue={editingStat?.value ?? 10}
-                      required
-                    />
-                  </div>
-                  <div className="form__group">
-                    <label className="form__label">{L('Sufijo (ej. +, %, K)', 'Suffix (e.g. +, %, K)')}</label>
-                    <input
-                      name="suffix"
-                      type="text"
-                      maxLength={10}
-                      className="form__input"
-                      defaultValue={editingStat?.suffix ?? '+'}
-                    />
-                  </div>
-                </div>
-
-                <div className="form__group">
-                  <label className="form__label">{L('Título en Español *', 'Spanish Label *')}</label>
-                  <input
-                    name="label_es"
-                    type="text"
-                    className="form__input"
-                    placeholder="Ej. Años de Experiencia"
-                    defaultValue={editingStat?.label_es ?? ''}
-                    required
-                  />
-                </div>
-
-                <div className="form__group">
-                  <label className="form__label">{L('Título en Inglés', 'English Label')}</label>
-                  <input
-                    name="label_en"
-                    type="text"
-                    className="form__input"
-                    placeholder="E.g. Years of Experience"
-                    defaultValue={editingStat?.label_en ?? ''}
-                  />
-                </div>
-
-                <div className="grid-2-col" style={{ gap: '1rem', alignItems: 'center' }}>
-                  <div className="form__group">
-                    <label className="form__label">{L('Orden de aparición', 'Display Order')}</label>
-                    <input
-                      name="sortOrder"
-                      type="number"
-                      min="1"
-                      className="form__input"
-                      defaultValue={editingStat?.sortOrder ?? (homeStats.length + 1)}
-                    />
-                  </div>
-                  <div className="form__group" style={{ paddingTop: '1.2rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
-                      <input
-                        type="checkbox"
-                        name="active"
-                        defaultChecked={editingStat ? Boolean(editingStat.active) : true}
-                      />
-                      <span>{L('Visible en la página de Inicio', 'Visible on Home page')}</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex-center gap-4" style={{ justifyContent: 'flex-start' }}>
-                  <button type="submit" className="btn btn--primary">
-                    {editingStat ? L('Guardar cambios', 'Save changes') : L('Agregar métrica', 'Add metric')}
-                  </button>
-                  {editingStat && (
-                    <Link className="btn btn--secondary" href={`/${lang}/admin?tab=stats`}>
-                      {L('Cancelar', 'Cancel')}
-                    </Link>
-                  )}
-                </div>
-              </form>
-            </div>
-
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div>
+            <div className="card glass-card" style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <h2 style={{ fontSize: '1.4rem', margin: 0 }}>
-                    {L('Métricas Registradas', 'Registered Metrics')} ({homeStats.length})
+                    {L('Métricas Registradas', 'Registered Metrics')} ({homeStats.length} / 5 {L('máx.', 'max')})
                   </h2>
-                  <p className="text-sm text-text-muted" style={{ margin: '0.2rem 0 0' }}>
+                  <p className="text-sm text-text-muted" style={{ margin: '0.25rem 0 0' }}>
                     {homeStats.some((s) => s.active)
                       ? L('🟢 La sección está VISIBLE en la página de Inicio.', '🟢 The section is VISIBLE on the Home page.')
                       : L('⚪ La sección está OCULTA en la página de Inicio.', '⚪ The section is HIDDEN on the Home page.')}
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {homeStats.length < 5 ? (
+                    <Link
+                      href={`/${lang}/admin?tab=stats&newStat=1`}
+                      className="btn btn--primary text-sm"
+                    >
+                      ➕ {L('Agregar Métrica', 'Add Metric')} ({homeStats.length}/5)
+                    </Link>
+                  ) : (
+                    <span className="aviso__tag aviso__tag--aviso" style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem' }}>
+                      {L('Límite máximo alcanzado (5/5)', 'Maximum limit reached (5/5)')}
+                    </span>
+                  )}
+
                   <form action={toggleAllHomeStats}>
                     <input type="hidden" name="lang" value={lang} />
                     <input type="hidden" name="active" value="true" />
@@ -708,41 +624,174 @@ async function AdminContent({ params, searchParams }) {
                   <form action={toggleAllHomeStats}>
                     <input type="hidden" name="lang" value={lang} />
                     <input type="hidden" name="active" value="false" />
-                    <button type="submit" className="btn btn--secondary text-sm">
+                    <button type="submit" className="btn text-sm" style={{ background: 'rgba(148,163,184,0.16)', color: 'inherit', border: '1px solid rgba(148,163,184,0.35)' }}>
                       🚫 {L('Ocultar sección de Inicio', 'Hide section from Home')}
                     </button>
                   </form>
                 </div>
               </div>
 
-              <ul className="admin-list" role="list">
-                {homeStats.map((s) => (
-                  <li key={s.id} className="admin-list__item card glass-card">
-                    <div>
-                      <span className={`aviso__tag ${s.active ? 'aviso__tag--ley' : 'aviso__tag--aviso'}`}>
-                        {s.active ? L('Visible en Inicio', 'Visible on Home') : L('Oculto', 'Hidden')}
-                      </span>
-                      <p className="mt-2 mb-1" style={{ fontSize: '1.25rem' }}>
-                        <strong className="text-primary">{s.value}{s.suffix}</strong> — <strong>{s.label_es}</strong>
-                      </p>
-                      <p className="text-sm text-text-muted">
-                        EN: {s.label_en} • {L('Orden:', 'Order:')} {s.sortOrder}
-                      </p>
+              {/* Formulario para agregar nueva métrica: solo aparece si se presionó Agregar Métrica y hay menos de 5 */}
+              {sp.newStat === '1' && !editingStat && homeStats.length < 5 && (
+                <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(148,163,184,0.25)' }}>
+                  <h3 style={{ fontSize: '1.2rem' }} className="mb-3">
+                    ➕ {L('Nueva Métrica (Máx. 5)', 'New Metric (Max 5)')}
+                  </h3>
+                  <form action={saveHomeStat} className="form" key="new-stat-form">
+                    <input type="hidden" name="lang" value={lang} />
+
+                    <div className="grid-2-col" style={{ gap: '1rem' }}>
+                      <div className="form__group">
+                        <label className="form__label">{L('Número / Cantidad *', 'Number / Value *')}</label>
+                        <input name="value" type="number" min="0" className="form__input" defaultValue={10} required />
+                      </div>
+                      <div className="form__group">
+                        <label className="form__label">{L('Sufijo (ej. +, %, K)', 'Suffix (e.g. +, %, K)')}</label>
+                        <input name="suffix" type="text" maxLength={10} className="form__input" defaultValue="+" />
+                      </div>
                     </div>
-                    <div className="admin-list__actions">
-                      <Link className="btn btn--secondary text-sm" href={`/${lang}/admin?tab=stats&editStat=${s.id}`}>
-                        {L('Editar', 'Edit')}
+
+                    <div className="grid-2-col" style={{ gap: '1rem' }}>
+                      <div className="form__group">
+                        <label className="form__label">{L('Título en Español *', 'Spanish Label *')}</label>
+                        <input name="label_es" type="text" className="form__input" placeholder="Ej. Años de Experiencia" required />
+                      </div>
+                      <div className="form__group">
+                        <label className="form__label">{L('Título en Inglés', 'English Label')}</label>
+                        <input name="label_en" type="text" className="form__input" placeholder="E.g. Years of Experience" />
+                      </div>
+                    </div>
+
+                    <div className="grid-2-col" style={{ gap: '1rem', alignItems: 'center' }}>
+                      <div className="form__group">
+                        <label className="form__label">{L('Orden de aparición', 'Display Order')}</label>
+                        <input name="sortOrder" type="number" min="1" max="5" className="form__input" defaultValue={homeStats.length + 1} />
+                      </div>
+                      <div className="form__group" style={{ paddingTop: '1.2rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                          <input type="checkbox" name="active" defaultChecked={true} />
+                          <span>{L('Visible en la página de Inicio', 'Visible on Home page')}</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex-center gap-4" style={{ justifyContent: 'flex-start' }}>
+                      <button type="submit" className="btn btn--primary">
+                        {L('Guardar nueva métrica', 'Save new metric')}
+                      </button>
+                      <Link
+                        className="btn text-sm"
+                        style={{ background: 'rgba(148,163,184,0.16)', color: 'inherit', border: '1px solid rgba(148,163,184,0.35)' }}
+                        href={`/${lang}/admin?tab=stats`}
+                      >
+                        {L('Cancelar', 'Cancel')}
                       </Link>
-                      <form action={removeHomeStat}>
-                        <input type="hidden" name="lang" value={lang} />
-                        <input type="hidden" name="id" value={s.id} />
-                        <button type="submit" className="btn text-sm btn--danger">{L('Eliminar', 'Delete')}</button>
-                      </form>
                     </div>
-                  </li>
-                ))}
-              </ul>
+                  </form>
+                </div>
+              )}
             </div>
+
+            <ul className="admin-list" role="list">
+              {homeStats.map((s) => {
+                const isEditingThis = editingStat?.id === s.id;
+                return (
+                  <li
+                    key={s.id}
+                    className="admin-list__item card glass-card"
+                    style={isEditingThis ? { display: 'block', border: '2px solid var(--color-primary)' } : undefined}
+                  >
+                    {!isEditingThis ? (
+                      <>
+                        <div>
+                          <span className={`aviso__tag ${s.active ? 'aviso__tag--ley' : 'aviso__tag--aviso'}`}>
+                            {s.active ? L('Visible en Inicio', 'Visible on Home') : L('Oculto', 'Hidden')}
+                          </span>
+                          <p className="mt-2 mb-1" style={{ fontSize: '1.25rem' }}>
+                            <strong className="text-primary">{s.value}{s.suffix}</strong> — <strong>{s.label_es}</strong>
+                          </p>
+                          <p className="text-sm text-text-muted">
+                            EN: {s.label_en} • {L('Orden:', 'Order:')} {s.sortOrder}
+                          </p>
+                        </div>
+                        <div className="admin-list__actions">
+                          <Link
+                            className="btn text-sm"
+                            style={{ background: 'rgba(148,163,184,0.16)', color: 'inherit', border: '1px solid rgba(148,163,184,0.35)' }}
+                            href={`/${lang}/admin?tab=stats&editStat=${s.id}`}
+                          >
+                            ✏️ {L('Editar', 'Edit')}
+                          </Link>
+                          <form action={removeHomeStat}>
+                            <input type="hidden" name="lang" value={lang} />
+                            <input type="hidden" name="id" value={s.id} />
+                            <button type="submit" className="btn text-sm btn--danger">{L('Eliminar', 'Delete')}</button>
+                          </form>
+                        </div>
+                      </>
+                    ) : (
+                      <div>
+                        <h3 style={{ fontSize: '1.2rem' }} className="mb-3">
+                          ✏️ {L('Editando Métrica:', 'Editing Metric:')} <span className="text-primary">{s.value}{s.suffix} — {s.label_es}</span>
+                        </h3>
+                        <form action={saveHomeStat} className="form" key={s.id}>
+                          <input type="hidden" name="lang" value={lang} />
+                          <input type="hidden" name="id" value={s.id} />
+
+                          <div className="grid-2-col" style={{ gap: '1rem' }}>
+                            <div className="form__group">
+                              <label className="form__label">{L('Número / Cantidad *', 'Number / Value *')}</label>
+                              <input name="value" type="number" min="0" className="form__input" defaultValue={s.value} required />
+                            </div>
+                            <div className="form__group">
+                              <label className="form__label">{L('Sufijo (ej. +, %, K)', 'Suffix (e.g. +, %, K)')}</label>
+                              <input name="suffix" type="text" maxLength={10} className="form__input" defaultValue={s.suffix} />
+                            </div>
+                          </div>
+
+                          <div className="grid-2-col" style={{ gap: '1rem' }}>
+                            <div className="form__group">
+                              <label className="form__label">{L('Título en Español *', 'Spanish Label *')}</label>
+                              <input name="label_es" type="text" className="form__input" defaultValue={s.label_es} required />
+                            </div>
+                            <div className="form__group">
+                              <label className="form__label">{L('Título en Inglés', 'English Label')}</label>
+                              <input name="label_en" type="text" className="form__input" defaultValue={s.label_en} />
+                            </div>
+                          </div>
+
+                          <div className="grid-2-col" style={{ gap: '1rem', alignItems: 'center' }}>
+                            <div className="form__group">
+                              <label className="form__label">{L('Orden de aparición', 'Display Order')}</label>
+                              <input name="sortOrder" type="number" min="1" max="5" className="form__input" defaultValue={s.sortOrder} />
+                            </div>
+                            <div className="form__group" style={{ paddingTop: '1.2rem' }}>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                                <input type="checkbox" name="active" defaultChecked={Boolean(s.active)} />
+                                <span>{L('Visible en la página de Inicio', 'Visible on Home page')}</span>
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="flex-center gap-4" style={{ justifyContent: 'flex-start' }}>
+                            <button type="submit" className="btn btn--primary">
+                              {L('Guardar cambios', 'Save changes')}
+                            </button>
+                            <Link
+                              className="btn text-sm"
+                              style={{ background: 'rgba(148,163,184,0.16)', color: 'inherit', border: '1px solid rgba(148,163,184,0.35)' }}
+                              href={`/${lang}/admin?tab=stats`}
+                            >
+                              {L('Cancelar', 'Cancel')}
+                            </Link>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         )}
 
