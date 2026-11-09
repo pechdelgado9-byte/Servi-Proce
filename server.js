@@ -1,17 +1,19 @@
 /**
  * ============================================================================
  * ARCHIVO DE INICIALIZACIÓN UNIFICADO PARA CPANEL ("Setup Node.js App")
+ * Optimizado para CloudLinux 8 LVE (el8.x86_64 - Paquete Básico / Servidor Olimpo)
  * Proyecto: Servi Proce — Ecosistema Web Logístico y Aduanal
  * ============================================================================
  * En cPanel -> Setup Node.js App:
  *   - Application root:         (carpeta raíz del repositorio)
  *   - Application startup file: server.js   (o app.js)
- *   - Node.js version:          20.x o 22.x
- *
- * Este archivo levanta automáticamente en un solo proceso:
- *   1. El Backend Headless REST + Motor SQLite embebido (backend/database/serviproce.sqlite)
- *   2. El servidor de producción de Next.js (/frontend) en el puerto o socket asignado por cPanel (process.env.PORT)
+ *   - Node.js version:          20.x o 22.x (compatible también con Node 18+)
  */
+
+// 0. Límites preventivos de hilos para CloudLinux LVE (evita errores EAGAIN / NPROC en planes Básicos)
+process.env.UV_THREADPOOL_SIZE = process.env.UV_THREADPOOL_SIZE || '2';
+process.env.RAYON_NUM_THREADS = process.env.RAYON_NUM_THREADS || '1';
+process.env.NEXT_TELEMETRY_DISABLED = '1';
 
 import http from 'node:http';
 import fs from 'node:fs';
@@ -64,7 +66,7 @@ let nextRequestHandler = null;
 let backendInstance = null;
 
 // 3. Crear y enlazar inmediatamente el servidor HTTP principal al puerto/socket de cPanel
-//    (Evita timeouts de Phusion Passenger mientras compila o inicializa en el primer arranque)
+//    (Evita timeouts 503 de Phusion Passenger en CloudLinux mientras inicializa)
 const mainServer = http.createServer(async (req, res) => {
   try {
     if (startupError) {
@@ -129,24 +131,31 @@ mainServer.listen(cpanelPortOrSocket, () => {
   console.log('===================================================================');
 });
 
-// 4. Inicialización asíncrona del Backend Headless (SQLite) + Frontend Next.js
+// 4. Inicialización asíncrona del Backend Headless (SQLite / JSON Store) + Frontend Next.js
 async function bootstrapEcosystem() {
   try {
     const isWin = process.platform === 'win32';
     const npmCmd = isWin ? 'npm.cmd' : 'npm';
+    const lveEnv = {
+      ...process.env,
+      UV_THREADPOOL_SIZE: '2',
+      RAYON_NUM_THREADS: '1',
+      NEXT_TELEMETRY_DISABLED: '1',
+      NODE_OPTIONS: process.env.NODE_OPTIONS || '--max-old-space-size=768',
+    };
 
     // Verificar dependencias en /backend y /frontend
     if (!fs.existsSync(path.join(backendDir, 'node_modules'))) {
       console.log('[cPanel Setup] Instalando dependencias de /backend...');
-      execSync(`${npmCmd} install --omit=dev`, { cwd: backendDir, stdio: 'inherit' });
+      execSync(`${npmCmd} install --omit=dev --no-audit --no-fund`, { cwd: backendDir, stdio: 'inherit', env: lveEnv });
     }
 
     if (!fs.existsSync(path.join(frontendDir, 'node_modules'))) {
       console.log('[cPanel Setup] Instalando dependencias de /frontend...');
-      execSync(`${npmCmd} install`, { cwd: frontendDir, stdio: 'inherit' });
+      execSync(`${npmCmd} install --no-audit --no-fund`, { cwd: frontendDir, stdio: 'inherit', env: lveEnv });
     }
 
-    // 4.1 Iniciar el Backend Headless + Base de datos SQLite local
+    // 4.1 Iniciar el Backend Headless + Base de datos local (SQLite en Node 22+ o JSON Store en Node 18/20)
     const { BackendServer } = await import('./backend/src/server.js');
     backendInstance = new BackendServer();
 
@@ -154,8 +163,12 @@ async function bootstrapEcosystem() {
       await backendInstance.listen(internalBackendPort);
     } catch (listenErr) {
       if (listenErr && listenErr.code === 'EADDRINUSE') {
-        console.log(`[cPanel Setup] El puerto interno ${internalBackendPort} ya está activo o en uso; inicializando instancia en memoria.`);
-        await backendInstance.initialize();
+        console.log(`[cPanel Setup] El puerto interno ${internalBackendPort} ya está en uso en el servidor compartido; buscando puerto local libre...`);
+        const srv = await backendInstance.listen(0);
+        const assignedPort = srv.address()?.port || internalBackendPort;
+        process.env.BACKEND_PORT = String(assignedPort);
+        process.env.BACKEND_INTERNAL_URL = `http://127.0.0.1:${assignedPort}`;
+        process.env.NEXT_PUBLIC_API_URL = `http://127.0.0.1:${assignedPort}/api`;
       } else {
         throw listenErr;
       }
@@ -164,11 +177,11 @@ async function bootstrapEcosystem() {
     // 4.2 Verificar si existe el build de producción de Next.js (.next/BUILD_ID)
     const buildIdPath = path.join(frontendDir, '.next', 'BUILD_ID');
     if (!fs.existsSync(buildIdPath)) {
-      console.log('[cPanel Setup] No se encontró compilación previa (.next/BUILD_ID). Ejecutando "npm run build" en /frontend...');
+      console.log('[cPanel Setup] No se encontró compilación previa (.next/BUILD_ID). Ejecutando "npm run build" en /frontend con límites LVE...');
       execSync(`${npmCmd} run build`, {
         cwd: frontendDir,
         stdio: 'inherit',
-        env: { ...process.env },
+        env: lveEnv,
       });
     }
 
@@ -185,7 +198,7 @@ async function bootstrapEcosystem() {
     isReady = true;
 
     console.log('===================================================================');
-    console.log('[cPanel Server] Ecosistema Servi Proce (Frontend + Backend SQLite) 100% LISTO');
+    console.log('[cPanel Server] Ecosistema Servi Proce 100% LISTO en CloudLinux');
     console.log('===================================================================');
   } catch (err) {
     console.error('[cPanel Server] Error crítico durante la inicialización:', err);
