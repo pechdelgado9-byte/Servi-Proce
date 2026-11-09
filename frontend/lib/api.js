@@ -88,7 +88,7 @@ const FALLBACK_BLOG_ARTICLES = [
 export async function fetchPromotions(lang = 'es') {
   'use cache';
   cacheTag(PROMOTIONS_TAG);
-  cacheLife({ stale: 0, revalidate: 1, expire: 1 });
+  cacheLife('hours');
 
   try {
     const res = await fetch(`${API_BASE_URL}/promotions?locale=${lang}`, {
@@ -109,7 +109,7 @@ export async function fetchPromotions(lang = 'es') {
 export async function fetchPromotionsList(lang = 'es') {
   'use cache';
   cacheTag(PROMOTIONS_TAG);
-  cacheLife({ stale: 0, revalidate: 1, expire: 1 });
+  cacheLife('hours');
 
   try {
     const res = await fetch(`${API_BASE_URL}/promotions?locale=${lang}`, {
@@ -132,7 +132,7 @@ export async function fetchPromotionsList(lang = 'es') {
 export async function fetchBlogPosts(lang = 'es') {
   'use cache';
   cacheTag(BLOG_TAG);
-  cacheLife({ stale: 0, revalidate: 1, expire: 1 });
+  cacheLife('hours');
 
   try {
     const res = await fetch(`${API_BASE_URL}/blog-posts?locale=${lang}`, {
@@ -168,7 +168,7 @@ export async function fetchBlogPosts(lang = 'es') {
 export async function fetchBlogPostBySlug(slug, lang = 'es') {
   'use cache';
   cacheTag(BLOG_TAG);
-  cacheLife({ stale: 0, revalidate: 1, expire: 1 });
+  cacheLife('hours');
 
   try {
     const res = await fetch(`${API_BASE_URL}/blog-posts/${encodeURIComponent(slug)}?locale=${lang}`, {
@@ -210,7 +210,7 @@ export async function fetchBlogPostBySlug(slug, lang = 'es') {
 export async function fetchHomeStats(lang = 'es') {
   'use cache';
   cacheTag(STATS_TAG);
-  cacheLife({ stale: 0, revalidate: 1, expire: 1 });
+  cacheLife('hours');
 
   try {
     const res = await fetch(`${API_BASE_URL}/stats?locale=${lang}`, {

@@ -863,17 +863,23 @@ html.dark .logo-img--dark {
 }
 
 .is-visible.fade-in-up,
-.is-visible .fade-in-up {
+.is-visible .fade-in-up,
+[data-visible="true"].fade-in-up,
+[data-visible="true"] .fade-in-up {
   animation: fadeInUp 0.8s ease forwards;
 }
 
 .is-visible.slide-in-right,
-.is-visible .slide-in-right {
+.is-visible .slide-in-right,
+[data-visible="true"].slide-in-right,
+[data-visible="true"] .slide-in-right {
   animation: slideInRight 0.8s ease forwards;
 }
 
 .is-visible.zoom-in,
-.is-visible .zoom-in {
+.is-visible .zoom-in,
+[data-visible="true"].zoom-in,
+[data-visible="true"] .zoom-in {
   animation: zoomIn 0.8s ease forwards;
 }
 

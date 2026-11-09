@@ -40,7 +40,7 @@ async function readFallbackAvisos(lang = 'es', { type, limit } = {}) {
 export async function fetchAvisos(lang = 'es', { type, limit } = {}) {
   'use cache';
   cacheTag(AVISOS_TAG);
-  cacheLife({ stale: 0, revalidate: 1, expire: 1 });
+  cacheLife('hours');
 
   try {
     const params = new URLSearchParams({ locale: lang });
