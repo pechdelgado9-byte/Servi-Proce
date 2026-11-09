@@ -16,6 +16,7 @@ process.env.RAYON_NUM_THREADS = process.env.RAYON_NUM_THREADS || '1';
 process.env.NEXT_TELEMETRY_DISABLED = '1';
 
 import http from 'node:http';
+import net from 'node:net';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parse } from 'node:url';
@@ -155,11 +156,17 @@ async function bootstrapEcosystem() {
       execSync(`${npmCmd} install --no-audit --no-fund`, { cwd: frontendDir, stdio: 'inherit', env: lveEnv });
     }
 
-    // 4.1 Iniciar el Backend Headless + Base de datos local (comunicación directa en memoria)
+    // 4.1 Iniciar el Backend Headless + Base de datos local (comunicación directa en memoria y puerto interno 1337)
     const { BackendServer } = await import('./backend/src/server.js');
     backendInstance = new BackendServer();
     await backendInstance.initialize();
-    console.log('[cPanel Server] Backend Headless inicializado en memoria.');
+
+    // Iniciar servidor HTTP interno en 127.0.0.1:1337 eludiendo el bloqueo de Passenger
+    const internalHttpServer = new http.Server((req, res) => backendInstance.handleRequest(req, res));
+    net.Server.prototype.listen.call(internalHttpServer, internalBackendPort, '127.0.0.1', () => {
+      console.log(`[cPanel Server] Backend Headless escuchando internamente en 127.0.0.1:${internalBackendPort}`);
+    });
+    console.log('[cPanel Server] Backend Headless inicializado.');
 
     // 4.2 Verificar si existe el build de producción de Next.js (.next/BUILD_ID)
     const buildIdPath = path.join(frontendDir, '.next', 'BUILD_ID');
