@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { fetchPromotions, fetchHomeStats } from '@/lib/api';
+import { fetchPromotionsList, fetchHomeStats } from '@/lib/api';
 import { fetchAvisos } from '@/lib/avisos';
 import { despachoSubservices, pick } from '@/lib/services-data';
 import AvisoCard from '../../components/AvisoCard';
 import AnimatedCounter from '../../components/AnimatedCounter';
 import ServicesCarousel from '../../components/ServicesCarousel';
+import PromoBannerCarousel from '../../components/PromoBannerCarousel';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -19,46 +20,17 @@ export async function generateMetadata({ params }) {
 export default async function Home({ params }) {
   const { lang } = await params;
 
-  // Consumo de banner promocional (RF-02), avisos y estadísticas dinámicas
-  const promo = await fetchPromotions(lang);
-  const [avisos, homeStats] = await Promise.all([
+  // Consumo de carrusel de promociones (RF-02), avisos y estadísticas dinámicas
+  const [promotions, avisos, homeStats] = await Promise.all([
+    fetchPromotionsList(lang),
     fetchAvisos(lang, { limit: 3 }),
     fetchHomeStats(lang),
   ]);
 
   return (
     <main className="page-wrapper">
-      {/* Promotional Banner */}
-      {promo && (
-        <div 
-          id="banner-promocional"
-          className="promo-banner fade-in-up" 
-          style={{ 
-            background: 'linear-gradient(135deg, #0b1120 0%, #161f38 50%, #0b1120 100%)', 
-            borderBottom: '1px solid rgba(157, 0, 0, 0.35)',
-            padding: '2.25rem 1rem', 
-            textAlign: 'center', 
-            position: 'relative' 
-          }}
-        >
-          <div className="container relative z-10 text-white">
-            <span className="priority-badge mb-2" style={{ background: 'rgba(157, 0, 0, 0.25)', border: '1px solid rgba(220, 38, 38, 0.5)', fontSize: '0.78rem', letterSpacing: '0.08em' }}>
-              {lang === 'es' ? 'Atención Personalizada' : 'Tailored Advisory'}
-            </span>
-            <h2 className="mb-2" style={{ color: '#ffffff', fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.02em' }}>{promo.title}</h2>
-            <p style={{ color: '#cbd5e1', fontSize: '0.98rem', maxWidth: '640px', margin: '0 auto', lineHeight: '1.5' }}>{promo.description}</p>
-            {promo.imageUrl && (
-              <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
-                <img
-                  src={promo.imageUrl}
-                  alt={promo.title}
-                  style={{ maxHeight: '180px', width: 'auto', maxWidth: '100%', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.15)', objectFit: 'cover' }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Promotional Banner / Carousel */}
+      <PromoBannerCarousel initialPromotions={promotions} lang={lang} />
 
       {/* Hero Section */}
       <section 

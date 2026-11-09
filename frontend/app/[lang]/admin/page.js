@@ -154,8 +154,8 @@ async function AdminContent({ params, searchParams }) {
     promotions: {
       title: L('📍 ¿Dónde se ve este bloque?', '📍 Where does this block appear?'),
       desc: L(
-        'Este banner aparece hasta arriba de la Página de Inicio (franja superior destacada, justo encima de la imagen principal de portada). Si el estado es "Oculto", la franja desaparece.',
-        'This banner appears at the very top of the Home Page (featured top bar right above the main hero image). If status is "Hidden", the bar disappears.'
+        'Este banner aparece hasta arriba de la Página de Inicio (franja superior destacada, justo encima de la imagen principal de portada). Si hay varias promociones con estado "Publicado", se mostrarán rotando automáticamente en un carrusel interactivo.',
+        'This banner appears at the very top of the Home Page (featured top bar right above the main hero image). If multiple promotions have "Published" status, they rotate automatically in an interactive carousel.'
       ),
       href: `/${lang}#banner-promocional`,
       btnLabel: L('👁️ Ver Banner en Inicio', '👁️ View Banner on Home'),
@@ -595,8 +595,8 @@ async function AdminContent({ params, searchParams }) {
               </h2>
               <p className="text-sm text-text-muted mb-4">
                 {L(
-                  'Toda promoción se oculta automáticamente al alcanzar su fecha de vencimiento programada o tras cumplir 1 año de vigencia.',
-                  'By policy, every promotion is automatically hidden when reaching its scheduled expiration date or after 1 year of validity.'
+                  'Todas las promociones con estado "Publicado" se muestran en un carrusel en la parte superior del Inicio sin reemplazar a las anteriores. Cada promoción se oculta automáticamente al alcanzar su fecha de vencimiento.',
+                  'All promotions with "Published" status are displayed in a carousel at the top of the Home page without replacing existing ones. Each promotion is automatically hidden when reaching its expiration date.'
                 )}
               </p>
               <form action={savePromotion} className="form" key={editingPromo?.id ?? 'new-promo'}>
