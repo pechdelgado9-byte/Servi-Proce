@@ -1025,6 +1025,12 @@ html.dark .logo-img--dark {
   background-color: var(--color-background);
   color: var(--color-text);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  resize: none;
+}
+
+textarea,
+textarea.form__input {
+  resize: none;
 }
 
 .form__input:hover {
