@@ -52,7 +52,7 @@ export default function AvisoCard({ aviso, lang }) {
   const isPinned = aviso.pinned;
   
   return (
-    <article className={`aviso-card aviso-card--${aviso.type} ${isPinned ? 'aviso-card--pinned' : ''} hover-elevate`}>
+    <article id={`aviso-${aviso.id}`} className={`aviso-card aviso-card--${aviso.type} ${isPinned ? 'aviso-card--pinned' : ''} hover-elevate`}>
       {/* Indicador de categoría y metadata */}
       <div className="aviso-card__header">
         <div className="aviso-card__badges">

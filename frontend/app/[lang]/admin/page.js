@@ -132,6 +132,57 @@ async function AdminContent({ params, searchParams }) {
   const editingAviso = sp.edit ? dashboard.avisos.find((a) => a.id === sp.edit) : null;
   const editingStat = sp.editStat ? homeStats.find((s) => s.id === sp.editStat) : null;
 
+  const moduleGuides = {
+    blog: {
+      title: L('📍 ¿Dónde se ve este bloque?', '📍 Where does this block appear?'),
+      desc: L(
+        'Estos artículos aparecen en la página "Blog" del menú principal. Al publicar o editar un artículo, puedes presionar "👁️ Ver" para ir directamente a su publicación.',
+        'These articles appear on the "Blog" page in the main menu. After publishing or editing an article, click "👁️ View" to jump directly to it.'
+      ),
+      href: `/${lang}/blog`,
+      btnLabel: L('👁️ Ver sección de Blog', '👁️ View Blog section'),
+    },
+    avisos: {
+      title: L('📍 ¿Dónde se ve este bloque?', '📍 Where does this block appear?'),
+      desc: L(
+        'Estas publicaciones aparecen en dos lugares: en la mitad de la Página de Inicio (sección "Noticias, Leyes y Avisos", debajo de Nuestros Servicios) y en la página dedicada "/avisos".',
+        'These posts appear in two places: in the middle of the Home Page ("News, Laws and Notices" section, below Our Services) and on the dedicated "/avisos" page.'
+      ),
+      href: `/${lang}#seccion-avisos`,
+      btnLabel: L('👁️ Ver bloque en Inicio', '👁️ View block on Home'),
+    },
+    promotions: {
+      title: L('📍 ¿Dónde se ve este bloque?', '📍 Where does this block appear?'),
+      desc: L(
+        'Este banner aparece hasta arriba de la Página de Inicio (franja superior destacada, justo encima de la imagen principal de portada). Si el estado es "Oculto", la franja desaparece.',
+        'This banner appears at the very top of the Home Page (featured top bar right above the main hero image). If status is "Hidden", the bar disappears.'
+      ),
+      href: `/${lang}#banner-promocional`,
+      btnLabel: L('👁️ Ver Banner en Inicio', '👁️ View Banner on Home'),
+    },
+    stats: {
+      title: L('📍 ¿Dónde se ve este bloque?', '📍 Where does this block appear?'),
+      desc: L(
+        'Estos contadores numéricos animados (ej. 10+ Años de Experiencia) aparecen en la mitad de la Página de Inicio, justo arriba de "Compromiso y Tratos Comerciales". Puedes mostrarlos u ocultarlos cuando quieras.',
+        'These animated counters (e.g. 10+ Years of Experience) appear in the middle of the Home Page, right above "Commitment and Business Deals". You can show or hide them anytime.'
+      ),
+      href: `/${lang}#metricas-inicio`,
+      btnLabel: L('👁️ Ver Métricas en Inicio', '👁️ View Metrics on Home'),
+    },
+    logs: {
+      title: L('📍 ¿De dónde provienen estos registros?', '📍 Where do these records come from?'),
+      desc: L(
+        'Aquí se concentran todas las solicitudes enviadas por los clientes desde los formularios de "Cotizar" y "Despachos Aduanales", incluyendo sus documentos adjuntos y la vista previa del correo enviado.',
+        'All quotation requests submitted by clients from the "Quote" and "Customs Clearance" forms are collected here, including attachments and email previews.'
+      ),
+      href: `/${lang}/cotizar`,
+      btnLabel: L('👁️ Ver Formulario de Cotización', '👁️ View Quotation Form'),
+    },
+  };
+
+  const currentGuide = moduleGuides[activeTab] || moduleGuides.blog;
+  const ghostBtnStyle = { background: 'rgba(148,163,184,0.16)', color: 'inherit', border: '1px solid rgba(148,163,184,0.35)' };
+
   return (
     <main className="page-wrapper section">
       <div className="container" style={activeTab === 'logs' ? { maxWidth: '1440px', width: '100%' } : undefined}>
@@ -144,48 +195,101 @@ async function AdminContent({ params, searchParams }) {
           </div>
           <form action={logout}>
             <input type="hidden" name="lang" value={lang} />
-            <button type="submit" className="btn btn--secondary text-sm">{L('Cerrar sesión', 'Sign out')}</button>
+            <button type="submit" className="btn text-sm" style={ghostBtnStyle}>{L('Cerrar sesión', 'Sign out')}</button>
           </form>
         </div>
 
         {/* Barra de navegación de módulos del CMS */}
-        <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', marginBottom: '1.75rem', borderBottom: '1px solid rgba(148,163,184,0.25)', paddingBottom: '0.85rem' }}>
+        <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', marginBottom: '1.25rem', borderBottom: '1px solid rgba(148,163,184,0.25)', paddingBottom: '0.85rem' }}>
           <Link
             href={`/${lang}/admin?tab=blog`}
-            className={`btn text-sm ${activeTab === 'blog' ? 'btn--primary' : 'btn--secondary'}`}
+            className={`btn text-sm ${activeTab === 'blog' ? 'btn--primary' : ''}`}
+            style={activeTab !== 'blog' ? ghostBtnStyle : undefined}
           >
             {L('Artículos del Blog', 'Blog Articles')} ({dashboard.blogPosts.length})
           </Link>
           <Link
             href={`/${lang}/admin?tab=avisos`}
-            className={`btn text-sm ${activeTab === 'avisos' ? 'btn--primary' : 'btn--secondary'}`}
+            className={`btn text-sm ${activeTab === 'avisos' ? 'btn--primary' : ''}`}
+            style={activeTab !== 'avisos' ? ghostBtnStyle : undefined}
           >
             {L('Noticias, Leyes y Avisos', 'News, Laws & Notices')} ({dashboard.avisos.length})
           </Link>
           <Link
             href={`/${lang}/admin?tab=promotions`}
-            className={`btn text-sm ${activeTab === 'promotions' ? 'btn--primary' : 'btn--secondary'}`}
+            className={`btn text-sm ${activeTab === 'promotions' ? 'btn--primary' : ''}`}
+            style={activeTab !== 'promotions' ? ghostBtnStyle : undefined}
           >
             {L('Banner Promocional', 'Promo Banner')} ({dashboard.promotions.length})
           </Link>
           <Link
             href={`/${lang}/admin?tab=stats`}
-            className={`btn text-sm ${activeTab === 'stats' ? 'btn--primary' : 'btn--secondary'}`}
+            className={`btn text-sm ${activeTab === 'stats' ? 'btn--primary' : ''}`}
+            style={activeTab !== 'stats' ? ghostBtnStyle : undefined}
           >
             {L('Métricas de Inicio', 'Home Metrics')} ({homeStats.filter((s) => s.active).length}/{homeStats.length})
           </Link>
           <Link
             href={`/${lang}/admin?tab=logs`}
-            className={`btn text-sm ${activeTab === 'logs' ? 'btn--primary' : 'btn--secondary'}`}
+            className={`btn text-sm ${activeTab === 'logs' ? 'btn--primary' : ''}`}
+            style={activeTab !== 'logs' ? ghostBtnStyle : undefined}
           >
             {L('Historial de Cotizaciones', 'Quotation Requests')} ({dashboard.quotationLogs.length})
           </Link>
         </div>
 
+        {/* Guía rápida de ubicación del bloque en el sitio web + Botón directo "Ver" */}
+        <div
+          className="card glass-card"
+          style={{
+            marginBottom: '1.5rem',
+            padding: '1rem 1.35rem',
+            borderLeft: '4px solid var(--color-primary)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div style={{ maxWidth: '760px' }}>
+            <strong style={{ display: 'block', fontSize: '0.98rem', marginBottom: '0.2rem' }}>
+              {currentGuide.title}
+            </strong>
+            <span className="text-sm text-text-muted">
+              {currentGuide.desc}
+            </span>
+          </div>
+          <Link
+            href={currentGuide.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn text-sm"
+            style={{ ...ghostBtnStyle, fontWeight: 700, whiteSpace: 'nowrap' }}
+          >
+            {currentGuide.btnLabel} ↗
+          </Link>
+        </div>
+
         {sp.ok === 'saved' && (
-          <p className="alert alert--success mb-4" role="status">
-            {L('Cambios guardados y sincronizados con el sitio público (Webhook SSG ejecutado).', 'Changes saved and synced with the public site (SSG Webhook triggered).')}
-          </p>
+          <div
+            className="alert alert--success mb-4"
+            role="status"
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}
+          >
+            <span>
+              ✅ {L('¡Cambios guardados y actualizados en la página web!', 'Changes saved and updated on the website!')}
+            </span>
+            <Link
+              href={currentGuide.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn--primary text-sm"
+              style={{ padding: '0.4rem 0.9rem', fontSize: '0.84rem' }}
+            >
+              👁️ {L('Ver apartado modificado en la página ↗', 'View modified section on page ↗')}
+            </Link>
+          </div>
         )}
         {sp.ok === 'cron' && (
           <p className="alert alert--success mb-4" role="status">
@@ -364,8 +468,17 @@ async function AdminContent({ params, searchParams }) {
                       <p className="text-sm text-text-muted">{b.published_at} • {b.author}</p>
                     </div>
                     <div className="admin-list__actions">
-                      <Link className="btn btn--secondary text-sm" href={`/${lang}/admin?tab=blog&editBlog=${b.id}`}>
-                        {L('Editar', 'Edit')}
+                      <Link
+                        className="btn text-sm"
+                        style={ghostBtnStyle}
+                        href={`/${lang}/blog/${b.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        👁️ {L('Ver', 'View')}
+                      </Link>
+                      <Link className="btn text-sm" style={ghostBtnStyle} href={`/${lang}/admin?tab=blog&editBlog=${b.id}`}>
+                        ✏️ {L('Editar', 'Edit')}
                       </Link>
                       <form action={removeBlogPost}>
                         <input type="hidden" name="lang" value={lang} />
@@ -446,7 +559,18 @@ async function AdminContent({ params, searchParams }) {
                       <p className="text-sm text-text-muted">{a.publishedAt}{a.expiresAt ? ` → ${a.expiresAt}` : ''}</p>
                     </div>
                     <div className="admin-list__actions">
-                      <Link className="btn btn--secondary text-sm" href={`/${lang}/admin?tab=avisos&edit=${a.id}`}>{L('Editar', 'Edit')}</Link>
+                      <Link
+                        className="btn text-sm"
+                        style={ghostBtnStyle}
+                        href={`/${lang}/avisos#aviso-${a.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        👁️ {L('Ver', 'View')}
+                      </Link>
+                      <Link className="btn text-sm" style={ghostBtnStyle} href={`/${lang}/admin?tab=avisos&edit=${a.id}`}>
+                        ✏️ {L('Editar', 'Edit')}
+                      </Link>
                       <form action={removeAviso}>
                         <input type="hidden" name="lang" value={lang} />
                         <input type="hidden" name="id" value={a.id} />
@@ -565,8 +689,17 @@ async function AdminContent({ params, searchParams }) {
                       </p>
                     </div>
                     <div className="admin-list__actions">
-                      <Link className="btn btn--secondary text-sm" href={`/${lang}/admin?tab=promotions&editPromo=${p.id}`}>
-                        {L('Editar', 'Edit')}
+                      <Link
+                        className="btn text-sm"
+                        style={ghostBtnStyle}
+                        href={`/${lang}#banner-promocional`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        👁️ {L('Ver', 'View')}
+                      </Link>
+                      <Link className="btn text-sm" style={ghostBtnStyle} href={`/${lang}/admin?tab=promotions&editPromo=${p.id}`}>
+                        ✏️ {L('Editar', 'Edit')}
                       </Link>
                       <form action={removePromotion}>
                         <input type="hidden" name="lang" value={lang} />
@@ -717,7 +850,16 @@ async function AdminContent({ params, searchParams }) {
                         <div className="admin-list__actions">
                           <Link
                             className="btn text-sm"
-                            style={{ background: 'rgba(148,163,184,0.16)', color: 'inherit', border: '1px solid rgba(148,163,184,0.35)' }}
+                            style={ghostBtnStyle}
+                            href={`/${lang}#metricas-inicio`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            👁️ {L('Ver', 'View')}
+                          </Link>
+                          <Link
+                            className="btn text-sm"
+                            style={ghostBtnStyle}
                             href={`/${lang}/admin?tab=stats&editStat=${s.id}`}
                           >
                             ✏️ {L('Editar', 'Edit')}

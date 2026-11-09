@@ -31,6 +31,7 @@ export default async function Home({ params }) {
       {/* Promotional Banner */}
       {promo && (
         <div 
+          id="banner-promocional"
           className="promo-banner fade-in-up" 
           style={{ 
             background: 'linear-gradient(135deg, #0b1120 0%, #161f38 50%, #0b1120 100%)', 
@@ -127,7 +128,7 @@ export default async function Home({ params }) {
 
       {/* Noticias, leyes y avisos (publicados por el administrador) */}
       {avisos.length > 0 && (
-        <section className="section bg-background">
+        <section id="seccion-avisos" className="section bg-background">
           <div className="container">
             <div className="text-center mb-5" style={{ marginBottom: '3.75rem' }}>
               <span className="priority-badge fade-in-up">
@@ -156,10 +157,10 @@ export default async function Home({ params }) {
 
       {/* Stats Section (Gestionable y ocultable desde el Panel de Administración) */}
       {homeStats.length > 0 && (
-        <section className="section bg-background">
+        <section id="metricas-inicio" className="section bg-background">
           <div className="container grid-3-col" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
             {homeStats.map((stat, idx) => (
-              <div key={stat.id} className={`stat-box fade-in-up${idx > 0 ? ` delay-${Math.min(idx, 2)}` : ''}`}>
+              <div key={stat.id} id={`stat-${stat.id}`} className={`stat-box fade-in-up${idx > 0 ? ` delay-${Math.min(idx, 2)}` : ''}`}>
                 <div className="stat-number text-primary">
                   <AnimatedCounter end={Number(stat.value) || 0} suffix={stat.suffix || ''} duration={Number(stat.value) >= 100 ? 2500 : 2000} />
                 </div>
