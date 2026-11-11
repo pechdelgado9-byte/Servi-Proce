@@ -82,3 +82,4 @@ Para aplicar cambios o reiniciar la aplicación:
   - Todas las peticiones `/api/*` y `/uploads/*` son atendidas directamente en memoria por el Backend Headless.
   - El resto de páginas y rutas son procesadas por Next.js SSR.
 - **Seguridad CORS y Server Actions:** Autoriza peticiones de `serviproce.com.mx` y `www.serviproce.com.mx` garantizando el correcto funcionamiento del CMS y cotizador.
+

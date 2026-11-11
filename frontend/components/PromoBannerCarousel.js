@@ -12,7 +12,7 @@ export default function PromoBannerCarousel({ initialPromotions = [], lang = 'es
   // Sincronización en vivo contra el Backend Headless para evitar residuos de caché al agregar/eliminar promociones
   useEffect(() => {
     let active = true;
-    fetch(`/api/backend/promotions?locale=${encodeURIComponent(lang)}`, {
+    fetch(`/api/backend/promotions?locale=${encodeURIComponent(lang)}&_t=${Date.now()}`, {
       cache: 'no-store',
       headers: { Accept: 'application/json' },
     })
