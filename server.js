@@ -61,6 +61,28 @@ process.env.BACKEND_INTERNAL_URL = process.env.BACKEND_INTERNAL_URL || `http://1
 process.env.NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || `http://127.0.0.1:${internalBackendPort}/api`;
 process.env.TRUST_PROXY = process.env.TRUST_PROXY || 'true';
 
+// Fallbacks de dominio corporativo para cPanel en producción (serviproce.com.mx)
+if (!process.env.FRONTEND_URL) {
+  process.env.FRONTEND_URL = process.env.NODE_ENV === 'production'
+    ? 'https://serviproce.com.mx, https://www.serviproce.com.mx'
+    : 'http://localhost:3000';
+}
+if (!process.env.NEXT_PUBLIC_SITE_URL) {
+  process.env.NEXT_PUBLIC_SITE_URL = process.env.NODE_ENV === 'production'
+    ? 'https://serviproce.com.mx'
+    : 'http://localhost:3000';
+}
+
+// Asegurar carpeta tmp/ para control de reinicios de Phusion Passenger (tmp/restart.txt)
+try {
+  const tmpDir = path.join(__dirname, 'tmp');
+  if (!fs.existsSync(tmpDir)) {
+    fs.mkdirSync(tmpDir, { recursive: true });
+  }
+} catch {
+  // Ignorar si el sistema de archivos es de solo lectura en pruebas
+}
+
 let isReady = false;
 let startupError = null;
 let nextRequestHandler = null;
@@ -78,12 +100,18 @@ const mainServer = http.createServer(async (req, res) => {
 
     const reqUrl = req.url || '/';
 
-    // Enrutar llamadas a /api/backend/* y /uploads/* directamente al Backend Headless en memoria
+    // Enrutar llamadas al Backend Headless en memoria
     if (backendInstance) {
+      // 1. Prefijo unificado /api/backend/* (reescribe internamente a /api/*)
       if (reqUrl.startsWith('/api/backend/')) {
         req.url = '/api/' + reqUrl.slice('/api/backend/'.length);
         return await backendInstance.handleRequest(req, res);
       }
+      // 2. Llamadas directas /api/* (excepto rutas nativas de Next.js como /api/cotizador y /api/revalidate)
+      if (reqUrl.startsWith('/api/') && !reqUrl.startsWith('/api/cotizador') && !reqUrl.startsWith('/api/revalidate')) {
+        return await backendInstance.handleRequest(req, res);
+      }
+      // 3. Archivos estáticos subidos (/uploads/*)
       if (reqUrl.startsWith('/uploads/')) {
         return await backendInstance.handleRequest(req, res);
       }
@@ -156,17 +184,38 @@ async function bootstrapEcosystem() {
       execSync(`${npmCmd} install --no-audit --no-fund`, { cwd: frontendDir, stdio: 'inherit', env: lveEnv });
     }
 
-    // 4.1 Iniciar el Backend Headless + Base de datos local (comunicación directa en memoria y puerto interno 1337)
+    // 4.1 Iniciar el Backend Headless + Base de datos local (SQLite en Node 22+ o JSON Store en Node 18/20)
     const { BackendServer } = await import('./backend/src/server.js');
     backendInstance = new BackendServer();
     await backendInstance.initialize();
 
-    // Iniciar servidor HTTP interno en 127.0.0.1:1337 eludiendo el bloqueo de Passenger
+    // Iniciar servidor HTTP interno eludiendo el monkey-patch de Phusion Passenger
     const internalHttpServer = new http.Server((req, res) => backendInstance.handleRequest(req, res));
-    net.Server.prototype.listen.call(internalHttpServer, internalBackendPort, '127.0.0.1', () => {
+    const listenInternal = (port) =>
+      new Promise((resolve, reject) => {
+        internalHttpServer.once('error', reject);
+        net.Server.prototype.listen.call(internalHttpServer, port, '127.0.0.1', () => {
+          internalHttpServer.removeListener('error', reject);
+          resolve(internalHttpServer.address());
+        });
+      });
+
+    try {
+      await listenInternal(internalBackendPort);
       console.log(`[cPanel Server] Backend Headless escuchando internamente en 127.0.0.1:${internalBackendPort}`);
-    });
-    console.log('[cPanel Server] Backend Headless inicializado.');
+    } catch (listenErr) {
+      if (listenErr && listenErr.code === 'EADDRINUSE') {
+        console.log(`[cPanel Setup] El puerto interno ${internalBackendPort} ya está en uso en el hosting compartido; buscando puerto libre...`);
+        const addr = await listenInternal(0);
+        const assignedPort = addr?.port || internalBackendPort;
+        process.env.BACKEND_PORT = String(assignedPort);
+        process.env.BACKEND_INTERNAL_URL = `http://127.0.0.1:${assignedPort}`;
+        process.env.NEXT_PUBLIC_API_URL = `http://127.0.0.1:${assignedPort}/api`;
+        console.log(`[cPanel Server] Backend Headless reubicado dinámicamente en 127.0.0.1:${assignedPort}`);
+      } else {
+        throw listenErr;
+      }
+    }
 
     // 4.2 Verificar si existe el build de producción de Next.js (.next/BUILD_ID)
     const buildIdPath = path.join(frontendDir, '.next', 'BUILD_ID');

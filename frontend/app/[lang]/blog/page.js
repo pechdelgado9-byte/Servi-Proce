@@ -68,17 +68,9 @@ export default async function Blog({ params }) {
       </section>
       
       {/* Newsletter Subscribe */}
-      <section className="section bg-surface text-center">
-        <div className="container fade-in-up">
-          <h2 className="text-secondary mb-4">
-            {lang === 'es' ? 'Suscríbase a nuestro boletín' : 'Subscribe to our newsletter'}
-          </h2>
-          <p className="text-text-muted mb-4 mx-auto" style={{ maxWidth: '500px' }}>
-            {lang === 'es' 
-              ? 'Reciba las últimas noticias de comercio exterior directamente en su bandeja de entrada.' 
-              : 'Receive the latest foreign trade news directly in your inbox.'}
-          </p>
-          <NewsletterForm lang={lang} />
+      <section className="section bg-surface" style={{ padding: '4.5rem 0' }}>
+        <div className="container">
+          <NewsletterForm lang={lang} variant="section" />
         </div>
       </section>
     </main>

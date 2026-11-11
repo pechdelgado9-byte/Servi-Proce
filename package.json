@@ -7,6 +7,7 @@
   "description": "Plataforma Web Headless Servi Proce (Logística y Aduanas) - 100% Apegada al ERS",
   "scripts": {
     "start": "node server.js",
+    "postinstall": "node -e \"const {execSync}=require('child_process');const cmd=process.platform==='win32'?'npm.cmd':'npm';execSync(cmd+' --prefix backend install --omit=dev',{stdio:'inherit'});execSync(cmd+' --prefix frontend install',{stdio:'inherit'});\"",
     "build": "npm --prefix frontend run build",
     "dev": "node start-all.mjs",
     "dev:public": "node start-all.mjs --tunnel",

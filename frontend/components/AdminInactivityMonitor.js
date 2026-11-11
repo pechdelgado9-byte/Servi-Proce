@@ -48,8 +48,16 @@ export default function AdminInactivityMonitor({ lang, logoutAction }) {
   const secs = String(remainingSeconds % 60).padStart(2, '0');
 
   return (
-    <span className="text-sm text-text-muted" title="Cierre automático tras 15 minutos de inactividad">
-      {lang === 'es' ? `Sesión activa (${mins}:${secs})` : `Active session (${mins}:${secs})`}
+    <span
+      className="admin-session-badge"
+      title={lang === 'es' ? 'Cierre de sesión automático tras 15 minutos continuos de inactividad (RNF-04)' : 'Automatic logout after 15 minutes of continuous inactivity (RNF-04)'}
+    >
+      <span className="admin-session-badge__dot" aria-hidden="true" />
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span>{lang === 'es' ? `Sesión activa: ${mins}:${secs}` : `Active session: ${mins}:${secs}`}</span>
     </span>
   );
 }

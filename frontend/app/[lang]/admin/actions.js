@@ -154,10 +154,16 @@ export async function saveBlogPost(formData) {
     read_time_en: s('read_time_en') || '5 min read',
     author: s('author') || 'Equipo Servi Proce',
     image_url: uploadedImageUrl || s('image_url') || '/logo.png',
+    synthesis_es: s('synthesis_es'),
+    synthesis_en: s('synthesis_en'),
+    quote_text_es: s('quote_text_es'),
+    quote_text_en: s('quote_text_en'),
+    quote_author: s('quote_author'),
     seo_title_es: s('seo_title_es').slice(0, 60),
     seo_title_en: s('seo_title_en').slice(0, 60),
     seo_desc_es: s('seo_desc_es').slice(0, 160),
     seo_desc_en: s('seo_desc_en').slice(0, 160),
+    notify_subscribers: formData.get('notify_subscribers') === 'on',
   };
 
   const url = id ? `${API_BASE_URL}/admin/blog-posts/${encodeURIComponent(id)}` : `${API_BASE_URL}/admin/blog-posts`;
@@ -295,6 +301,7 @@ export async function saveAviso(formData) {
     sourceUrl: s('sourceUrl'),
     expiresAt: s('expiresAt'),
     pinned: formData.get('pinned') === 'on',
+    notify_subscribers: formData.get('notify_subscribers') === 'on',
   };
 
   const url = id ? `${API_BASE_URL}/admin/avisos/${encodeURIComponent(id)}` : `${API_BASE_URL}/admin/avisos`;

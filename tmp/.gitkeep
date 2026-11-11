@@ -1,0 +1,2 @@
+# Carpeta temporal para Phusion Passenger (cPanel)
+# Tocar el archivo tmp/restart.txt reinicia la aplicacion en caliente sin reiniciar el servidor web.

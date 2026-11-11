@@ -22,7 +22,7 @@ export async function POST(request) {
     const tags = Array.isArray(body.tags) ? body.tags : [];
 
     for (const tag of tags) {
-      revalidateTag(tag);
+      revalidateTag(tag, { expire: 0 });
     }
 
     // Regenerar rutas bilingües principales (ES/EN)

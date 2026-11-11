@@ -105,6 +105,29 @@ export async function fetchPromotions(lang = 'es') {
   return FALLBACK_PROMOTION[lang] || FALLBACK_PROMOTION.es;
 }
 
+// Obtener todas las promociones vigentes publicadas para el Carrusel de Promociones (RF-02)
+export async function fetchPromotionsList(lang = 'es') {
+  'use cache';
+  cacheTag(PROMOTIONS_TAG);
+  cacheLife('hours');
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/promotions?locale=${lang}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json.items)) return json.items;
+      return json.data ? [json.data] : [];
+    }
+  } catch {
+    // Fallback estático durante compilación inicial (SSG build) si el backend aún no está levantado
+  }
+
+  const fallback = FALLBACK_PROMOTION[lang] || FALLBACK_PROMOTION.es;
+  return fallback ? [fallback] : [];
+}
+
 // Llamada HTTP GET al Backend Headless para obtener artículos del blog (RF-07, RF-10)
 export async function fetchBlogPosts(lang = 'es') {
   'use cache';

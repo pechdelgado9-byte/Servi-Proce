@@ -54,8 +54,8 @@ export default async function Contacto({ params }) {
             <div className="mb-4">
               <h3 className="text-primary mb-2 text-sm">{lang === 'es' ? 'Teléfonos y WhatsApp Directo' : 'Phones & Direct WhatsApp'}</h3>
               <p className="text-text-muted">
-                <a href="tel:+523321837862" className="hover-text-primary">
-                  +52 (33) 2183-7862 ({lang === 'es' ? 'Oficina' : 'Office'})
+                <a href="tel:+523312945451" className="hover-text-primary">
+                  +52 (33) 1294-5451 ({lang === 'es' ? 'Oficina' : 'Office'})
                 </a>
               </p>
               <p className="text-text-muted mt-2">

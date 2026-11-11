@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import AvisoCard, { typeLabel } from '../../../components/AvisoCard';
+import NewsletterForm from '../../../components/NewsletterForm';
 import { fetchAvisos, AVISO_TYPES } from '@/lib/avisos';
 
 export async function generateMetadata({ params }) {
@@ -94,6 +95,13 @@ export default async function Avisos({ params }) {
           </div>
         </section>
       ))}
+
+      {/* Boletín Informativo para Avisos y Normativas */}
+      <section className="section bg-background" style={{ padding: '3.5rem 0' }}>
+        <div className="container">
+          <NewsletterForm lang={lang} variant="section" />
+        </div>
+      </section>
 
       {/* CTA al Blog */}
       <section className="section bg-surface text-center" style={{ padding: '4rem 0' }}>

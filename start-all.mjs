@@ -76,7 +76,7 @@ if (!onlyTunnel) {
       '36',
       path.join(__dirname, 'backend'),
       'node',
-      ['--watch', 'src/server.js']
+      ['--watch', '--watch-path=src', 'src/server.js']
     )
   );
 

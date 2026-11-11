@@ -124,6 +124,9 @@ export class DatabaseManager {
     }
 
     if (this.#mode === 'sqlite') {
+      if (!this.#sqliteDb) {
+        return [];
+      }
       const sqliteSql = sql.replace(/\$\d+/g, '?');
       const stmt = this.#sqliteDb.prepare(sqliteSql);
       const trimmed = sqliteSql.trim().toUpperCase();
@@ -281,7 +284,12 @@ export class DatabaseManager {
         seo_desc_es TEXT NOT NULL,
         seo_desc_en TEXT NOT NULL,
         og_image_url TEXT NOT NULL,
-        published_at TEXT NOT NULL
+        published_at TEXT NOT NULL,
+        synthesis_es_json TEXT NOT NULL DEFAULT '[]',
+        synthesis_en_json TEXT NOT NULL DEFAULT '[]',
+        quote_text_es TEXT NOT NULL DEFAULT '',
+        quote_text_en TEXT NOT NULL DEFAULT '',
+        quote_author TEXT NOT NULL DEFAULT ''
       );
       CREATE TABLE IF NOT EXISTS avisos (
         id TEXT PRIMARY KEY,
@@ -330,6 +338,19 @@ export class DatabaseManager {
         active INTEGER NOT NULL DEFAULT 0
       );
     `);
+
+    const pgCols = [
+      "synthesis_es_json TEXT NOT NULL DEFAULT '[]'",
+      "synthesis_en_json TEXT NOT NULL DEFAULT '[]'",
+      "quote_text_es TEXT NOT NULL DEFAULT ''",
+      "quote_text_en TEXT NOT NULL DEFAULT ''",
+      "quote_author TEXT NOT NULL DEFAULT ''",
+    ];
+    for (const c of pgCols) {
+      try {
+        await this.#pgPool.query(`ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS ${c}`);
+      } catch {}
+    }
   }
 
   #createSqliteSchema() {
@@ -385,7 +406,12 @@ export class DatabaseManager {
         seo_desc_es TEXT NOT NULL,
         seo_desc_en TEXT NOT NULL,
         og_image_url TEXT NOT NULL,
-        published_at TEXT NOT NULL
+        published_at TEXT NOT NULL,
+        synthesis_es_json TEXT NOT NULL DEFAULT '[]',
+        synthesis_en_json TEXT NOT NULL DEFAULT '[]',
+        quote_text_es TEXT NOT NULL DEFAULT '',
+        quote_text_en TEXT NOT NULL DEFAULT '',
+        quote_author TEXT NOT NULL DEFAULT ''
       );
       CREATE TABLE IF NOT EXISTS avisos (
         id TEXT PRIMARY KEY,
@@ -434,6 +460,19 @@ export class DatabaseManager {
         active INTEGER NOT NULL DEFAULT 0
       );
     `);
+
+    const sqliteCols = [
+      "synthesis_es_json TEXT NOT NULL DEFAULT '[]'",
+      "synthesis_en_json TEXT NOT NULL DEFAULT '[]'",
+      "quote_text_es TEXT NOT NULL DEFAULT ''",
+      "quote_text_en TEXT NOT NULL DEFAULT ''",
+      "quote_author TEXT NOT NULL DEFAULT ''",
+    ];
+    for (const c of sqliteCols) {
+      try {
+        this.#sqliteDb.exec(`ALTER TABLE blog_posts ADD COLUMN ${c}`);
+      } catch {}
+    }
   }
 
   static hashPassword(password) {
@@ -503,16 +542,38 @@ export class DatabaseManager {
             id, slug, title_es, title_en, excerpt_es, excerpt_en,
             content_es_json, content_en_json, category_es, category_en,
             read_time_es, read_time_en, author, image_url,
-            seo_title_es, seo_title_en, seo_desc_es, seo_desc_en, og_image_url, published_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
+            seo_title_es, seo_title_en, seo_desc_es, seo_desc_en, og_image_url, published_at,
+            synthesis_es_json, synthesis_en_json, quote_text_es, quote_text_en, quote_author
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)`,
           [
             b.id, b.slug, b.title_es, b.title_en, b.excerpt_es, b.excerpt_en,
             JSON.stringify(b.content_es), JSON.stringify(b.content_en),
             b.category_es, b.category_en, b.read_time_es, b.read_time_en,
             b.author, b.image_url, b.seo_title_es, b.seo_title_en,
             b.seo_desc_es, b.seo_desc_en, b.og_image_url, b.published_at,
+            JSON.stringify(b.synthesis_es || []), JSON.stringify(b.synthesis_en || []),
+            b.quote_text_es || '', b.quote_text_en || '', b.quote_author || '',
           ]
         );
+      }
+    } else {
+      for (const b of INITIAL_BLOG_POSTS) {
+        const rows = await this.query('SELECT synthesis_es_json FROM blog_posts WHERE id = $1', [b.id]);
+        if (rows.length > 0 && (!rows[0].synthesis_es_json || rows[0].synthesis_es_json === '[]')) {
+          await this.query(
+            `UPDATE blog_posts
+             SET synthesis_es_json = $1, synthesis_en_json = $2, quote_text_es = $3, quote_text_en = $4, quote_author = $5
+             WHERE id = $6`,
+            [
+              JSON.stringify(b.synthesis_es || []),
+              JSON.stringify(b.synthesis_en || []),
+              b.quote_text_es || '',
+              b.quote_text_en || '',
+              b.quote_author || '',
+              b.id,
+            ]
+          );
+        }
       }
     }
 

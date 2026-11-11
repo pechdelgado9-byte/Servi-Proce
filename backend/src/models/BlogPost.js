@@ -29,6 +29,11 @@ export class BlogPost {
     seo_desc_es = '',
     seo_desc_en = '',
     og_image_url = '',
+    synthesis_es = [],
+    synthesis_en = [],
+    quote_text_es = '',
+    quote_text_en = '',
+    quote_author = '',
     published_at = null,
   }) {
     this.id = id;
@@ -50,6 +55,12 @@ export class BlogPost {
     if (this.content_es.length === 0) {
       throw new Error('BLOG_CONTENT_REQUIRED: El contenido del artículo en español es obligatorio (RF-07).');
     }
+
+    this.synthesis_es = BlogPost.#normalizeBullets(synthesis_es);
+    this.synthesis_en = BlogPost.#normalizeBullets(synthesis_en);
+    this.quote_text_es = SanitizationService.sanitizeText(quote_text_es);
+    this.quote_text_en = SanitizationService.sanitizeText(quote_text_en);
+    this.quote_author = SanitizationService.sanitizeText(quote_author);
 
     this.category_es = SanitizationService.sanitizeText(category_es || 'Comercio Exterior');
     this.category_en = SanitizationService.sanitizeText(category_en || 'Foreign Trade');
@@ -91,11 +102,29 @@ export class BlogPost {
     return [];
   }
 
+  static #normalizeBullets(input) {
+    if (Array.isArray(input)) {
+      return input
+        .map((p) => SanitizationService.sanitizeText(p).replace(/^[\s•\-\*]+\s*/, '').trim())
+        .filter(Boolean);
+    }
+    if (typeof input === 'string') {
+      return input
+        .split(/\r?\n/)
+        .map((p) => SanitizationService.sanitizeText(p).replace(/^[\s•\-\*]+\s*/, '').trim())
+        .filter(Boolean);
+    }
+    return [];
+  }
+
   toPublicJSON(locale = 'es') {
     const isEn = locale === 'en';
     const title = (isEn && this.title_en) ? this.title_en : this.title_es;
     const excerpt = (isEn && this.excerpt_en) ? this.excerpt_en : this.excerpt_es;
     const content = (isEn && this.content_en?.length > 0) ? this.content_en : this.content_es;
+    const synthesis = (isEn && this.synthesis_en?.length > 0) ? this.synthesis_en : this.synthesis_es;
+    const quoteText = (isEn && this.quote_text_en) ? this.quote_text_en : this.quote_text_es;
+    const quoteAuthor = this.quote_author || this.author;
     const seoTitle = (isEn && this.seo_title_en) ? this.seo_title_en : this.seo_title_es;
     const seoDesc = (isEn && this.seo_desc_en) ? this.seo_desc_en : this.seo_desc_es;
 
@@ -105,6 +134,9 @@ export class BlogPost {
       title,
       excerpt,
       content,
+      synthesis,
+      quoteText,
+      quoteAuthor,
       date: this.published_at,
       author: this.author,
       readTime: (isEn && this.read_time_en) ? this.read_time_en : this.read_time_es,

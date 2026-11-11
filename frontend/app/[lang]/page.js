@@ -1,10 +1,12 @@
 import Link from 'next/link';
-import { fetchPromotions, fetchHomeStats } from '@/lib/api';
+import { fetchPromotionsList, fetchHomeStats } from '@/lib/api';
 import { fetchAvisos } from '@/lib/avisos';
 import { despachoSubservices, pick } from '@/lib/services-data';
 import AvisoCard from '../../components/AvisoCard';
 import AnimatedCounter from '../../components/AnimatedCounter';
 import ServicesCarousel from '../../components/ServicesCarousel';
+import PromoBannerCarousel from '../../components/PromoBannerCarousel';
+import NewsletterForm from '../../components/NewsletterForm';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -19,45 +21,17 @@ export async function generateMetadata({ params }) {
 export default async function Home({ params }) {
   const { lang } = await params;
 
-  // Consumo de banner promocional (RF-02), avisos y estadísticas dinámicas
-  const promo = await fetchPromotions(lang);
-  const [avisos, homeStats] = await Promise.all([
+  // Consumo de carrusel de promociones (RF-02), avisos y estadísticas dinámicas
+  const [promotions, avisos, homeStats] = await Promise.all([
+    fetchPromotionsList(lang),
     fetchAvisos(lang, { limit: 3 }),
     fetchHomeStats(lang),
   ]);
 
   return (
     <main className="page-wrapper">
-      {/* Promotional Banner */}
-      {promo && (
-        <div 
-          className="promo-banner fade-in-up" 
-          style={{ 
-            background: 'linear-gradient(135deg, #0b1120 0%, #161f38 50%, #0b1120 100%)', 
-            borderBottom: '1px solid rgba(157, 0, 0, 0.35)',
-            padding: '2.25rem 1rem', 
-            textAlign: 'center', 
-            position: 'relative' 
-          }}
-        >
-          <div className="container relative z-10 text-white">
-            <span className="priority-badge mb-2" style={{ background: 'rgba(157, 0, 0, 0.25)', border: '1px solid rgba(220, 38, 38, 0.5)', fontSize: '0.78rem', letterSpacing: '0.08em' }}>
-              {lang === 'es' ? 'Atención Personalizada' : 'Tailored Advisory'}
-            </span>
-            <h2 className="mb-2" style={{ color: '#ffffff', fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.02em' }}>{promo.title}</h2>
-            <p style={{ color: '#cbd5e1', fontSize: '0.98rem', maxWidth: '640px', margin: '0 auto', lineHeight: '1.5' }}>{promo.description}</p>
-            {promo.imageUrl && (
-              <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
-                <img
-                  src={promo.imageUrl}
-                  alt={promo.title}
-                  style={{ maxHeight: '180px', width: 'auto', maxWidth: '100%', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.15)', objectFit: 'cover' }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Promotional Banner / Carousel */}
+      <PromoBannerCarousel initialPromotions={promotions} lang={lang} />
 
       {/* Hero Section */}
       <section 
@@ -127,7 +101,7 @@ export default async function Home({ params }) {
 
       {/* Noticias, leyes y avisos (publicados por el administrador) */}
       {avisos.length > 0 && (
-        <section className="section bg-background">
+        <section id="seccion-avisos" className="section bg-background">
           <div className="container">
             <div className="text-center mb-5" style={{ marginBottom: '3.75rem' }}>
               <span className="priority-badge fade-in-up">
@@ -156,10 +130,10 @@ export default async function Home({ params }) {
 
       {/* Stats Section (Gestionable y ocultable desde el Panel de Administración) */}
       {homeStats.length > 0 && (
-        <section className="section bg-background">
-          <div className="container grid-3-col">
+        <section id="metricas-inicio" className="section bg-background">
+          <div className="container grid-3-col" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
             {homeStats.map((stat, idx) => (
-              <div key={stat.id} className={`stat-box fade-in-up${idx > 0 ? ` delay-${Math.min(idx, 2)}` : ''}`}>
+              <div key={stat.id} id={`stat-${stat.id}`} className={`stat-box fade-in-up${idx > 0 ? ` delay-${Math.min(idx, 2)}` : ''}`}>
                 <div className="stat-number text-primary">
                   <AnimatedCounter end={Number(stat.value) || 0} suffix={stat.suffix || ''} duration={Number(stat.value) >= 100 ? 2500 : 2000} />
                 </div>
@@ -228,6 +202,13 @@ export default async function Home({ params }) {
               {lang === 'es' ? 'Ver Catálogo Completo' : 'View Full Catalog'}
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Sección Destacada de Boletín Informativo */}
+      <section className="section bg-surface" id="boletin-informativo" style={{ padding: '4.5rem 0' }}>
+        <div className="container">
+          <NewsletterForm lang={lang} variant="section" />
         </div>
       </section>
 

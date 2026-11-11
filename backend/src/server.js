@@ -19,6 +19,7 @@ import { RecaptchaService } from './services/RecaptchaService.js';
 import { mailService } from './services/MailService.js';
 import { WebhookService } from './services/WebhookService.js';
 import { promotionCronService } from './services/PromotionCronService.js';
+import { ExcelExportService } from './services/ExcelExportService.js';
 import { QuotationRequest } from './models/QuotationRequest.js';
 
 /**
@@ -30,6 +31,7 @@ export class BackendServer {
   #uploadsDir;
   #quotationsFilesDir;
   #rateLimitMap = new Map();
+  #activeDispatches = new Set();
 
   constructor() {
     this.#uploadsDir = path.join(envConfig.storageRootDir, 'uploads');
@@ -243,7 +245,7 @@ export class BackendServer {
           return BackendServer.#sendJson(res, 429, { ok: false, error: 'rate_limited' });
         }
 
-        const body = await BackendServer.#readJsonBody(req, 15 * 1024 * 1024);
+        const body = await BackendServer.#readJsonBody(req, Math.floor(1.5 * 1024 * 1024 * 1024)); // Hasta 1.5 GB para dar soporte a adjuntos de 1 GB en base64
 
         // Honeypot anti-bots
         if (String(body.website || '').trim() !== '') {
@@ -332,17 +334,27 @@ export class BackendServer {
         await quotationLogRepository.appendLog(quotationRequest, 'pending');
 
         // RF-01 Postcondición 1: Output => SMTP_Send(V)
-        const mailResult = await mailService.sendQuotationNotification(quotationRequest, mailAttachments);
+        // Desacoplamiento asíncrono no bloqueante (ISO/IEC 25010: Eficiencia de Desempeño y Usabilidad):
+        // Se despacha el correo en segundo plano para responder al usuario de forma instantánea (< 100 ms)
+        // garantizando que las copias locales de outbox y el registro en BD queden guardados inmediatamente.
+        const dispatchTask = mailService.sendQuotationNotification(quotationRequest, mailAttachments)
+          .catch((err) => {
+            console.error(`[MailService] Error en despacho asíncrono para ${ref}:`, err.message);
+          })
+          .finally(() => {
+            this.#activeDispatches.delete(dispatchTask);
+          });
+        this.#activeDispatches.add(dispatchTask);
 
         return BackendServer.#sendJson(res, 200, {
           ok: true,
           ref,
           saved: true,
-          smtpMode: mailResult.mode,
+          asyncDelivery: true,
         });
       }
 
-      // 7. POST /api/newsletter (Suscripción al Boletín con consulta parametrizada RNF-05)
+      // 7. POST /api/newsletter (Suscripción al Boletín con consulta parametrizada)
       if (req.method === 'POST' && pathname === '/api/newsletter') {
         const body = await BackendServer.#readJsonBody(req);
         const email = SanitizationService.sanitizeText(body.email || '').toLowerCase();
@@ -354,14 +366,47 @@ export class BackendServer {
           'SELECT id FROM newsletter_subscribers WHERE email = $1',
           [email]
         );
-        if (existing.length === 0) {
+        const isNew = existing.length === 0;
+        if (isNew) {
           await dbManager.query(
             'INSERT INTO newsletter_subscribers (id, email, locale, subscribed_at) VALUES ($1, $2, $3, $4)',
             [crypto.randomUUID(), email, locale, new Date().toISOString()]
           );
+          // Despacho asíncrono del correo corporativo de bienvenida / confirmación
+          mailService.sendNewsletterWelcome({ email, locale }).catch((err) => {
+            console.warn('[MailService] Despacho bienvenida boletín falló para:', email, err.message);
+          });
         }
 
-        return BackendServer.#sendJson(res, 200, { ok: true, email });
+        return BackendServer.#sendJson(res, 200, { ok: true, email, alreadySubscribed: !isNew });
+      }
+
+      // 7.b POST /api/newsletter/unsubscribe o DELETE /api/newsletter (Cancelación de Suscripción al Boletín)
+      if ((req.method === 'POST' && pathname === '/api/newsletter/unsubscribe') ||
+          (req.method === 'DELETE' && pathname === '/api/newsletter')) {
+        const body = await BackendServer.#readJsonBody(req);
+        const email = SanitizationService.sanitizeText(body.email || '').toLowerCase();
+        if (!email || email.length > 254 || !QuotationRequest.RFC5322_EMAIL_REGEX.test(email)) {
+          return BackendServer.#sendJson(res, 400, { ok: false, error: 'INVALID_EMAIL' });
+        }
+
+        const existing = await dbManager.query(
+          'SELECT id, locale FROM newsletter_subscribers WHERE email = $1',
+          [email]
+        );
+        if (existing.length === 0) {
+          return BackendServer.#sendJson(res, 200, { ok: true, email, removed: false, message: 'EMAIL_NOT_SUBSCRIBED' });
+        }
+
+        const subscriberLocale = existing[0]?.locale || body.locale || locale || 'es';
+        await dbManager.query('DELETE FROM newsletter_subscribers WHERE email = $1', [email]);
+
+        // Despacho asíncrono del correo corporativo de confirmación de baja
+        mailService.sendNewsletterGoodbye({ email, locale: subscriberLocale }).catch((err) => {
+          console.warn('[MailService] Despacho confirmación de baja falló para:', email, err.message);
+        });
+
+        return BackendServer.#sendJson(res, 200, { ok: true, email, removed: true });
       }
 
       // ======================================================================
@@ -429,6 +474,33 @@ export class BackendServer {
         return BackendServer.#sendJson(res, 200, { ok: true, data: logs });
       }
 
+      // 12.0 GET /api/admin/quotations/export (Exportación ejecutiva a Microsoft Excel .xlsx)
+      if (req.method === 'GET' && pathname === '/api/admin/quotations/export') {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+
+        const locale = urlObj.searchParams.get('locale') === 'en' ? 'en' : 'es';
+        const logs = await quotationLogRepository.findAllReadOnly();
+        const buffer = await ExcelExportService.generateQuotationsWorkbook(logs, { locale });
+
+        const dateTag = new Date().toISOString().slice(0, 10);
+        const filename = locale === 'en'
+          ? `Quotations_ServiProce_${dateTag}.xlsx`
+          : `Cotizaciones_ServiProce_${dateTag}.xlsx`;
+
+        res.writeHead(200, {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Content-Length': buffer.length,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Content-Type-Options': 'nosniff',
+        });
+        res.end(buffer);
+        return;
+      }
+
       // 12.a DELETE /api/admin/quotations/:id (Eliminar un folio individual de cotización)
       if (req.method === 'DELETE' && pathname.startsWith('/api/admin/quotations/')) {
         const admin = await this.#requireAdmin(req, res);
@@ -449,18 +521,22 @@ export class BackendServer {
       }
 
       // 12.b GET /api/quotations/:ref/email-preview (Vista previa del correo HTML generado/enviado para el Admin)
+      // Soporta ?target=client (acuse al prospecto) o ?target=directors (notificación al equipo)
       const emailPreviewMatch = pathname.match(/^\/api\/quotations\/([A-Za-z0-9-]+)\/email-preview$/);
       if (req.method === 'GET' && emailPreviewMatch) {
         const admin = await this.#requireAdmin(req, res);
         if (!admin) return;
 
         const ref = emailPreviewMatch[1];
-        let html = await mailService.getEmailPreviewHtml(ref);
+        const target = urlObj.searchParams.get('target') === 'client' ? 'client' : 'directors';
+        let html = await mailService.getEmailPreviewHtml(ref, target);
         if (!html) {
           const allLogs = await quotationLogRepository.findAllReadOnly();
           const logEntry = allLogs.find((l) => l.reference === ref);
           if (logEntry) {
-            html = mailService.constructor.buildQuotationHtml(logEntry);
+            html = target === 'client'
+              ? mailService.constructor.buildClientConfirmationHtml(logEntry)
+              : mailService.constructor.buildQuotationHtml(logEntry);
           }
         }
         if (!html) {
@@ -473,6 +549,14 @@ export class BackendServer {
         });
         res.end(html);
         return;
+      }
+
+      // 12.b.2 POST /api/admin/mail/verify-smtp (Diagnóstico de conexión SMTP en vivo para el administrador)
+      if (req.method === 'POST' && pathname === '/api/admin/mail/verify-smtp') {
+        const admin = await this.#requireAdmin(req, res);
+        if (!admin) return;
+        const testResult = await mailService.verifySmtpConnection();
+        return BackendServer.#sendJson(res, 200, testResult);
       }
 
       // 12.c GET /api/quotations/:ref/files/:filename (Descarga/Visualización de archivos adjuntos sanitizados RF-09)
@@ -553,6 +637,18 @@ export class BackendServer {
         const body = await BackendServer.#readJsonBody(req);
         const created = await blogRepository.create(body);
         await WebhookService.emitRevalidation({ entity: 'blog', action: 'create', tags: ['blog'] });
+
+        // Difusión automática a suscriptores del Boletín (asíncrono)
+        if (body.notify_subscribers !== false) {
+          dbManager.query('SELECT email, locale FROM newsletter_subscribers').then((subscribers) => {
+            if (subscribers && subscribers.length > 0) {
+              mailService.broadcastNewBlogPost({ post: created, subscribers }).catch((err) => {
+                console.warn('[MailService] Error en difusión de nuevo artículo a suscriptores:', err.message);
+              });
+            }
+          }).catch(() => {});
+        }
+
         return BackendServer.#sendJson(res, 201, { ok: true, data: created });
       }
 
@@ -566,6 +662,18 @@ export class BackendServer {
           const updated = await blogRepository.update(id, body);
           if (!updated) return BackendServer.#sendJson(res, 404, { ok: false, error: 'NOT_FOUND' });
           await WebhookService.emitRevalidation({ entity: 'blog', action: 'update', tags: ['blog'] });
+
+          // Difusión a suscriptores si el administrador lo solicitó explícitamente en la edición
+          if (body.notify_subscribers === true) {
+            dbManager.query('SELECT email, locale FROM newsletter_subscribers').then((subscribers) => {
+              if (subscribers && subscribers.length > 0) {
+                mailService.broadcastNewBlogPost({ post: updated, subscribers }).catch((err) => {
+                  console.warn('[MailService] Error en difusión de artículo editado a suscriptores:', err.message);
+                });
+              }
+            }).catch(() => {});
+          }
+
           return BackendServer.#sendJson(res, 200, { ok: true, data: updated });
         }
 
@@ -609,6 +717,18 @@ export class BackendServer {
         const body = await BackendServer.#readJsonBody(req);
         const created = await avisoRepository.create(body);
         await WebhookService.emitRevalidation({ entity: 'aviso', action: 'create', tags: ['avisos'] });
+
+        // Difusión automática a suscriptores del Boletín (asíncrono)
+        if (body.notify_subscribers !== false) {
+          dbManager.query('SELECT email, locale FROM newsletter_subscribers').then((subscribers) => {
+            if (subscribers && subscribers.length > 0) {
+              mailService.broadcastNewAviso({ aviso: created, subscribers }).catch((err) => {
+                console.warn('[MailService] Error en difusión de aviso/noticia a suscriptores:', err.message);
+              });
+            }
+          }).catch(() => {});
+        }
+
         return BackendServer.#sendJson(res, 201, { ok: true, data: created });
       }
 
@@ -622,6 +742,18 @@ export class BackendServer {
           const updated = await avisoRepository.update(id, body);
           if (!updated) return BackendServer.#sendJson(res, 404, { ok: false, error: 'NOT_FOUND' });
           await WebhookService.emitRevalidation({ entity: 'aviso', action: 'update', tags: ['avisos'] });
+
+          // Difusión a suscriptores si el administrador lo solicitó explícitamente en la edición
+          if (body.notify_subscribers === true) {
+            dbManager.query('SELECT email, locale FROM newsletter_subscribers').then((subscribers) => {
+              if (subscribers && subscribers.length > 0) {
+                mailService.broadcastNewAviso({ aviso: updated, subscribers }).catch((err) => {
+                  console.warn('[MailService] Error en difusión de aviso editado a suscriptores:', err.message);
+                });
+              }
+            }).catch(() => {});
+          }
+
           return BackendServer.#sendJson(res, 200, { ok: true, data: updated });
         }
 
@@ -686,6 +818,10 @@ export class BackendServer {
         console.log(`[Servi Proce Backend CMS] Escuchando en http://localhost:${port}/api`);
         console.log(`[Servi Proce Backend CMS] Motor BD: ${dbManager.mode} | CORS permitido: ${envConfig.frontendUrl}`);
         console.log(`================================================================`);
+        // Pre-calentamiento asíncrono del pool SMTP (no bloquea el arranque)
+        mailService.prewarm().catch((err) => {
+          console.warn('[BackendServer] Aviso en precalentamiento SMTP:', err.message);
+        });
         resolve(this.#server);
       });
     });
@@ -693,6 +829,9 @@ export class BackendServer {
 
   async close() {
     promotionCronService.stop();
+    if (this.#activeDispatches.size > 0) {
+      await Promise.allSettled(Array.from(this.#activeDispatches));
+    }
     await dbManager.close();
     if (!this.#server) return;
     return new Promise((resolve) => this.#server.close(() => resolve()));

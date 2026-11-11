@@ -24,8 +24,9 @@ export default function QuotationForm({ lang }) {
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
   const isEmailValid = emailRegex.test(formData.email);
   const isNameValid = formData.name.trim().length > 0;
+  const isPhoneValid = formData.phone.trim().length >= 7;
   const isServiceValid = formData.service !== '';
-  const isValid = isEmailValid && isNameValid && isServiceValid;
+  const isValid = isEmailValid && isNameValid && isServiceValid && isPhoneValid;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -79,6 +80,26 @@ export default function QuotationForm({ lang }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isNameValid) {
+      setErrorMsg(lang === 'es' ? 'Por favor ingrese su nombre completo.' : 'Please enter your full name.');
+      setStatus('error');
+      return;
+    }
+    if (!isEmailValid) {
+      setErrorMsg(lang === 'es' ? 'Por favor ingrese un correo electrónico válido.' : 'Please enter a valid email address.');
+      setStatus('error');
+      return;
+    }
+    if (!isPhoneValid) {
+      setErrorMsg(lang === 'es' ? 'Por favor ingrese su número de teléfono o WhatsApp (mínimo 7 dígitos).' : 'Please enter your phone or WhatsApp number (at least 7 digits).');
+      setStatus('error');
+      return;
+    }
+    if (!isServiceValid) {
+      setErrorMsg(lang === 'es' ? 'Por favor seleccione un servicio de interés.' : 'Please select a service of interest.');
+      setStatus('error');
+      return;
+    }
     if (!isValid) return;
     setStatus('loading');
     setErrorMsg('');
@@ -185,7 +206,7 @@ export default function QuotationForm({ lang }) {
           <div className="form-grid">
             <div className="form__group">
               <label htmlFor="phone" className="form__label">
-                {lang === 'es' ? 'Teléfono / WhatsApp (Opcional)' : 'Phone / WhatsApp (Optional)'}
+                {lang === 'es' ? 'Teléfono / WhatsApp' : 'Phone / WhatsApp'} <span className="text-primary" aria-hidden="true">*</span>
               </label>
               <input
                 type="tel"
@@ -194,7 +215,9 @@ export default function QuotationForm({ lang }) {
                 className="form__input"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+52 (33) 1140-2745"
+                placeholder="+52 (33) 1294-5451"
+                required
+                aria-required="true"
                 maxLength={40}
               />
             </div>

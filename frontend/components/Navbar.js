@@ -5,6 +5,46 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 
+function SubLinkIcon({ href }) {
+  if (href.includes('/transporte/aereo')) {
+    return (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"/>
+      </svg>
+    );
+  }
+  if (href.includes('/transporte/maritimo')) {
+    return (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.5 0 2.5 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+        <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.94 5.34 2.81 7.76"/>
+        <path d="M19 13V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6"/>
+        <path d="M12 10V4"/>
+        <path d="M12 2v3"/>
+      </svg>
+    );
+  }
+  if (href.includes('/transporte/terrestre')) {
+    return (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="1" y="3" width="15" height="13"></rect>
+        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+        <circle cx="5.5" cy="18.5" r="2.5"></circle>
+        <circle cx="18.5" cy="18.5" r="2.5"></circle>
+      </svg>
+    );
+  }
+  if (href.includes('/blog')) {
+    return (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+    );
+  }
+  return null;
+}
+
 export default function Navbar({ lang }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -50,8 +90,8 @@ export default function Navbar({ lang }) {
       <div className="navbar__container container">
         {/* Logotipo adaptativo */}
         <Link href={`/${lang}`} className="navbar__logo">
-          <img src="/logo-light.png" alt="Servi Proce Logo" style={{ height: '40px', width: 'auto' }} className="logo-img logo-img--light fade-in-up" />
-          <img src="/logo.png" alt="Servi Proce Logo" style={{ height: '40px', width: 'auto' }} className="logo-img logo-img--dark fade-in-up" />
+          <img src="/logo-light.png" alt="Servi Proce Logo" width={171} height={50} style={{ height: '40px', width: 'auto', flexShrink: 0, aspectRatio: '171/50' }} className="logo-img logo-img--light fade-in-up" />
+          <img src="/logo.png" alt="Servi Proce Logo" width={171} height={50} style={{ height: '40px', width: 'auto', flexShrink: 0, aspectRatio: '171/50' }} className="logo-img logo-img--dark fade-in-up" />
         </Link>
 
         {/* Navegación Desktop */}
@@ -69,13 +109,20 @@ export default function Navbar({ lang }) {
                   >
                     {link.priority && (
                       <span className="navbar__priority-icon" aria-hidden="true">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 11l3 3L22 4"></path>
+                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                         </svg>
                       </span>
                     )}
                     <span>{link.label}</span>
-                    {link.subLinks && <span className="dropdown-arrow">▼</span>}
+                    {link.subLinks && (
+                      <span className="dropdown-arrow-svg" aria-hidden="true">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </span>
+                    )}
                   </Link>
                   {link.subLinks && (
                     <ul className="navbar__dropdown">
@@ -86,7 +133,10 @@ export default function Navbar({ lang }) {
                             className={`navbar__dropdown-link ${pathname === sub.href ? 'navbar__dropdown-link--active' : ''}`}
                             aria-current={pathname === sub.href ? 'page' : undefined}
                           >
-                            {sub.label}
+                            <span className="navbar__dropdown-icon" aria-hidden="true">
+                              <SubLinkIcon href={sub.href} />
+                            </span>
+                            <span>{sub.label}</span>
                           </Link>
                         </li>
                       ))}
@@ -157,7 +207,10 @@ export default function Navbar({ lang }) {
                             aria-current={isSubActive ? 'page' : undefined}
                             onClick={() => setIsMenuOpen(false)}
                           >
-                            - {sub.label}
+                            <span className="navbar__dropdown-icon" aria-hidden="true">
+                              <SubLinkIcon href={sub.href} />
+                            </span>
+                            <span>{sub.label}</span>
                           </Link>
                         </li>
                       );
