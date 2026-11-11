@@ -1,0 +1,46 @@
+{
+  "status": 200,
+  "headers": {
+    "link": "</_next/static/media/07c7676b89ed2778-s.p.2bn3s6zvc0dyp.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </logo-light.png>; rel=preload; as=\"image\", </logo.png>; rel=preload; as=\"image\"",
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/[lang]/layout,_N_T_/[lang]/blog/layout,_N_T_/[lang]/blog/[slug]/layout,_N_T_/[lang]/blog/[slug]/page,_N_T_/en/blog/nueva-normativa-aduanera-2026,blog"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/$d$lang/blog/$d$slug/__PAGE__"
+  ],
+  "prefetchHints": {
+    "hints": 49216,
+    "slots": {
+      "children": {
+        "hints": 49248,
+        "slots": {
+          "children": {
+            "hints": 49248,
+            "slots": {
+              "children": {
+                "hints": 49248,
+                "slots": {
+                  "children": {
+                    "hints": 49312,
+                    "slots": null
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/4c6d4b1b6f865f91b4d0abe113e1b52ca00ab56597a4e884937339fb3b21fe80/$/en/blog/nueva-normativa-aduanera-2026",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/[lang]/blog/[slug]/page"
+    },
+    "isFallback": false
+  }
+}
