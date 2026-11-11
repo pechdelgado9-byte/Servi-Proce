@@ -1,0 +1,55 @@
+{
+  "node": {
+    "c022f262cf940297a683c2b439de947550d80bdcc1": {
+      "workers": {
+        "app/api/cotizador/route": {
+          "moduleId": 93675,
+          "async": false
+        }
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_4",
+      "filename": "lib/api.js"
+    },
+    "c023cebc3a9567758c2ee6eb3f4ab6560388158a02": {
+      "workers": {
+        "app/api/cotizador/route": {
+          "moduleId": 93675,
+          "async": false
+        }
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "lib/api.js"
+    },
+    "c081b9b238a25a6d16913efe84cd433f0c584f3627": {
+      "workers": {
+        "app/api/cotizador/route": {
+          "moduleId": 93675,
+          "async": false
+        }
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "lib/api.js"
+    },
+    "c0bdcac2b910e79b6fd18e9e8c18d902ea6f80a00d": {
+      "workers": {
+        "app/api/cotizador/route": {
+          "moduleId": 93675,
+          "async": false
+        }
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "lib/api.js"
+    },
+    "e0a7b162876607f12343fd92b364993bb14b495c63": {
+      "workers": {
+        "app/api/cotizador/route": {
+          "moduleId": 93675,
+          "async": false
+        }
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_3",
+      "filename": "lib/api.js"
+    }
+  },
+  "edge": {}
+}

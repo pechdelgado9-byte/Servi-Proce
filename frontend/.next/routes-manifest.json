@@ -1,0 +1,475 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ],
+      "regex": "^(?:/(.*))(?:/)?$"
+    }
+  ],
+  "onMatchHeaders": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [
+      {
+        "source": "/api/backend/:path*",
+        "destination": "http://localhost:1337/api/:path*",
+        "regex": "^/api/backend(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+      },
+      {
+        "source": "/uploads/:path*",
+        "destination": "http://localhost:1337/uploads/:path*",
+        "regex": "^/uploads(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+      }
+    ],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/[lang]",
+      "regex": "^/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang].segments/$d$lang$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)\\.segments/\\$d\\$lang(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/admin",
+      "regex": "^/([^/]+?)/admin(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/admin(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/admin.segments/$d$lang/admin$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/admin\\.segments/\\$d\\$lang/admin(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/avisos",
+      "regex": "^/([^/]+?)/avisos(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/avisos(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/avisos.segments/$d$lang/avisos$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/avisos\\.segments/\\$d\\$lang/avisos(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/blog",
+      "regex": "^/([^/]+?)/blog(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/blog(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/blog.segments/$d$lang/blog$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/blog\\.segments/\\$d\\$lang/blog(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "sourcePage": "/[lang]/blog/[slug]",
+      "page": "/en/blog/[slug]",
+      "regex": "^/en/blog/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/en/blog/(?<nxtPslug>[^/]+?)(?:/)?$",
+      "skipInternalRouting": true,
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/en/blog/[slug].segments/$d$lang/blog/$d$slug$segment",
+          "source": "^/en/blog/(?<nxtPslug>[^/]+?)\\.segments/\\$d\\$lang/blog/\\$d\\$slug(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPslug": "nxtPslug"
+          }
+        }
+      ]
+    },
+    {
+      "sourcePage": "/[lang]/blog/[slug]",
+      "page": "/es/blog/[slug]",
+      "regex": "^/es/blog/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/es/blog/(?<nxtPslug>[^/]+?)(?:/)?$",
+      "skipInternalRouting": true,
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/es/blog/[slug].segments/$d$lang/blog/$d$slug$segment",
+          "source": "^/es/blog/(?<nxtPslug>[^/]+?)\\.segments/\\$d\\$lang/blog/\\$d\\$slug(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPslug": "nxtPslug"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/blog/[slug]",
+      "regex": "^/([^/]+?)/blog/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang",
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/blog/(?<nxtPslug>[^/]+?)(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/blog/[slug].segments/$d$lang/blog/$d$slug$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/blog/(?<nxtPslug>[^/]+?)\\.segments/\\$d\\$lang/blog/\\$d\\$slug(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang",
+            "nxtPslug": "nxtPslug"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/contacto",
+      "regex": "^/([^/]+?)/contacto(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/contacto(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/contacto.segments/$d$lang/contacto$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/contacto\\.segments/\\$d\\$lang/contacto(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/cotizar",
+      "regex": "^/([^/]+?)/cotizar(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/cotizar(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/cotizar.segments/$d$lang/cotizar$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/cotizar\\.segments/\\$d\\$lang/cotizar(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/despachos-aduanales",
+      "regex": "^/([^/]+?)/despachos\\-aduanales(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/despachos\\-aduanales(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/despachos-aduanales.segments/$d$lang/despachos-aduanales$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/despachos\\-aduanales\\.segments/\\$d\\$lang/despachos\\-aduanales(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/desuscribir",
+      "regex": "^/([^/]+?)/desuscribir(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/desuscribir(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/desuscribir.segments/$d$lang/desuscribir$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/desuscribir\\.segments/\\$d\\$lang/desuscribir(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/freight-forwarder",
+      "regex": "^/([^/]+?)/freight\\-forwarder(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/freight\\-forwarder(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/freight-forwarder.segments/$d$lang/freight-forwarder$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/freight\\-forwarder\\.segments/\\$d\\$lang/freight\\-forwarder(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/nosotros",
+      "regex": "^/([^/]+?)/nosotros(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/nosotros(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/nosotros.segments/$d$lang/nosotros$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/nosotros\\.segments/\\$d\\$lang/nosotros(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/privacidad",
+      "regex": "^/([^/]+?)/privacidad(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/privacidad(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/privacidad.segments/$d$lang/privacidad$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/privacidad\\.segments/\\$d\\$lang/privacidad(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/servicios",
+      "regex": "^/([^/]+?)/servicios(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/servicios(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/servicios.segments/$d$lang/servicios$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/servicios\\.segments/\\$d\\$lang/servicios(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/terminos",
+      "regex": "^/([^/]+?)/terminos(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/terminos(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/terminos.segments/$d$lang/terminos$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/terminos\\.segments/\\$d\\$lang/terminos(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/transporte",
+      "regex": "^/([^/]+?)/transporte(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/transporte(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/transporte.segments/$d$lang/transporte$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/transporte\\.segments/\\$d\\$lang/transporte(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/transporte/aereo",
+      "regex": "^/([^/]+?)/transporte/aereo(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/transporte/aereo(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/transporte/aereo.segments/$d$lang/transporte/aereo$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/transporte/aereo\\.segments/\\$d\\$lang/transporte/aereo(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/transporte/maritimo",
+      "regex": "^/([^/]+?)/transporte/maritimo(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/transporte/maritimo(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/transporte/maritimo.segments/$d$lang/transporte/maritimo$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/transporte/maritimo\\.segments/\\$d\\$lang/transporte/maritimo(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/[lang]/transporte/terrestre",
+      "regex": "^/([^/]+?)/transporte/terrestre(?:/)?$",
+      "routeKeys": {
+        "nxtPlang": "nxtPlang"
+      },
+      "namedRegex": "^/(?<nxtPlang>[^/]+?)/transporte/terrestre(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/[lang]/transporte/terrestre.segments/$d$lang/transporte/terrestre$segment",
+          "source": "^/(?<nxtPlang>[^/]+?)/transporte/terrestre\\.segments/\\$d\\$lang/transporte/terrestre(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPlang": "nxtPlang"
+          }
+        }
+      ]
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api/cotizador",
+      "regex": "^/api/cotizador(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cotizador(?:/)?$"
+    },
+    {
+      "page": "/api/revalidate",
+      "regex": "^/api/revalidate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/revalidate(?:/)?$"
+    },
+    {
+      "page": "/apple-icon.png",
+      "regex": "^/apple\\-icon\\.png(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/apple\\-icon\\.png(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/icon.png",
+      "regex": "^/icon\\.png(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/icon\\.png(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": true,
+    "dynamicRSCPrerender": true
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  },
+  "ppr": {
+    "chain": {
+      "headers": {
+        "next-resume": "1"
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+module.exports=[51829,a=>{"use strict";var b=a.i(87924),c=a.i(72131);a.s(["default",0,function(){let[a,d]=(0,c.useState)(0);return(0,c.useEffect)(()=>{let a=()=>{let a=document.documentElement.scrollHeight-window.innerHeight;a>0&&d(Math.min(100,Math.max(0,window.scrollY/a*100)))};return window.addEventListener("scroll",a,{passive:!0}),()=>window.removeEventListener("scroll",a)},[]),(0,b.jsx)("div",{style:{position:"fixed",top:0,left:0,width:`${a}%`,height:"3.5px",background:"linear-gradient(90deg, var(--color-primary), var(--color-primary-light))",zIndex:9999,transition:"width 0.1s ease-out",boxShadow:"0 0 8px rgba(157, 0, 0, 0.6)"},"aria-hidden":"true"})}])}];
+
+//# sourceMappingURL=components_ReadingProgressBar_06wurg5przxca.js.map

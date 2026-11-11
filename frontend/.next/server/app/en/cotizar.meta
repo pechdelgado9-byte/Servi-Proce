@@ -1,0 +1,42 @@
+{
+  "status": 307,
+  "headers": {
+    "location": "/en/despachos-aduanales#cotizador",
+    "link": "</_next/static/media/07c7676b89ed2778-s.p.2bn3s6zvc0dyp.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </logo-light.png>; rel=preload; as=\"image\", </logo.png>; rel=preload; as=\"image\"",
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/[lang]/layout,_N_T_/[lang]/cotizar/layout,_N_T_/[lang]/cotizar/page,_N_T_/en/cotizar"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/$d$lang/cotizar/__PAGE__"
+  ],
+  "prefetchHints": {
+    "hints": 49216,
+    "slots": {
+      "children": {
+        "hints": 49248,
+        "slots": {
+          "children": {
+            "hints": 49248,
+            "slots": {
+              "children": {
+                "hints": 49312,
+                "slots": null
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/c9d6694c3d5cb5e728ac4ab1ef3d373da379ac57658b116091812f878a1f8571/$/en/cotizar",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/[lang]/cotizar/page"
+    },
+    "isFallback": false
+  }
+}

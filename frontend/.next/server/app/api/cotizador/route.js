@@ -1,0 +1,10 @@
+var R=require("../../../chunks/[turbopack]_runtime.js")("server/app/api/cotizador/route.js")
+R.c("server/chunks/[externals]__0by1nya6abvrv._.js")
+R.c("server/chunks/[root-of-the-server]__20-_5um20x76k._.js")
+R.c("server/chunks/_0tzn2n6hdkdqb._.js")
+R.c("server/chunks/[root-of-the-server]__0abci-41ig-cw._.js")
+R.c("server/chunks/node_modules_next_dist_1-_k-fx64o-uh._.js")
+R.c("server/chunks/_104i5gy6ppugf._.js")
+R.c("server/chunks/node_modules_next_1kh6jxs-4thmj._.js")
+R.m(15455)
+module.exports=R.m(15455).exports

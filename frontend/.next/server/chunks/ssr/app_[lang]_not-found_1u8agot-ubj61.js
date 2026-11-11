@@ -1,0 +1,3 @@
+module.exports=[62995,a=>{"use strict";let b=(0,a.i(11857).registerClientReference)(function(){throw Error("Attempted to call the default export of [project]/app/[lang]/not-found.js from the server, but it's on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.")},"[project]/app/[lang]/not-found.js","default");a.s(["default",0,b])},4328,a=>{"use strict";var b=a.i(62995);a.n(b)},89058,function(a){a.n(a.i(4328))}];
+
+//# sourceMappingURL=app_%5Blang%5D_not-found_1u8agot-ubj61.js.map

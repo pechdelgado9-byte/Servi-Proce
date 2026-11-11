@@ -7,7 +7,6 @@
   "description": "Plataforma Web Headless Servi Proce (Logística y Aduanas) - 100% Apegada al ERS",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "node -e \"const {execSync}=require('child_process');const cmd=process.platform==='win32'?'npm.cmd':'npm';execSync(cmd+' --prefix backend install --omit=dev',{stdio:'inherit'});execSync(cmd+' --prefix frontend install',{stdio:'inherit'});\"",
     "build": "npm --prefix frontend run build",
     "dev": "node start-all.mjs",
     "dev:public": "node start-all.mjs --tunnel",
@@ -18,5 +17,17 @@
     "test": "node --test --test-concurrency=1 backend/tests/hito1.test.js backend/tests/hito2.test.js",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "next": "^16.4.5",
+    "nodemailer": "^6.9.16",
+    "pg": "^8.13.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   }
 }

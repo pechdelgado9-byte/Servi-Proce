@@ -12,8 +12,11 @@ frontend/node_modules/
 # testing
 /coverage
 
-# next.js
-/.next/
+# next.js cache and dev (el build de producción .next se incluye para cPanel)
+.next/cache/
+.next/dev/
+frontend/.next/cache/
+frontend/.next/dev/
 /out/
 
 # production
@@ -22,6 +25,7 @@ frontend/node_modules/
 # misc
 .DS_Store
 *.pem
+*.zip
 
 # debug
 npm-debug.log*
