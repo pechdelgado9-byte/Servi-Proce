@@ -174,14 +174,28 @@ async function bootstrapEcosystem() {
     };
 
     // Verificar dependencias en /backend y /frontend
-    if (!fs.existsSync(path.join(backendDir, 'node_modules'))) {
-      console.log('[cPanel Setup] Instalando dependencias de /backend...');
-      execSync(`${npmCmd} install --omit=dev --no-audit --no-fund`, { cwd: backendDir, stdio: 'inherit', env: lveEnv });
+    const backendNeedsInstall =
+      !fs.existsSync(path.join(backendDir, 'node_modules')) ||
+      !fs.existsSync(path.join(backendDir, 'node_modules', 'exceljs'));
+    if (backendNeedsInstall) {
+      console.log('[cPanel Setup] Instalando dependencias en /backend (incluyendo exceljs)...');
+      try {
+        execSync(`${npmCmd} install --omit=dev --no-audit --no-fund`, { cwd: backendDir, stdio: 'inherit', env: lveEnv });
+      } catch (e) {
+        console.warn('[cPanel Setup] Advertencia al instalar dependencias de /backend:', e.message);
+      }
     }
 
-    if (!fs.existsSync(path.join(frontendDir, 'node_modules'))) {
-      console.log('[cPanel Setup] Instalando dependencias de /frontend...');
-      execSync(`${npmCmd} install --no-audit --no-fund`, { cwd: frontendDir, stdio: 'inherit', env: lveEnv });
+    const frontendNeedsInstall =
+      !fs.existsSync(path.join(frontendDir, 'node_modules')) ||
+      !fs.existsSync(path.join(frontendDir, 'node_modules', 'next'));
+    if (frontendNeedsInstall) {
+      console.log('[cPanel Setup] Instalando dependencias en /frontend...');
+      try {
+        execSync(`${npmCmd} install --no-audit --no-fund`, { cwd: frontendDir, stdio: 'inherit', env: lveEnv });
+      } catch (e) {
+        console.warn('[cPanel Setup] Advertencia al instalar dependencias de /frontend:', e.message);
+      }
     }
 
     // 4.1 Iniciar el Backend Headless + Base de datos local (SQLite en Node 22+ o JSON Store en Node 18/20)

@@ -1,4 +1,15 @@
-import ExcelJS from 'exceljs';
+let cachedExcelJS = null;
+async function loadExcelJS() {
+  if (cachedExcelJS) return cachedExcelJS;
+  try {
+    const mod = await import('exceljs');
+    cachedExcelJS = mod.default || mod;
+    return cachedExcelJS;
+  } catch (err) {
+    console.warn('[ExcelExportService] No se pudo cargar exceljs dinámicamente:', err.message);
+    return null;
+  }
+}
 
 /**
  * Servicio Corporativo de Exportación a Microsoft Excel (.xlsx)
@@ -70,6 +81,14 @@ export class ExcelExportService {
    */
   static async generateQuotationsWorkbook(logs = [], { locale = 'es' } = {}) {
     const isEn = locale === 'en';
+    const ExcelJS = await loadExcelJS();
+    if (!ExcelJS) {
+      throw new Error(
+        isEn
+          ? 'Excel export module (exceljs) is not installed on the server.'
+          : 'El módulo de exportación a Excel (exceljs) no se encuentra instalado en el servidor.'
+      );
+    }
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Servi Proce | Logistics & Supply Chain';
     workbook.lastModifiedBy = 'Servi Proce Admin Portal';

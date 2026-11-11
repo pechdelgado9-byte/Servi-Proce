@@ -17,5 +17,12 @@
     "test": "node --test --test-concurrency=1 backend/tests/hito1.test.js backend/tests/hito2.test.js",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "dependencies": {
+    "exceljs": "^4.4.0"
   }
 }
