@@ -242,9 +242,15 @@ async function bootstrapEcosystem() {
       });
     }
 
-    // 4.3 Cargar e inicializar Next.js desde /frontend
-    const requireFromFrontend = createRequire(path.join(frontendDir, 'package.json'));
-    const next = requireFromFrontend('next');
+    // 4.3 Cargar e inicializar Next.js (buscando en /frontend o en la raíz del proyecto)
+    let next;
+    try {
+      const requireFromFrontend = createRequire(path.join(frontendDir, 'package.json'));
+      next = requireFromFrontend('next');
+    } catch {
+      const requireFromRoot = createRequire(import.meta.url);
+      next = requireFromRoot('next');
+    }
     const nextApp = next({
       dev: false,
       dir: frontendDir,

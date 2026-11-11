@@ -23,6 +23,11 @@
     "frontend"
   ],
   "dependencies": {
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "next": "^16.4.5",
+    "nodemailer": "^6.9.16",
+    "pg": "^8.13.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   }
 }
