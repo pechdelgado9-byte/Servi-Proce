@@ -118,7 +118,7 @@ const mainServer = http.createServer(async (req, res) => {
     }
 
     if (!isReady || !nextRequestHandler) {
-      res.writeHead(503, {
+      res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
         'Retry-After': '3',
       });
