@@ -17,10 +17,14 @@ export async function POST(request) {
   const str = (k) => String(form.get(k) ?? '').trim();
   const hazmat = str('hazmat') === 'true';
 
+  const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1 GB
   const filesPayload = [];
   for (const field of FILE_FIELDS) {
     const file = form.get(field);
     if (file && typeof file === 'object' && file.size > 0) {
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json({ ok: false, error: 'file_size' }, { status: 400 });
+      }
       const arrayBuf = await file.arrayBuffer();
       filesPayload.push({
         field,
@@ -32,12 +36,17 @@ export async function POST(request) {
     }
   }
 
+  const phone = str('phone');
+  if (!phone || phone.length < 7) {
+    return NextResponse.json({ ok: false, error: 'phone_required' }, { status: 400 });
+  }
+
   const payload = {
     website: str('website'),
     recaptchaToken: str('recaptchaToken') || 'dev-human-token',
     name: str('name'),
     email: str('email'),
-    phone: str('phone'),
+    phone,
     company: str('company'),
     service: 'Despacho de Aduana',
     operation: str('operation'),

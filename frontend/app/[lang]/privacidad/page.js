@@ -60,50 +60,63 @@ export default async function Privacidad({ params }) {
       <section className="section bg-background">
         <div className="container" style={{ maxWidth: '900px' }}>
           <article className="card glass-card fade-in-up" style={{ padding: '3.25rem 2.75rem', borderRadius: '1.25rem' }}>
-            {/* Cabecera institucional del documento */}
-            <div style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)', margin: 0 }}>
-                    SERVI PROCE | LOGISTICS &amp; SUPPLY CHAIN
-                  </h3>
-                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-                    JBG Logistics and Supply Chain Solutions
+            {/* Cabecera institucional rediseñada y alineada */}
+            <header className="legal-doc-header">
+              <div className="legal-doc-header__top">
+                <div className="legal-doc-header__brand">
+                  <div className="legal-doc-header__badge">
+                    <span className="legal-doc-header__badge-dot" aria-hidden="true"></span>
+                    <span>{lang === 'es' ? 'Documento Oficial Vigente' : 'Official Effective Document'}</span>
+                  </div>
+                  <h2 className="legal-doc-header__title">
+                    SERVI PROCE <span className="legal-doc-header__title-sep">|</span> LOGISTICS &amp; SUPPLY CHAIN
+                  </h2>
+                  <p className="legal-doc-header__subtitle">
+                    {lang === 'es' ? 'Aviso de Privacidad Integral de Clientes y Proveedores' : 'Comprehensive Privacy Notice for Clients and Suppliers'}
                   </p>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.65rem' }}>
-                  <div style={{ textAlign: 'right', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                    <div>Av. Altavista Poniente 450 Int. 110, Col. Altavista Residencial</div>
-                    <div>Zapopan, Jal., C.P. 45133 • Cel: 3311402745</div>
-                  </div>
+
+                <div className="legal-doc-header__action">
                   <a
                     href="/docs/Aviso_de_Privacidad_ServiProce.pdf"
                     download="Aviso_de_Privacidad_ServiProce.pdf"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.45rem',
-                      fontSize: '0.82rem',
-                      fontWeight: 700,
-                      color: 'var(--color-primary)',
-                      background: 'rgba(157, 0, 0, 0.08)',
-                      padding: '0.45rem 1rem',
-                      borderRadius: '9999px',
-                      border: '1px solid rgba(239, 68, 68, 0.35)',
-                      textDecoration: 'none',
-                      transition: 'all 0.2s ease'
-                    }}
+                    className="legal-doc-download-btn"
+                    title={lang === 'es' ? 'Descargar versión PDF oficial firmada' : 'Download official signed PDF'}
                   >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                       <polyline points="7 10 12 15 17 10"></polyline>
                       <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
-                    {lang === 'es' ? 'Descargar PDF Original' : 'Download Original PDF'}
+                    <span>{lang === 'es' ? 'Descargar PDF Original' : 'Download Original PDF'}</span>
                   </a>
                 </div>
               </div>
-            </div>
+
+              <div className="legal-doc-header__meta">
+                <div className="legal-doc-header__meta-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <span>Av. Altavista Poniente 450 Int. 110, Zapopan, Jal., C.P. 45133</span>
+                </div>
+                <div className="legal-doc-header__meta-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                  <span>+52 (33) 1140-2745</span>
+                </div>
+                <div className="legal-doc-header__meta-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                  <span>www.serviproce.com.mx</span>
+                </div>
+              </div>
+            </header>
 
             {lang === 'es' ? (
               <div className="legal-content" style={{ lineHeight: '1.7', color: 'var(--color-secondary)' }}>

@@ -98,6 +98,11 @@ export class BlogRepository {
       ...row,
       content_es: JSON.parse(row.content_es_json || '[]'),
       content_en: JSON.parse(row.content_en_json || '[]'),
+      synthesis_es: JSON.parse(row.synthesis_es_json || '[]'),
+      synthesis_en: JSON.parse(row.synthesis_en_json || '[]'),
+      quote_text_es: row.quote_text_es || '',
+      quote_text_en: row.quote_text_en || '',
+      quote_author: row.quote_author || '',
     });
   }
 
@@ -118,6 +123,11 @@ export class BlogRepository {
       ...r,
       content_es: JSON.parse(r.content_es_json || '[]'),
       content_en: JSON.parse(r.content_en_json || '[]'),
+      synthesis_es: JSON.parse(r.synthesis_es_json || '[]'),
+      synthesis_en: JSON.parse(r.synthesis_en_json || '[]'),
+      quote_text_es: r.quote_text_es || '',
+      quote_text_en: r.quote_text_en || '',
+      quote_author: r.quote_author || '',
     }));
   }
 
@@ -138,8 +148,9 @@ export class BlogRepository {
         id, slug, title_es, title_en, excerpt_es, excerpt_en,
         content_es_json, content_en_json, category_es, category_en,
         read_time_es, read_time_en, author, image_url,
-        seo_title_es, seo_title_en, seo_desc_es, seo_desc_en, og_image_url, published_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
+        seo_title_es, seo_title_en, seo_desc_es, seo_desc_en, og_image_url, published_at,
+        synthesis_es_json, synthesis_en_json, quote_text_es, quote_text_en, quote_author
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)`,
       [
         post.id,
         post.slug,
@@ -161,6 +172,11 @@ export class BlogRepository {
         post.seo_desc_en,
         post.og_image_url,
         post.published_at,
+        JSON.stringify(post.synthesis_es),
+        JSON.stringify(post.synthesis_en),
+        post.quote_text_es,
+        post.quote_text_en,
+        post.quote_author,
       ]
     );
     return post;
@@ -175,6 +191,11 @@ export class BlogRepository {
       ...prev,
       content_es: data.content_es ?? JSON.parse(prev.content_es_json || '[]'),
       content_en: data.content_en ?? JSON.parse(prev.content_en_json || '[]'),
+      synthesis_es: data.synthesis_es ?? JSON.parse(prev.synthesis_es_json || '[]'),
+      synthesis_en: data.synthesis_en ?? JSON.parse(prev.synthesis_en_json || '[]'),
+      quote_text_es: data.quote_text_es ?? (prev.quote_text_es || ''),
+      quote_text_en: data.quote_text_en ?? (prev.quote_text_en || ''),
+      quote_author: data.quote_author ?? (prev.quote_author || ''),
       ...data,
       id: prev.id,
     });
@@ -185,8 +206,9 @@ export class BlogRepository {
            content_es_json = $6, content_en_json = $7, category_es = $8, category_en = $9,
            read_time_es = $10, read_time_en = $11, author = $12, image_url = $13,
            seo_title_es = $14, seo_title_en = $15, seo_desc_es = $16, seo_desc_en = $17,
-           og_image_url = $18
-       WHERE id = $19`,
+           og_image_url = $18, synthesis_es_json = $19, synthesis_en_json = $20,
+           quote_text_es = $21, quote_text_en = $22, quote_author = $23
+       WHERE id = $24`,
       [
         post.slug,
         post.title_es,
@@ -206,6 +228,11 @@ export class BlogRepository {
         post.seo_desc_es,
         post.seo_desc_en,
         post.og_image_url,
+        JSON.stringify(post.synthesis_es),
+        JSON.stringify(post.synthesis_en),
+        post.quote_text_es,
+        post.quote_text_en,
+        post.quote_author,
         post.id,
       ]
     );

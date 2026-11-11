@@ -117,38 +117,32 @@ export default async function BlogPostPage({ params }) {
               </p>
             </div>
 
-            {/* Puntos clave / Key Takeaways Box contextualizados al artículo */}
-            <div className="article-takeaways" style={{ 
-              background: 'rgba(157, 0, 0, 0.05)', 
-              border: '1px solid rgba(157, 0, 0, 0.18)', 
-              borderRadius: '1rem', 
-              padding: '1.5rem 1.75rem', 
-              marginBottom: '2.5rem' 
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--color-primary)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                  </svg>
+            {/* Puntos clave / Síntesis Ejecutiva condicional */}
+            {Array.isArray(post.synthesis) && post.synthesis.length > 0 && (
+              <div className="article-takeaways" style={{ 
+                background: 'rgba(157, 0, 0, 0.05)', 
+                border: '1px solid rgba(157, 0, 0, 0.18)', 
+                borderRadius: '1rem', 
+                padding: '1.5rem 1.75rem', 
+                marginBottom: '2.5rem' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--color-primary)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
+                    {lang === 'es' ? `Síntesis Ejecutiva • ${post.category}` : `Executive Summary • ${post.category}`}
+                  </h3>
                 </div>
-                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
-                  {lang === 'es' ? `Síntesis Ejecutiva • ${post.category}` : `Executive Summary • ${post.category}`}
-                </h3>
+                <ul style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-text)' }}>
+                  {post.synthesis.map((point, idx) => (
+                    <li key={idx}>{point}</li>
+                  ))}
+                </ul>
               </div>
-              <ul style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-text)' }}>
-                <li>{post.seo?.description || post.excerpt}</li>
-                <li>
-                  {lang === 'es'
-                    ? `Enfoque especializado en ${post.category.toLowerCase()} con validación normativa previa al despacho.`
-                    : `Specialized focus on ${post.category.toLowerCase()} with pre-clearance regulatory validation.`}
-                </li>
-                <li>
-                  {lang === 'es'
-                    ? `Análisis elaborado por ${post.author} para operaciones de importación y exportación en México.`
-                    : `Analysis prepared by ${post.author} for import and export operations in Mexico.`}
-                </li>
-              </ul>
-            </div>
+            )}
 
             {/* Cuerpo del Artículo */}
             <div className="article-body">
@@ -159,23 +153,27 @@ export default async function BlogPostPage({ params }) {
               ))}
             </div>
 
-            {/* Cita Editorial Destacada */}
-            <blockquote style={{ 
-              margin: '2.5rem 0', 
-              padding: '1.5rem 2rem', 
-              borderLeft: '4px solid var(--color-primary)', 
-              background: 'var(--color-surface)', 
-              borderRadius: '0 1rem 1rem 0',
-              fontStyle: 'italic',
-              fontSize: '1.15rem',
-              color: 'var(--color-secondary)',
-              lineHeight: '1.6'
-            }}>
-              &ldquo;{post.content.length > 1 ? post.content[post.content.length - 1] : post.excerpt}&rdquo;
-              <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, fontStyle: 'normal', color: 'var(--color-primary)', marginTop: '0.5rem' }}>
-                — {post.author}
-              </span>
-            </blockquote>
+            {/* Cita Editorial Destacada (Opcional - solo se muestra si el artículo tiene una frase configurada) */}
+            {post.quoteText && post.quoteText.trim().length > 0 && (
+              <blockquote style={{ 
+                margin: '2.5rem 0', 
+                padding: '1.5rem 2rem', 
+                borderLeft: '4px solid var(--color-primary)', 
+                background: 'var(--color-surface)', 
+                borderRadius: '0 1rem 1rem 0',
+                fontStyle: 'italic',
+                fontSize: '1.15rem',
+                color: 'var(--color-secondary)',
+                lineHeight: '1.6'
+              }}>
+                &ldquo;{post.quoteText}&rdquo;
+                {(post.quoteAuthor || post.author) && (
+                  <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, fontStyle: 'normal', color: 'var(--color-primary)', marginTop: '0.5rem' }}>
+                    — {post.quoteAuthor || post.author}
+                  </span>
+                )}
+              </blockquote>
+            )}
 
             {/* Banner de Consulta y Asesoría */}
             <div style={{

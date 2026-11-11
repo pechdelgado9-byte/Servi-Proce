@@ -5,7 +5,7 @@ import path from 'node:path';
  */
 export class SanitizationService {
   static CMS_MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB máximo en CMS (Sección 2.1.7 y 3.4.4)
-  static DOC_MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB máximo en adjuntos de despacho
+  static DOC_MAX_FILE_BYTES = 1024 * 1024 * 1024; // 1 GB máximo en adjuntos de despacho (Requerimiento directivos)
   static CMS_ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.svg'];
   static QUOTE_ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.docx', '.xlsx', '.xml'];
 
@@ -53,7 +53,10 @@ export class SanitizationService {
 
     const maxBytes = mode === 'cms' ? this.CMS_MAX_IMAGE_BYTES : this.DOC_MAX_FILE_BYTES;
     if (buffer.length > maxBytes) {
-      throw new Error(`FILE_TOO_LARGE: El archivo excede el límite permitido de ${Math.round(maxBytes / (1024 * 1024))} MB.`);
+      const limitText = maxBytes >= 1024 * 1024 * 1024
+        ? `${Math.round(maxBytes / (1024 * 1024 * 1024))} GB`
+        : `${Math.round(maxBytes / (1024 * 1024))} MB`;
+      throw new Error(`FILE_TOO_LARGE: El archivo excede el límite permitido de ${limitText}.`);
     }
 
     const normalized = this.normalizeFilename(originalName);

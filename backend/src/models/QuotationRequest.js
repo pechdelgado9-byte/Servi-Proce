@@ -76,8 +76,8 @@ export class QuotationRequest {
       throw new Error(`INVALID_SERVICE: El servicio seleccionado "${this.service}" no pertenece al catálogo válido S (RF-01).`);
     }
 
-    if (this.phone.length > 50) {
-      throw new Error('INVALID_PHONE: El número telefónico no debe exceder 50 caracteres.');
+    if (!this.phone || this.phone.trim().length < 7 || this.phone.length > 50) {
+      throw new Error('INVALID_PHONE: El número telefónico o WhatsApp es obligatorio y debe tener entre 7 y 50 caracteres (RF-01).');
     }
 
     if (this.company.length > 160) {

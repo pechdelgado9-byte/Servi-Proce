@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import NewsletterForm from './NewsletterForm';
 
 export default function Footer({ lang }) {
   const [currentYear, setCurrentYear] = useState('2026');
@@ -54,6 +55,7 @@ export default function Footer({ lang }) {
             <ul className="footer__links">
               <li><Link href={`/${lang}/privacidad`}>{lang === 'es' ? 'Aviso de Privacidad' : 'Privacy Policy'}</Link></li>
               <li><Link href={`/${lang}/terminos`}>{lang === 'es' ? 'Términos y Condiciones' : 'Terms & Conditions'}</Link></li>
+              <li><Link href={`/${lang}/desuscribir`}>{lang === 'es' ? 'Baja de Boletín' : 'Unsubscribe'}</Link></li>
             </ul>
             <div className="footer__contact-info" style={{ marginTop: '1.25rem' }}>
               <p>
@@ -72,8 +74,8 @@ export default function Footer({ lang }) {
                 </a>
               </p>
               <p>
-                <a href="tel:+523321837862" className="footer__contact-link">
-                  +52 (33) 2183-7862 ({lang === 'es' ? 'Oficina' : 'Office'})
+                <a href="tel:+523312945451" className="footer__contact-link">
+                  +52 (33) 1294-5451 ({lang === 'es' ? 'Oficina' : 'Office'})
                 </a>
               </p>
               <p style={{ fontSize: '0.86rem', color: '#94a3b8', lineHeight: 1.5, marginTop: '0.5rem' }}>
@@ -140,6 +142,11 @@ export default function Footer({ lang }) {
                 </svg>
               </a>
             </div>
+          </div>
+
+          {/* Columna 4: Boletín Informativo (Newsletter) */}
+          <div className="footer__col">
+            <NewsletterForm lang={lang} variant="compact" />
           </div>
         </div>
 

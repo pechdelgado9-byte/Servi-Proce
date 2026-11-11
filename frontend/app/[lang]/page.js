@@ -6,6 +6,7 @@ import AvisoCard from '../../components/AvisoCard';
 import AnimatedCounter from '../../components/AnimatedCounter';
 import ServicesCarousel from '../../components/ServicesCarousel';
 import PromoBannerCarousel from '../../components/PromoBannerCarousel';
+import NewsletterForm from '../../components/NewsletterForm';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
@@ -201,6 +202,13 @@ export default async function Home({ params }) {
               {lang === 'es' ? 'Ver Catálogo Completo' : 'View Full Catalog'}
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Sección Destacada de Boletín Informativo */}
+      <section className="section bg-surface" id="boletin-informativo" style={{ padding: '4.5rem 0' }}>
+        <div className="container">
+          <NewsletterForm lang={lang} variant="section" />
         </div>
       </section>
 

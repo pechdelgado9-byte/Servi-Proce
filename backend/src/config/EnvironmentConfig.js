@@ -116,13 +116,31 @@ export class EnvironmentConfig {
   }
 
   get smtp() {
+    const rawSales = (
+      process.env.SALES_EMAIL ||
+      process.env.OPERATIVE_EMAIL ||
+      process.env.DIRECTORS_EMAIL ||
+      'customerservice@serviproce.com.mx, jorgebarrios@serviproce.com.mx'
+    ).trim();
+
+    const directorsEmails = rawSales
+      .split(',')
+      .map((e) => e.trim())
+      .filter((e) => e.length > 0 && e.includes('@'));
+
+    const user = (process.env.SMTP_USER || '').trim();
+    const configuredFrom = (process.env.SMTP_FROM || '').trim();
+    const from = configuredFrom || (user ? `Servi Proce <${user}>` : 'Sitio Web Servi Proce <customerservice@serviproce.com.mx>');
+
     return {
       host: (process.env.SMTP_HOST || '').trim(),
       port: Number(process.env.SMTP_PORT || 587),
-      user: (process.env.SMTP_USER || '').trim(),
+      user,
       pass: (process.env.SMTP_PASS || '').trim(),
-      from: process.env.SMTP_FROM || 'Sitio Web Servi Proce <noreply@serviproce.com.mx>',
-      salesEmail: process.env.SALES_EMAIL || 'customerservice@serviproce.com.mx,jorgebarrios@serviproce.com.mx',
+      from,
+      salesEmail: directorsEmails.join(', '),
+      directorsEmails: directorsEmails.length > 0 ? directorsEmails : ['customerservice@serviproce.com.mx', 'jorgebarrios@serviproce.com.mx'],
+      secure: Number(process.env.SMTP_PORT || 587) === 465,
     };
   }
 }
