@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { fetchBlogPostBySlug, fetchBlogPosts } from '@/lib/api';
@@ -40,8 +41,46 @@ export async function generateStaticParams() {
   return params;
 }
 
-export default async function BlogPostPage({ params }) {
-  const { lang, slug } = await params;
+function BlogPostSkeleton() {
+  return (
+    <div style={{ opacity: 0.85 }}>
+      {/* Hero Skeleton */}
+      <section 
+        className="section bg-surface" 
+        style={{ 
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(157, 0, 0, 0.7) 100%)',
+          position: 'relative',
+          padding: '5.5rem 0 4.5rem 0'
+        }}
+      >
+        <div className="container relative z-10 text-center" style={{ maxWidth: '850px' }}>
+          <div style={{ display: 'inline-block', width: '130px', height: '24px', borderRadius: '999px', background: 'rgba(255,255,255,0.15)', marginBottom: '1.25rem' }}></div>
+          <div style={{ width: '85%', height: '42px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', margin: '0 auto 1.5rem auto' }}></div>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+            <div style={{ width: '90px', height: '24px', borderRadius: '999px', background: 'rgba(255,255,255,0.12)' }}></div>
+            <div style={{ width: '80px', height: '24px', borderRadius: '999px', background: 'rgba(255,255,255,0.12)' }}></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contenido Skeleton */}
+      <section className="section bg-background" style={{ padding: '3.5rem 0' }}>
+        <div className="container" style={{ maxWidth: '860px' }}>
+          <div className="card glass-card" style={{ padding: '3.25rem 2.75rem', borderRadius: '1.5rem' }}>
+            <div style={{ width: '100%', height: '24px', borderRadius: '6px', background: 'rgba(157, 0, 0, 0.1)', marginBottom: '1rem' }}></div>
+            <div style={{ width: '90%', height: '20px', borderRadius: '6px', background: 'rgba(157, 0, 0, 0.08)', marginBottom: '2.5rem' }}></div>
+            <div style={{ width: '100%', height: '16px', borderRadius: '4px', background: 'var(--glass-border)', marginBottom: '0.75rem' }}></div>
+            <div style={{ width: '95%', height: '16px', borderRadius: '4px', background: 'var(--glass-border)', marginBottom: '0.75rem' }}></div>
+            <div style={{ width: '85%', height: '16px', borderRadius: '4px', background: 'var(--glass-border)' }}></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+async function BlogPostContent({ paramsPromise }) {
+  const { lang, slug } = await paramsPromise;
   const post = await fetchBlogPostBySlug(slug, lang);
 
   if (!post) {
@@ -49,9 +88,7 @@ export default async function BlogPostPage({ params }) {
   }
 
   return (
-    <main className="page-wrapper">
-      <ReadingProgressBar />
-
+    <>
       {/* Hero del Artículo */}
       <section 
         className="section bg-surface" 
@@ -260,6 +297,17 @@ export default async function BlogPostPage({ params }) {
           </article>
         </div>
       </section>
+    </>
+  );
+}
+
+export default function BlogPostPage({ params }) {
+  return (
+    <main className="page-wrapper">
+      <ReadingProgressBar />
+      <Suspense fallback={<BlogPostSkeleton />}>
+        <BlogPostContent paramsPromise={params} />
+      </Suspense>
     </main>
   );
 }

@@ -112,7 +112,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 72869,
+      "htmlSize": 73233,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -184,7 +184,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 60203,
+      "htmlSize": 56369,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -221,7 +221,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 44105,
+      "htmlSize": 41702,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -253,49 +253,12 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/en/blog/alerta-reforma-arancelaria-2026": {
-      "renderingMode": "PARTIALLY_STATIC",
-      "routeType": "page",
-      "response": "complete",
-      "compute": "static",
-      "htmlSize": 54681,
-      "experimentalPPR": true,
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        },
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(?:[\\w-]+-Google|Google-[\\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight).*"
-        }
-      ],
-      "initialRevalidateSeconds": 3600,
-      "initialExpireSeconds": 86400,
-      "srcRoute": "/[lang]/blog/[slug]",
-      "dataRoute": "/en/blog/alerta-reforma-arancelaria-2026.rsc",
-      "prefetchDataRoute": "/en/blog/alerta-reforma-arancelaria-2026.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
     "/en/blog/nueva-normativa-aduanera-2026": {
       "renderingMode": "PARTIALLY_STATIC",
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 58036,
+      "htmlSize": 63130,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -332,7 +295,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 57972,
+      "htmlSize": 63066,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -837,7 +800,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 73872,
+      "htmlSize": 74252,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -909,7 +872,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 60771,
+      "htmlSize": 56927,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -946,7 +909,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 44417,
+      "htmlSize": 42002,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -978,49 +941,12 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/es/blog/alerta-reforma-arancelaria-2026": {
-      "renderingMode": "PARTIALLY_STATIC",
-      "routeType": "page",
-      "response": "complete",
-      "compute": "static",
-      "htmlSize": 54790,
-      "experimentalPPR": true,
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        },
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(?:[\\w-]+-Google|Google-[\\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight).*"
-        }
-      ],
-      "initialRevalidateSeconds": 3600,
-      "initialExpireSeconds": 86400,
-      "srcRoute": "/[lang]/blog/[slug]",
-      "dataRoute": "/es/blog/alerta-reforma-arancelaria-2026.rsc",
-      "prefetchDataRoute": "/es/blog/alerta-reforma-arancelaria-2026.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
     "/es/blog/nueva-normativa-aduanera-2026": {
       "renderingMode": "PARTIALLY_STATIC",
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 58935,
+      "htmlSize": 64029,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -1057,7 +983,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 58509,
+      "htmlSize": 63603,
       "experimentalPPR": true,
       "experimentalBypassFor": [
         {
@@ -2692,8 +2618,8 @@
   },
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "509f4e445e757250089d1970139bf057",
-    "previewModeSigningKey": "6d53bc72ca2cd2c6b3508f5c21d3a4b00bbc2e2f1e7798d7e54efb5047353c51",
-    "previewModeEncryptionKey": "bfcdf82f687f85c8442892d21b8f5725a6ea0ef10b98f523a8b13c194007a691"
+    "previewModeId": "3688064d784c76b47039497b8bde1a2b",
+    "previewModeSigningKey": "1bf10a7f14b5067d9822ddaa88d36c0119183e076c315d7b105be1ac029fa8af",
+    "previewModeEncryptionKey": "a6cc70a02df84bf98e9782bf6ca0df26a68626b894fa6ec66b7ce4701fa82a8b"
   }
 }

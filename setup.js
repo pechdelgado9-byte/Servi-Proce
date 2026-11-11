@@ -41,3 +41,4 @@ try {
   console.error('[Setup] Error durante npm install:', err.message);
   process.exit(1);
 }
+
