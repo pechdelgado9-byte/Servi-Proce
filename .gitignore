@@ -22,6 +22,7 @@ frontend/node_modules/
 # misc
 .DS_Store
 *.pem
+*.zip
 
 # debug
 npm-debug.log*
