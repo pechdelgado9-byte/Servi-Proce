@@ -79,7 +79,7 @@ export default function Footer({ lang }) {
                 </a>
               </p>
               <p style={{ fontSize: '0.86rem', color: '#94a3b8', lineHeight: 1.5, marginTop: '0.5rem' }}>
-                Av. Altavista Poniente 450 Int. 110, Col. Altavista Residencial, C.P. 45133, Zapopan, Jal.
+                Av. Altavista Poniente 450, Col. Altavista Residencial, C.P. 45133, Zapopan, Jal.
               </p>
               <p style={{ fontSize: '0.83rem', color: '#cbd5e1', lineHeight: 1.45 }}>
                 {lang === 'es'
